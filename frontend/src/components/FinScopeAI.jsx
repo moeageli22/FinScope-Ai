@@ -82,11 +82,11 @@ const FinScopeAI = () => {
     const colors = getGradientColors();
 
     return (
-        <div className="min-h-screen flex items-center justify-center overflow-hidden relative bg-black">
-            <div className="relative z-10 text-center">
-                <div className="relative flex items-center justify-center">
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
+            <div style={{ position: 'relative', zIndex: 10, textAlign: 'center' }}>
+                <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
 
-                    <svg className="absolute w-96 h-96 pointer-events-none" viewBox="0 0 400 400">
+                    <svg style={{ position: 'absolute', width: '24rem', height: '24rem', pointerEvents: 'none' }} viewBox="0 0 400 400">
                         <defs>
                             <linearGradient id="waveGradient1" x1="0%" y1="0%" x2="100%" y2="100%">
                                 <stop offset="0%" stopColor={colors.color2} stopOpacity="0.3" />
@@ -140,63 +140,125 @@ const FinScopeAI = () => {
                         />
                     </svg>
 
-                    <div className="absolute w-96 h-96 rounded-full opacity-40"
-                         style={{
-                             background: 'radial-gradient(circle, rgba(79, 70, 229, 0.7) 0%, rgba(168, 85, 247, 0.5) 50%, transparent 70%)',
-                             filter: 'blur(40px)',
-                             animation: 'pulse 3s ease-in-out infinite'
-                         }}></div>
+                    <div style={{
+                        position: 'absolute',
+                        width: '24rem',
+                        height: '24rem',
+                        borderRadius: '50%',
+                        opacity: 0.4,
+                        background: 'radial-gradient(circle, rgba(79, 70, 229, 0.7) 0%, rgba(168, 85, 247, 0.5) 50%, transparent 70%)',
+                        filter: 'blur(40px)',
+                        animation: 'pulse 3s ease-in-out infinite'
+                    }}></div>
 
-                    <div className="relative w-80 h-80 rounded-full flex items-center justify-center transition-all duration-500 hover:scale-105"
-                         style={{
-                             background: 'radial-gradient(circle at 30% 30%, rgba(96, 165, 250, 0.85) 0%, rgba(59, 130, 246, 0.9) 15%, rgba(37, 99, 235, 0.95) 30%, rgba(79, 70, 229, 0.95) 50%, rgba(124, 58, 237, 0.95) 70%, rgba(168, 85, 247, 0.95) 85%, rgba(236, 72, 153, 0.9) 100%)',
-                             boxShadow: `
-                   0 0 80px rgba(79, 70, 229, 0.7),
-                   0 0 40px rgba(168, 85, 247, 0.6),
-                   inset 0 0 60px rgba(255, 255, 255, 0.15),
-                   inset -30px -30px 80px rgba(124, 58, 237, 0.5),
-                   inset 30px 30px 80px rgba(199, 210, 254, 0.3)
-                 `,
-                             backdropFilter: 'blur(10px)',
-                             border: '1px solid rgba(255, 255, 255, 0.25)'
-                         }}>
+                    <div style={{
+                        position: 'relative',
+                        width: '20rem',
+                        height: '20rem',
+                        borderRadius: '50%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        transition: 'all 0.5s',
+                        background: 'radial-gradient(circle at 30% 30%, rgba(96, 165, 250, 0.85) 0%, rgba(59, 130, 246, 0.9) 15%, rgba(37, 99, 235, 0.95) 30%, rgba(79, 70, 229, 0.95) 50%, rgba(124, 58, 237, 0.95) 70%, rgba(168, 85, 247, 0.95) 85%, rgba(236, 72, 153, 0.9) 100%)',
+                        boxShadow: `
+                            0 0 80px rgba(79, 70, 229, 0.7),
+                            0 0 40px rgba(168, 85, 247, 0.6),
+                            inset 0 0 60px rgba(255, 255, 255, 0.15),
+                            inset -30px -30px 80px rgba(124, 58, 237, 0.5),
+                            inset 30px 30px 80px rgba(199, 210, 254, 0.3)
+                        `,
+                        backdropFilter: 'blur(10px)',
+                        border: '1px solid rgba(255, 255, 255, 0.25)'
+                    }}
+                         onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+                         onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                    >
 
-                        <div className="absolute top-12 left-16 w-40 h-40 rounded-full opacity-60 pointer-events-none"
-                             style={{
-                                 background: 'radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.8) 0%, rgba(199, 210, 254, 0.4) 30%, transparent 60%)',
-                                 filter: 'blur(25px)',
-                                 transform: 'rotate(-15deg)'
-                             }}></div>
+                        <div style={{
+                            position: 'absolute',
+                            top: '3rem',
+                            left: '4rem',
+                            width: '10rem',
+                            height: '10rem',
+                            borderRadius: '50%',
+                            opacity: 0.6,
+                            pointerEvents: 'none',
+                            background: 'radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.8) 0%, rgba(199, 210, 254, 0.4) 30%, transparent 60%)',
+                            filter: 'blur(25px)',
+                            transform: 'rotate(-15deg)'
+                        }}></div>
 
-                        <div className="absolute top-20 left-24 w-24 h-24 rounded-full opacity-50 pointer-events-none"
-                             style={{
-                                 background: 'radial-gradient(circle, rgba(165, 180, 252, 0.7) 0%, transparent 70%)',
-                                 filter: 'blur(15px)'
-                             }}></div>
+                        <div style={{
+                            position: 'absolute',
+                            top: '5rem',
+                            left: '6rem',
+                            width: '6rem',
+                            height: '6rem',
+                            borderRadius: '50%',
+                            opacity: 0.5,
+                            pointerEvents: 'none',
+                            background: 'radial-gradient(circle, rgba(165, 180, 252, 0.7) 0%, transparent 70%)',
+                            filter: 'blur(15px)'
+                        }}></div>
 
-                        <div className="absolute top-32 left-32 w-20 h-20 rounded-full opacity-40 pointer-events-none"
-                             style={{
-                                 background: 'radial-gradient(circle, rgba(255, 255, 255, 0.6) 0%, transparent 70%)',
-                                 filter: 'blur(10px)'
-                             }}></div>
+                        <div style={{
+                            position: 'absolute',
+                            top: '8rem',
+                            left: '8rem',
+                            width: '5rem',
+                            height: '5rem',
+                            borderRadius: '50%',
+                            opacity: 0.4,
+                            pointerEvents: 'none',
+                            background: 'radial-gradient(circle, rgba(255, 255, 255, 0.6) 0%, transparent 70%)',
+                            filter: 'blur(10px)'
+                        }}></div>
 
-                        <div className="relative flex gap-12 items-center justify-center z-10">
-                            <div className="relative w-8 h-20 flex items-center justify-center">
+                        <div style={{
+                            position: 'relative',
+                            display: 'flex',
+                            gap: '3rem',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            zIndex: 10
+                        }}>
+                            <div style={{
+                                position: 'relative',
+                                width: '2rem',
+                                height: '5rem',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center'
+                            }}>
                                 <div
-                                    className="w-8 bg-white rounded-full transition-all duration-500 ease-out"
                                     style={{
-                                        height: isBlinking ? '4px' : '80px',
+                                        width: '2rem',
+                                        height: isBlinking ? '0.25rem' : '5rem',
+                                        background: 'white',
+                                        borderRadius: '50%',
+                                        transition: 'all 0.5s ease-out',
                                         boxShadow: '0 0 30px rgba(255, 255, 255, 0.9), 0 0 15px rgba(147, 197, 253, 0.6), inset 0 2px 8px rgba(147, 197, 253, 0.3)',
                                         transform: `translate(${eyePosition.x}px, ${eyePosition.y}px)`
                                     }}
                                 ></div>
                             </div>
 
-                            <div className="relative w-8 h-20 flex items-center justify-center">
+                            <div style={{
+                                position: 'relative',
+                                width: '2rem',
+                                height: '5rem',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center'
+                            }}>
                                 <div
-                                    className="w-8 bg-white rounded-full transition-all duration-500 ease-out"
                                     style={{
-                                        height: isBlinking ? '4px' : '80px',
+                                        width: '2rem',
+                                        height: isBlinking ? '0.25rem' : '5rem',
+                                        background: 'white',
+                                        borderRadius: '50%',
+                                        transition: 'all 0.5s ease-out',
                                         boxShadow: '0 0 30px rgba(255, 255, 255, 0.9), 0 0 15px rgba(147, 197, 253, 0.6), inset 0 2px 8px rgba(147, 197, 253, 0.3)',
                                         transform: `translate(${eyePosition.x}px, ${eyePosition.y}px)`
                                     }}
@@ -204,27 +266,39 @@ const FinScopeAI = () => {
                             </div>
                         </div>
 
-                        <div className="absolute inset-8 rounded-full pointer-events-none opacity-30"
-                             style={{
-                                 background: 'transparent',
-                                 boxShadow: 'inset 0 0 50px rgba(129, 140, 248, 0.4)'
-                             }}></div>
+                        <div style={{
+                            position: 'absolute',
+                            inset: '2rem',
+                            borderRadius: '50%',
+                            pointerEvents: 'none',
+                            opacity: 0.3,
+                            background: 'transparent',
+                            boxShadow: 'inset 0 0 50px rgba(129, 140, 248, 0.4)'
+                        }}></div>
 
-                        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 w-56 h-32 rounded-full opacity-60 pointer-events-none"
-                             style={{
-                                 background: 'radial-gradient(ellipse, rgba(91, 33, 182, 0.9) 0%, transparent 70%)',
-                                 filter: 'blur(20px)'
-                             }}></div>
+                        <div style={{
+                            position: 'absolute',
+                            bottom: '2rem',
+                            left: '50%',
+                            transform: 'translateX(-50%)',
+                            width: '14rem',
+                            height: '8rem',
+                            borderRadius: '50%',
+                            opacity: 0.6,
+                            pointerEvents: 'none',
+                            background: 'radial-gradient(ellipse, rgba(91, 33, 182, 0.9) 0%, transparent 70%)',
+                            filter: 'blur(20px)'
+                        }}></div>
                     </div>
                 </div>
             </div>
 
             <style>{`
-        @keyframes pulse {
-          0%, 100% { opacity: 0.4; transform: scale(1); }
-          50% { opacity: 0.6; transform: scale(1.05); }
-        }
-      `}</style>
+                @keyframes pulse {
+                    0%, 100% { opacity: 0.4; transform: scale(1); }
+                    50% { opacity: 0.6; transform: scale(1.05); }
+                }
+            `}</style>
         </div>
     );
 };

@@ -1,0 +1,270 @@
+/* FinScope AI Orb Component */
+.finscope-ai {
+    position: relative;
+    width: 100%;
+    max-width: 400px;
+    height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+}
+
+.orb-wrapper {
+    position: relative;
+    width: 280px;
+    height: 280px;
+    transition: transform 0.3s ease;
+}
+
+/* Glowing rings around the orb */
+.glow-ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    border: 2px solid;
+    opacity: 0.3;
+    animation: pulse-ring 3s ease-in-out infinite;
+}
+
+.ring-1 {
+    width: 280px;
+    height: 280px;
+    border-color: rgba(59, 130, 246, 0.4);
+    animation-delay: 0s;
+}
+
+.ring-2 {
+    width: 320px;
+    height: 320px;
+    border-color: rgba(139, 92, 246, 0.3);
+    animation-delay: 0.5s;
+}
+
+.ring-3 {
+    width: 360px;
+    height: 360px;
+    border-color: rgba(168, 85, 247, 0.2);
+    animation-delay: 1s;
+}
+
+@keyframes pulse-ring {
+    0%, 100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 0.3;
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.1);
+        opacity: 0.15;
+    }
+}
+
+/* Main orb */
+.orb {
+    position: relative;
+    width: 240px;
+    height: 240px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #1e3a8a 0%, #312e81 50%, #581c87 100%);
+    box-shadow:
+            0 0 60px rgba(59, 130, 246, 0.6),
+            0 0 100px rgba(139, 92, 246, 0.4),
+            inset 0 0 60px rgba(59, 130, 246, 0.2);
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 3px solid rgba(59, 130, 246, 0.3);
+    animation: orb-glow 4s ease-in-out infinite;
+}
+
+.orb:hover {
+    transform: scale(1.05);
+    box-shadow:
+            0 0 80px rgba(59, 130, 246, 0.8),
+            0 0 120px rgba(139, 92, 246, 0.6),
+            inset 0 0 80px rgba(59, 130, 246, 0.3);
+}
+
+@keyframes orb-glow {
+    0%, 100% {
+        box-shadow:
+                0 0 60px rgba(59, 130, 246, 0.6),
+                0 0 100px rgba(139, 92, 246, 0.4),
+                inset 0 0 60px rgba(59, 130, 246, 0.2);
+    }
+    50% {
+        box-shadow:
+                0 0 80px rgba(59, 130, 246, 0.8),
+                0 0 120px rgba(139, 92, 246, 0.6),
+                inset 0 0 80px rgba(59, 130, 246, 0.4);
+    }
+}
+
+/* Gradient overlay */
+.orb-gradient {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 50%;
+    background: radial-gradient(
+            circle at 30% 30%,
+            rgba(147, 197, 253, 0.3) 0%,
+            rgba(59, 130, 246, 0.2) 30%,
+            transparent 70%
+    );
+    animation: gradient-shift 6s ease-in-out infinite;
+}
+
+@keyframes gradient-shift {
+    0%, 100% {
+        transform: translate(0, 0) scale(1);
+    }
+    25% {
+        transform: translate(10px, -10px) scale(1.05);
+    }
+    75% {
+        transform: translate(-10px, 10px) scale(0.95);
+    }
+}
+
+/* AI Eyes */
+.eyes {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    gap: 40px;
+    z-index: 2;
+}
+
+.eye {
+    width: 50px;
+    height: 80px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    position: relative;
+    overflow: hidden;
+    animation: blink 4s ease-in-out infinite;
+    box-shadow:
+            0 0 20px rgba(59, 130, 246, 0.5),
+            inset 0 0 10px rgba(59, 130, 246, 0.3);
+}
+
+.eye-left {
+    animation-delay: 0.2s;
+}
+
+@keyframes blink {
+    0%, 90%, 92%, 100% {
+        height: 80px;
+    }
+    91% {
+        height: 10px;
+    }
+}
+
+.pupil {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    background: radial-gradient(circle, #1e40af 0%, #1e3a8a 100%);
+    border-radius: 50%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    animation: pupil-move 5s ease-in-out infinite;
+    box-shadow: 0 0 10px rgba(30, 64, 175, 0.6);
+}
+
+@keyframes pupil-move {
+    0%, 100% {
+        transform: translate(-50%, -50%);
+    }
+    25% {
+        transform: translate(-40%, -45%);
+    }
+    75% {
+        transform: translate(-60%, -55%);
+    }
+}
+
+/* Shine effect */
+.orb-shine {
+    position: absolute;
+    top: 15%;
+    left: 15%;
+    width: 100px;
+    height: 100px;
+    background: radial-gradient(
+            circle,
+            rgba(255, 255, 255, 0.4) 0%,
+            rgba(255, 255, 255, 0.2) 30%,
+            transparent 70%
+    );
+    border-radius: 50%;
+    filter: blur(20px);
+    animation: shine-pulse 3s ease-in-out infinite;
+}
+
+@keyframes shine-pulse {
+    0%, 100% {
+        opacity: 0.6;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.9;
+        transform: scale(1.1);
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .finscope-ai {
+        max-width: 300px;
+        height: 300px;
+    }
+
+    .orb-wrapper {
+        width: 200px;
+        height: 200px;
+    }
+
+    .orb {
+        width: 180px;
+        height: 180px;
+    }
+
+    .ring-1 {
+        width: 200px;
+        height: 200px;
+    }
+
+    .ring-2 {
+        width: 240px;
+        height: 240px;
+    }
+
+    .ring-3 {
+        width: 280px;
+        height: 280px;
+    }
+
+    .eyes {
+        gap: 30px;
+    }
+
+    .eye {
+        width: 40px;
+        height: 60px;
+    }
+
+    .pupil {
+        width: 18px;
+        height: 18px;
+    }
+}
