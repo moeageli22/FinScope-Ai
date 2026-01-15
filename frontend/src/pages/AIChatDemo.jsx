@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import FinScopeAI from './FinScopeAI';
+import FinScopeAI from '../components/FinScopeAI.jsx';
 import './AIChatDemo.css';
 
 const AIChatDemo = () => {
