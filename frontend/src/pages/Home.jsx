@@ -1,6 +1,7 @@
 import React from 'react';
 import './Home.css';
 import FinScopeAI from '../components/FinScopeAI.jsx';
+import AIChatDemo from './AIChatDemo.jsx';
 // Import the logo image - make sure this path matches where you save the logo
 import logoImage from '../assets/finscope-logo.png';
 
@@ -83,6 +84,9 @@ function Home() {
                     </div>
                 </div>
             </main>
+
+            {/* AI Chat Demo Section */}
+            <AIChatDemo />
         </div>
     );
 }
