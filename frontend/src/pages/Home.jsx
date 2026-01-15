@@ -2,6 +2,9 @@ import React from 'react';
 import './Home.css';
 import FinScopeAI from '../components/FinScopeAI.jsx';
 import AIChatDemo from './AIChatDemo.jsx';
+import FeaturesSection from './FeaturesSection.jsx';
+import DashboardPreview from './DashboardPreview.jsx';
+import ChartsInsights from './ChartsInsights.jsx';
 // Import the logo image - make sure this path matches where you save the logo
 import logoImage from '../assets/finscope-logo.png';
 
@@ -95,8 +98,17 @@ function Home() {
                 </div>
             </main>
 
-            {/* AI Chat Demo Sections */}
+            {/* AI Chat Demo Section */}
             <AIChatDemo />
+
+            {/* Features Transformation Section */}
+            <FeaturesSection />
+
+            {/* Dashboard Preview Section */}
+            <DashboardPreview />
+
+            {/* Charts & Insights Section */}
+            <ChartsInsights />
         </div>
     );
 }
