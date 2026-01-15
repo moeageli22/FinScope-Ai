@@ -85,7 +85,7 @@ function Home() {
                 </div>
             </main>
 
-            {/* AI Chat Demo Section */}
+            {/* AI Chat Demo Sections */}
             <AIChatDemo />
         </div>
     );
