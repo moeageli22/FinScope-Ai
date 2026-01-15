@@ -18,10 +18,20 @@ function Home() {
                         FinScope <span className="ai-text">AI</span>
                     </span>
                 </div>
-                <nav className="nav-buttons">
+
+                {/* Navigation Links */}
+                <nav className="nav-links">
+                    <a href="#home" className="nav-link active">Home</a>
+                    <a href="#about" className="nav-link">About</a>
+                    <a href="#features" className="nav-link">Features</a>
+                    <a href="#practice" className="nav-link">Try Practice Mode</a>
+                    <a href="#contact" className="nav-link">Contact</a>
+                </nav>
+
+                <div className="nav-buttons">
                     <button className="btn-sign-in">Sign In</button>
                     <button className="btn-get-started">Get Started</button>
-                </nav>
+                </div>
             </header>
 
             {/* Main Content */}
