@@ -1,21 +1,74 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import './Home.css';
 import FinScopeAI from '../components/FinScopeAI.jsx';
+import FinScopeLogoMini from '../components/FinScopeLogoMini.jsx';
 import AIChatDemo from './AIChatDemo.jsx';
 import AboutSection from './AboutSection.jsx';
 import DashboardPreview from './DashboardPreview.jsx';
 import ChartsInsights from './ChartsInsights.jsx';
-// Import the logo image - make sure this path matches where you save the logo
-import logoImage from '../assets/finscope-logo.png';
+import ContactSection from './ContactSection.jsx';
+import Footer from './Footer.jsx';
+import CookieBanner from './CookieBanner.jsx';
 
 function Home() {
+    const [activeSection, setActiveSection] = useState('home');
+
+    // Smooth scroll function
+    const scrollToSection = (e, sectionId) => {
+        e.preventDefault();
+
+        if (sectionId === 'practice') {
+            alert('Practice Mode coming soon! Stay tuned for this exciting feature.');
+            return;
+        }
+
+        const element = document.getElementById(sectionId);
+        if (element) {
+            const headerOffset = 80;
+            const elementPosition = element.getBoundingClientRect().top;
+            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+            window.scrollTo({
+                top: offsetPosition,
+                behavior: 'smooth'
+            });
+        }
+    };
+
+    // Track active section on scroll
+    useEffect(() => {
+        const handleScroll = () => {
+            const sections = ['home', 'about', 'features', 'contact'];
+            const scrollPosition = window.scrollY + 150;
+
+            for (const section of sections) {
+                const element = document.getElementById(section);
+                if (element) {
+                    const offsetTop = element.offsetTop;
+                    const offsetHeight = element.offsetHeight;
+
+                    if (scrollPosition >= offsetTop && scrollPosition < offsetTop + offsetHeight) {
+                        setActiveSection(section);
+                        break;
+                    }
+                }
+            }
+        };
+
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
+
     return (
         <div className="home-container">
+            {/* Cookie Banner */}
+            <CookieBanner />
+
             {/* Header */}
             <header className="home-header">
-                <div className="logo">
+                <div className="logo" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} style={{ cursor: 'pointer' }}>
                     <div className="logo-icon">
-                        <img src={logoImage} alt="FinScope AI Logo" />
+                        <FinScopeLogoMini />
                     </div>
                     <span className="logo-text">
                         FinScope <span className="ai-text">AI</span>
@@ -24,11 +77,41 @@ function Home() {
 
                 {/* Navigation Links */}
                 <nav className="nav-links">
-                    <a href="#home" className="nav-link active">Home</a>
-                    <a href="#about" className="nav-link">About</a>
-                    <a href="#features" className="nav-link">Features</a>
-                    <a href="#practice" className="nav-link">Try Practice Mode</a>
-                    <a href="#contact" className="nav-link">Contact</a>
+                    <a
+                        href="#home"
+                        className={`nav-link ${activeSection === 'home' ? 'active' : ''}`}
+                        onClick={(e) => scrollToSection(e, 'home')}
+                    >
+                        Home
+                    </a>
+                    <a
+                        href="#about"
+                        className={`nav-link ${activeSection === 'about' ? 'active' : ''}`}
+                        onClick={(e) => scrollToSection(e, 'about')}
+                    >
+                        About
+                    </a>
+                    <a
+                        href="#features"
+                        className={`nav-link ${activeSection === 'features' ? 'active' : ''}`}
+                        onClick={(e) => scrollToSection(e, 'features')}
+                    >
+                        Features
+                    </a>
+                    <a
+                        href="#practice"
+                        className="nav-link"
+                        onClick={(e) => scrollToSection(e, 'practice')}
+                    >
+                        Try Practice Mode
+                    </a>
+                    <a
+                        href="#contact"
+                        className={`nav-link ${activeSection === 'contact' ? 'active' : ''}`}
+                        onClick={(e) => scrollToSection(e, 'contact')}
+                    >
+                        Contact
+                    </a>
                 </nav>
 
                 <div className="nav-buttons">
@@ -38,7 +121,7 @@ function Home() {
             </header>
 
             {/* Main Content */}
-            <main className="home-main">
+            <main className="home-main" id="home">
                 <div className="badge">
                     <span className="sparkle-icon">✨</span>
                     <span>AI-Powered Banking Platform</span>
@@ -76,8 +159,6 @@ function Home() {
                         <p>AI-powered insights that predict spending patterns and optimize your financial decisions.</p>
                     </div>
 
-
-
                     <div className="feature-card">
                         <div className="feature-icon transactions-icon">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -94,13 +175,25 @@ function Home() {
             <AIChatDemo />
 
             {/* About Section */}
-            <AboutSection />
+            <div id="about">
+                <AboutSection />
+            </div>
 
             {/* Dashboard Preview Section */}
             <DashboardPreview />
 
             {/* Charts & Insights Section */}
-            <ChartsInsights />
+            <div id="features">
+                <ChartsInsights />
+            </div>
+
+            {/* Contact Section */}
+            <div id="contact">
+                <ContactSection />
+            </div>
+
+            {/* Footer */}
+            <Footer />
         </div>
     );
 }
