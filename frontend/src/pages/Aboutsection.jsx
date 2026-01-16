@@ -137,7 +137,7 @@ const AboutSection = () => {
                         </div>
                     </div>
 
-                    {/* Right Side - Description */}
+                    {/* Right Side - Descriptionn */}
                     <div className={`about-description ${isVisible ? 'slide-in-right' : ''}`}>
                         <div className="description-content">
                             <h3>Welcome to the Future of Personal Finance</h3>
