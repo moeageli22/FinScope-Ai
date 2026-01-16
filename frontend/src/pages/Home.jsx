@@ -2,7 +2,7 @@ import React from 'react';
 import './Home.css';
 import FinScopeAI from '../components/FinScopeAI.jsx';
 import AIChatDemo from './AIChatDemo.jsx';
-import FeaturesSection from './FeaturesSection.jsx';
+import AboutSection from './AboutSection.jsx';
 import DashboardPreview from './DashboardPreview.jsx';
 import ChartsInsights from './ChartsInsights.jsx';
 // Import the logo image - make sure this path matches where you save the logo
@@ -76,15 +76,7 @@ function Home() {
                         <p>AI-powered insights that predict spending patterns and optimize your financial decisions.</p>
                     </div>
 
-                    <div className="feature-card">
-                        <div className="feature-icon security-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                            </svg>
-                        </div>
-                        <h3>Bank-Level Security</h3>
-                        <p>Military-grade encryption and real-time fraud detection keep your money safe 24/7.</p>
-                    </div>
+
 
                     <div className="feature-card">
                         <div className="feature-icon transactions-icon">
@@ -101,8 +93,8 @@ function Home() {
             {/* AI Chat Demo Section */}
             <AIChatDemo />
 
-            {/* Features Transformation Section */}
-            <FeaturesSection />
+            {/* About Section */}
+            <AboutSection />
 
             {/* Dashboard Preview Section */}
             <DashboardPreview />
