@@ -24,6 +24,87 @@
 
 /* Removed saturn-rings styles entirely */
 
+/* Fintech icons orbit container */
+.fintech-orbit {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    pointer-events: none;
+    animation: fintechOrbitSpin 40s linear infinite;
+}
+
+@keyframes fintechOrbitSpin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.fintech-icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 36px;
+    height: 36px;
+    margin: -18px 0 0 -18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: rotate(var(--icon-angle)) translateX(190px) rotate(calc(-1 * var(--icon-angle)));
+    animation: fintechIconFloat 3s ease-in-out infinite, fintechIconPulse 2s ease-in-out infinite;
+    animation-delay: var(--icon-delay), var(--icon-delay);
+}
+
+@keyframes fintechIconFloat {
+    0%,
+    100% {
+        transform: rotate(var(--icon-angle)) translateX(190px) rotate(calc(-1 * var(--icon-angle))) translateY(0);
+    }
+    50% {
+        transform: rotate(var(--icon-angle)) translateX(190px) rotate(calc(-1 * var(--icon-angle))) translateY(-8px);
+    }
+}
+
+@keyframes fintechIconPulse {
+    0%,
+    100% {
+        opacity: 0.6;
+    }
+    50% {
+        opacity: 1;
+    }
+}
+
+/* Added styles for SVG fintech icons */
+.fintech-svg {
+    width: 20px;
+    height: 20px;
+    color: rgba(167, 139, 250, 0.9);
+    filter: drop-shadow(0 0 10px rgba(139, 92, 246, 0.8)) drop-shadow(0 0 20px rgba(99, 102, 241, 0.6))
+    drop-shadow(0 0 30px rgba(59, 130, 246, 0.4));
+    animation: fintechCounterRotate 40s linear infinite;
+}
+
+.fintech-symbol {
+    font-size: 20px;
+    font-weight: 600;
+    color: rgba(167, 139, 250, 0.9);
+    text-shadow: 0 0 10px rgba(139, 92, 246, 0.8), 0 0 20px rgba(99, 102, 241, 0.6), 0 0 30px rgba(59, 130, 246, 0.4);
+    animation: fintechCounterRotate 40s linear infinite;
+}
+
+@keyframes fintechCounterRotate {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(-360deg);
+    }
+}
+
 /* Orbiting particles */
 .orbit-particles {
     position: absolute;

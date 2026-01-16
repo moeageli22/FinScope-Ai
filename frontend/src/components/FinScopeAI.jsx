@@ -9,6 +9,85 @@ const FinScopeAI = () => {
     const [wavePhase, setWavePhase] = useState(0)
     const [isHovered, setIsHovered] = useState(false)
 
+    const fintechIcons = [
+        { type: "dollar", angle: 0 },
+        { type: "bitcoin", angle: 45 },
+        { type: "euro", angle: 90 },
+        { type: "chart-up", angle: 135 },
+        { type: "pound", angle: 180 },
+        { type: "yen", angle: 225 },
+        { type: "chart-bar", angle: 270 },
+        { type: "wallet", angle: 315 },
+    ]
+
+    const renderIcon = (type) => {
+        switch (type) {
+            case "dollar":
+                return <span className="fintech-symbol">$</span>
+            case "bitcoin":
+                return (
+                    <svg className="fintech-svg" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12.5 8.8v-3h-1v3h1zm0 5.9v-3h-1v3h1zm2.5-5.4c0-.7-.1-1.2-.4-1.6-.3-.4-.7-.6-1.3-.7V5H12v2h-1V5h-1.3v2H8v1.3h.7c.4 0 .6.2.6.6v6.2c0 .4-.2.6-.6.6H8V17h1.7v2H11v-2h1v2h1.3v-2c.6-.1 1.1-.3 1.5-.6.4-.4.6-.9.7-1.6 0-.5-.1-1-.4-1.4-.2-.4-.6-.7-1.1-.8.4-.1.7-.4 1-.8.2-.4.4-.8.4-1.3zm-2 .9c0 .4-.1.7-.3.8-.2.2-.5.2-.9.2h-.8V9h.8c.4 0 .7.1.9.3.2.2.3.4.3.9zm.3 4.1c-.2.2-.6.3-1 .3h-1.3v-2.4h1.3c.4 0 .8.1 1 .3.2.2.3.5.3 1 0 .4-.1.7-.3.8z" />
+                    </svg>
+                )
+            case "euro":
+                return <span className="fintech-symbol">€</span>
+            case "chart-up":
+                return (
+                    <svg
+                        className="fintech-svg"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                    >
+                        <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
+                        <polyline points="16 7 22 7 22 13" />
+                    </svg>
+                )
+            case "pound":
+                return <span className="fintech-symbol">£</span>
+            case "yen":
+                return <span className="fintech-symbol">¥</span>
+            case "chart-bar":
+                return (
+                    <svg
+                        className="fintech-svg"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                    >
+                        <line x1="12" y1="20" x2="12" y2="10" />
+                        <line x1="18" y1="20" x2="18" y2="4" />
+                        <line x1="6" y1="20" x2="6" y2="16" />
+                    </svg>
+                )
+            case "wallet":
+                return (
+                    <svg
+                        className="fintech-svg"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                    >
+                        <path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4" />
+                        <path d="M4 6v12c0 1.1.9 2 2 2h14v-4" />
+                        <path d="M18 12a2 2 0 0 0 0 4h4v-4h-4z" />
+                    </svg>
+                )
+            default:
+                return null
+        }
+    }
+
     useEffect(() => {
         const waveAnimation = setInterval(() => {
             setWavePhase((prev) => (prev + 0.015) % (Math.PI * 2))
@@ -69,6 +148,21 @@ const FinScopeAI = () => {
             <div className="finscope-wrapper">
                 {/* Outer ambient glow */}
                 <div className="ambient-glow" />
+
+                <div className="fintech-orbit">
+                    {fintechIcons.map((icon, i) => (
+                        <div
+                            key={i}
+                            className="fintech-icon"
+                            style={{
+                                "--icon-angle": `${icon.angle}deg`,
+                                "--icon-delay": `${i * -2.5}s`,
+                            }}
+                        >
+                            {renderIcon(icon.type)}
+                        </div>
+                    ))}
+                </div>
 
                 {/* Orbiting particles - kept */}
                 <div className="orbit-particles">
