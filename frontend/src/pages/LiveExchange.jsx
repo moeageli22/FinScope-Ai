@@ -13,26 +13,48 @@ const LiveExchange = () => {
 
     // Popular currency pairs to display
     const popularPairs = [
-        { from: 'USD', to: 'EUR', name: 'US Dollar to Euro' },
-        { from: 'USD', to: 'GBP', name: 'US Dollar to British Pound' },
-        { from: 'USD', to: 'JPY', name: 'US Dollar to Japanese Yen' },
-        { from: 'EUR', to: 'USD', name: 'Euro to US Dollar' },
-        { from: 'GBP', to: 'USD', name: 'British Pound to US Dollar' },
-        { from: 'USD', to: 'CAD', name: 'US Dollar to Canadian Dollar' },
-        { from: 'USD', to: 'AUD', name: 'US Dollar to Australian Dollar' },
-        { from: 'USD', to: 'CHF', name: 'US Dollar to Swiss Franc' },
-        { from: 'EUR', to: 'GBP', name: 'Euro to British Pound' },
-        { from: 'USD', to: 'CNY', name: 'US Dollar to Chinese Yuan' },
-        { from: 'USD', to: 'INR', name: 'US Dollar to Indian Rupee' },
-        { from: 'USD', to: 'BTC', name: 'US Dollar to Bitcoin' }
+        { from: 'USD', to: 'EUR', name: 'US Dollar to Euro', gradient: 'linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%)' },
+        { from: 'USD', to: 'GBP', name: 'US Dollar to British Pound', gradient: 'linear-gradient(135deg, #134e4a 0%, #0f766e 100%)' },
+        { from: 'USD', to: 'AED', name: 'US Dollar to UAE Dirham', gradient: 'linear-gradient(135deg, #713f12 0%, #92400e 100%)' },
+        { from: 'USD', to: 'SAR', name: 'US Dollar to Saudi Riyal', gradient: 'linear-gradient(135deg, #166534 0%, #15803d 100%)' },
+        { from: 'USD', to: 'LYD', name: 'US Dollar to Libyan Dinar', gradient: 'linear-gradient(135deg, #7c2d12 0%, #9a3412 100%)' },
+        { from: 'EUR', to: 'AED', name: 'Euro to UAE Dirham', gradient: 'linear-gradient(135deg, #0c4a6e 0%, #075985 100%)' },
+        { from: 'GBP', to: 'AED', name: 'British Pound to UAE Dirham', gradient: 'linear-gradient(135deg, #064e3b 0%, #065f46 100%)' },
+        { from: 'USD', to: 'EGP', name: 'US Dollar to Egyptian Pound', gradient: 'linear-gradient(135deg, #831843 0%, #9f1239 100%)' },
+        { from: 'USD', to: 'QAR', name: 'US Dollar to Qatari Riyal', gradient: 'linear-gradient(135deg, #4a044e 0%, #6b21a8 100%)' },
+        { from: 'USD', to: 'KWD', name: 'US Dollar to Kuwaiti Dinar', gradient: 'linear-gradient(135deg, #1e3a8a 0%, #3730a3 100%)' },
+        { from: 'USD', to: 'BHD', name: 'US Dollar to Bahraini Dinar', gradient: 'linear-gradient(135deg, #1e293b 0%, #334155 100%)' },
+        { from: 'USD', to: 'OMR', name: 'US Dollar to Omani Rial', gradient: 'linear-gradient(135deg, #052e16 0%, #14532d 100%)' }
     ];
 
-    // All available currencies
+    // All available currencies - Enhanced with Arab countries
     const currencies = [
+        // Major Global Currencies
         'USD', 'EUR', 'GBP', 'JPY', 'AUD', 'CAD', 'CHF', 'CNY',
-        'SEK', 'NZD', 'MXN', 'SGD', 'HKD', 'NOK', 'KRW', 'TRY',
-        'INR', 'RUB', 'BRL', 'ZAR', 'DKK', 'PLN', 'THB', 'MYR',
-        'IDR', 'HUF', 'CZK', 'ILS', 'CLP', 'PHP', 'AED', 'SAR',
+
+        // Middle East & Arab Countries
+        'AED', 'SAR', 'QAR', 'KWD', 'BHD', 'OMR', 'JOD', 'LBP',
+        'EGP', 'LYD', 'TND', 'DZD', 'MAD', 'SYP', 'IQD', 'YER',
+        'SDG', 'SOS', 'DJF', 'MRU', 'KMF',
+
+        // European Currencies
+        'SEK', 'NOK', 'DKK', 'PLN', 'CZK', 'HUF', 'RON', 'BGN',
+        'HRK', 'ISK', 'TRY', 'RUB', 'UAH',
+
+        // Asian Currencies
+        'INR', 'PKR', 'BDT', 'LKR', 'NPR', 'AFN', 'KRW', 'SGD',
+        'MYR', 'THB', 'IDR', 'PHP', 'VND', 'HKD', 'TWD',
+
+        // Americas
+        'MXN', 'BRL', 'ARS', 'CLP', 'COP', 'PEN', 'VEF',
+
+        // Africa
+        'ZAR', 'NGN', 'KES', 'GHS', 'UGX', 'TZS', 'ETB',
+
+        // Oceania
+        'NZD', 'FJD',
+
+        // Cryptocurrencies
         'BTC', 'ETH'
     ];
 
@@ -89,8 +111,24 @@ const LiveExchange = () => {
     // Format currency with symbol
     const getCurrencySymbol = (currency) => {
         const symbols = {
+            // Major Currencies
             USD: '$', EUR: '€', GBP: '£', JPY: '¥', AUD: 'A$',
-            CAD: 'C$', CHF: 'CHF', CNY: '¥', INR: '₹', BTC: '₿'
+            CAD: 'C$', CHF: 'CHF', CNY: '¥', INR: '₹',
+
+            // Arab Currencies
+            AED: 'د.إ', SAR: '﷼', QAR: 'ر.ق', KWD: 'د.ك',
+            BHD: '.د.ب', OMR: 'ر.ع.', JOD: 'د.ا', LBP: 'ل.ل',
+            EGP: '£', LYD: 'ل.د', TND: 'د.ت', DZD: 'د.ج',
+            MAD: 'د.م.', SYP: '£', IQD: 'ع.د', YER: '﷼',
+            SDG: 'ج.س.', SOS: 'Sh', DJF: 'Fdj', MRU: 'UM', KMF: 'CF',
+
+            // Crypto
+            BTC: '₿', ETH: 'Ξ',
+
+            // Others
+            RUB: '₽', TRY: '₺', KRW: '₩', BRL: 'R$',
+            MXN: '$', ZAR: 'R', PLN: 'zł', SEK: 'kr',
+            NOK: 'kr', DKK: 'kr'
         };
         return symbols[currency] || currency;
     };
@@ -98,10 +136,28 @@ const LiveExchange = () => {
     // Get flag emoji for currency
     const getFlagEmoji = (currency) => {
         const flags = {
+            // Major Currencies
             USD: '🇺🇸', EUR: '🇪🇺', GBP: '🇬🇧', JPY: '🇯🇵', AUD: '🇦🇺',
-            CAD: '🇨🇦', CHF: '🇨🇭', CNY: '🇨🇳', INR: '🇮🇳', BRL: '🇧🇷',
-            RUB: '🇷🇺', KRW: '🇰🇷', MXN: '🇲🇽', SGD: '🇸🇬', HKD: '🇭🇰',
-            SEK: '🇸🇪', NOK: '🇳🇴', NZD: '🇳🇿', ZAR: '🇿🇦', TRY: '🇹🇷',
+            CAD: '🇨🇦', CHF: '🇨🇭', CNY: '🇨🇳', INR: '🇮🇳',
+
+            // Arab Countries & Middle East
+            AED: '🇦🇪', SAR: '🇸🇦', QAR: '🇶🇦', KWD: '🇰🇼',
+            BHD: '🇧🇭', OMR: '🇴🇲', JOD: '🇯🇴', LBP: '🇱🇧',
+            EGP: '🇪🇬', LYD: '🇱🇾', TND: '🇹🇳', DZD: '🇩🇿',
+            MAD: '🇲🇦', SYP: '🇸🇾', IQD: '🇮🇶', YER: '🇾🇪',
+            SDG: '🇸🇩', SOS: '🇸🇴', DJF: '🇩🇯', MRU: '🇲🇷', KMF: '🇰🇲',
+
+            // Other Countries
+            BRL: '🇧🇷', RUB: '🇷🇺', KRW: '🇰🇷', MXN: '🇲🇽',
+            SGD: '🇸🇬', HKD: '🇭🇰', SEK: '🇸🇪', NOK: '🇳🇴',
+            NZD: '🇳🇿', ZAR: '🇿🇦', TRY: '🇹🇷', PLN: '🇵🇱',
+            THB: '🇹🇭', MYR: '🇲🇾', IDR: '🇮🇩', PHP: '🇵🇭',
+            DKK: '🇩🇰', CZK: '🇨🇿', HUF: '🇭🇺', RON: '🇷🇴',
+            PKR: '🇵🇰', BDT: '🇧🇩', VND: '🇻🇳', ARS: '🇦🇷',
+            CLP: '🇨🇱', COP: '🇨🇴', PEN: '🇵🇪', NGN: '🇳🇬',
+            KES: '🇰🇪', GHS: '🇬🇭', UGX: '🇺🇬', TZS: '🇹🇿',
+
+            // Cryptocurrencies
             BTC: '₿', ETH: 'Ξ'
         };
         return flags[currency] || '🌍';
@@ -253,7 +309,18 @@ const LiveExchange = () => {
                                 const isPositive = change > 0;
 
                                 return (
-                                    <div key={index} className="rate-card" style={{ animationDelay: `${index * 0.05}s` }}>
+                                    <div
+                                        key={index}
+                                        className="rate-card"
+                                        style={{
+                                            animationDelay: `${index * 0.05}s`,
+                                            background: `linear-gradient(135deg, rgba(30, 32, 60, 0.8), rgba(20, 22, 50, 0.8))`,
+                                            borderImage: `${pair.gradient} 1`,
+                                            borderImageSlice: 1
+                                        }}
+                                    >
+                                        <div className="rate-card-gradient" style={{ background: pair.gradient }}></div>
+
                                         <div className="rate-header">
                                             <div className="currency-pair">
                                                 <span className="flag">{getFlagEmoji(pair.from)}</span>

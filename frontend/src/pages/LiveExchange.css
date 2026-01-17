@@ -1,9 +1,62 @@
 /* Live Exchange Page */
 .live-exchange-page {
     min-height: 100vh;
-    background: linear-gradient(180deg, #0a0b1e 0%, #11132b 50%, #1a1535 100%);
+    background: linear-gradient(180deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
     color: #ffffff;
     padding-bottom: 80px;
+    position: relative;
+    overflow: hidden;
+}
+
+.live-exchange-page::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background:
+            radial-gradient(circle at 20% 20%, rgba(30, 58, 138, 0.1) 0%, transparent 40%),
+            radial-gradient(circle at 80% 80%, rgba(15, 23, 42, 0.1) 0%, transparent 40%),
+            radial-gradient(circle at 50% 50%, rgba(51, 65, 85, 0.05) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.live-exchange-page::after {
+    content: '';
+    position: fixed;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background:
+            repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(148, 163, 184, 0.02) 2px,
+                    rgba(148, 163, 184, 0.02) 4px
+            ),
+            repeating-linear-gradient(
+                    90deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(148, 163, 184, 0.02) 2px,
+                    rgba(148, 163, 184, 0.02) 4px
+            );
+    animation: gridMove 60s linear infinite;
+    pointer-events: none;
+    z-index: 0;
+}
+
+@keyframes gridMove {
+    0% {
+        transform: translate(0, 0) rotate(0deg);
+    }
+    100% {
+        transform: translate(50px, 50px) rotate(0.5deg);
+    }
 }
 
 /* Header Section */
@@ -39,7 +92,7 @@
     align-items: center;
     gap: 10px;
     padding: 10px 24px;
-    background: rgba(59, 130, 246, 0.12);
+    background: rgba(30, 58, 138, 0.2);
     border: 1px solid rgba(59, 130, 246, 0.3);
     border-radius: 30px;
     margin-bottom: 24px;
@@ -49,13 +102,13 @@
 .header-badge svg {
     width: 18px;
     height: 18px;
-    color: #60a5fa;
+    color: #93c5fd;
 }
 
 .header-badge span {
     font-size: 14px;
     font-weight: 500;
-    color: #60a5fa;
+    color: #93c5fd;
 }
 
 .exchange-header h1 {
@@ -108,6 +161,8 @@
     max-width: 1400px;
     margin: 0 auto;
     padding: 0 40px;
+    position: relative;
+    z-index: 1;
 }
 
 /* Error Message */
@@ -155,13 +210,30 @@
 
 /* Converter Card */
 .converter-card {
-    background: rgba(30, 32, 60, 0.5);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    position: relative;
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.9));
+    border: 1px solid rgba(71, 85, 105, 0.3);
     border-radius: 24px;
-    padding: 40px;
+    padding: 48px;
     margin-bottom: 60px;
-    backdrop-filter: blur(20px);
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(30px);
+    box-shadow:
+            0 20px 60px rgba(0, 0, 0, 0.5),
+            inset 0 1px 0 rgba(148, 163, 184, 0.1);
+    overflow: hidden;
+}
+
+.converter-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(59, 130, 246, 0.5) 50%,
+    transparent 100%);
 }
 
 .converter-header {
@@ -243,41 +315,44 @@
 
 .input-wrapper input {
     flex: 1;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(71, 85, 105, 0.5);
     border-radius: 12px;
-    padding: 16px 20px;
-    color: #ffffff;
-    font-size: 20px;
+    padding: 20px 24px;
+    color: #e2e8f0;
+    font-size: 22px;
     font-weight: 600;
     transition: all 0.3s ease;
 }
 
 .input-wrapper input:focus {
     outline: none;
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(59, 130, 246, 0.5);
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    background: rgba(30, 41, 59, 0.8);
+    border-color: rgba(59, 130, 246, 0.6);
+    box-shadow:
+            0 0 0 3px rgba(59, 130, 246, 0.1),
+            0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .input-wrapper input::placeholder {
-    color: rgba(255, 255, 255, 0.3);
+    color: rgba(148, 163, 184, 0.4);
 }
 
 .result-input {
-    background: rgba(34, 197, 94, 0.08) !important;
-    border-color: rgba(34, 197, 94, 0.3) !important;
+    background: rgba(16, 185, 129, 0.1) !important;
+    border-color: rgba(16, 185, 129, 0.4) !important;
     cursor: default;
+    color: #6ee7b7 !important;
 }
 
 .currency-select {
-    min-width: 140px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    min-width: 160px;
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(71, 85, 105, 0.5);
     border-radius: 12px;
-    padding: 16px;
-    color: #ffffff;
-    font-size: 16px;
+    padding: 20px;
+    color: #e2e8f0;
+    font-size: 17px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -285,21 +360,28 @@
 
 .currency-select:focus {
     outline: none;
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(59, 130, 246, 0.5);
+    background: rgba(30, 41, 59, 0.8);
+    border-color: rgba(59, 130, 246, 0.6);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.currency-select:hover {
+    background: rgba(30, 41, 59, 0.7);
+    border-color: rgba(71, 85, 105, 0.7);
 }
 
 .currency-select option {
-    background: #1a1535;
-    color: #ffffff;
+    background: #0f172a;
+    color: #e2e8f0;
+    padding: 12px;
 }
 
 /* Swap Button */
 .swap-button {
     align-self: center;
-    width: 48px;
-    height: 48px;
-    background: linear-gradient(135deg, #06b6d4, #3b82f6);
+    width: 56px;
+    height: 56px;
+    background: linear-gradient(135deg, #1e40af, #3b82f6);
     border: none;
     border-radius: 12px;
     display: flex;
@@ -307,33 +389,43 @@
     justify-content: center;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
+    box-shadow:
+            0 4px 12px rgba(30, 64, 175, 0.4),
+            inset 0 1px 0 rgba(147, 197, 253, 0.2);
 }
 
 .swap-button:hover {
-    transform: rotate(180deg) scale(1.1);
-    box-shadow: 0 6px 16px rgba(6, 182, 212, 0.4);
+    transform: rotate(180deg) scale(1.05);
+    background: linear-gradient(135deg, #1e3a8a, #2563eb);
+    box-shadow:
+            0 8px 20px rgba(30, 64, 175, 0.5),
+            inset 0 1px 0 rgba(147, 197, 253, 0.3);
+}
+
+.swap-button:active {
+    transform: rotate(180deg) scale(0.98);
 }
 
 .swap-button svg {
-    width: 24px;
-    height: 24px;
+    width: 28px;
+    height: 28px;
     color: #ffffff;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
 }
 
 /* Exchange Rate Info */
 .exchange-rate-info {
     margin-top: 20px;
-    padding: 16px 20px;
-    background: rgba(59, 130, 246, 0.1);
-    border: 1px solid rgba(59, 130, 246, 0.2);
-    border-radius: 12px;
+    padding: 14px 20px;
+    background: rgba(30, 58, 138, 0.2);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    border-radius: 10px;
     text-align: center;
 }
 
 .exchange-rate-info p {
     margin: 0;
-    font-size: 16px;
+    font-size: 15px;
     color: #93c5fd;
     font-weight: 500;
 }
@@ -376,19 +468,30 @@
 /* Rates Grid */
 .rates-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
     gap: 24px;
 }
 
 .rate-card {
-    background: rgba(30, 32, 60, 0.5);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 20px;
+    position: relative;
+    background: rgba(30, 41, 59, 0.8);
+    border: 1px solid rgba(71, 85, 105, 0.3);
+    border-radius: 16px;
     padding: 28px;
     backdrop-filter: blur(20px);
-    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transition: all 0.3s ease;
     animation: fadeInUp 0.6s ease-out forwards;
     opacity: 0;
+    overflow: hidden;
+}
+
+.rate-card-gradient {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    opacity: 0.8;
 }
 
 @keyframes fadeInUp {
@@ -403,10 +506,20 @@
 }
 
 .rate-card:hover {
-    transform: translateY(-8px);
-    background: rgba(40, 42, 80, 0.6);
-    border-color: rgba(255, 255, 255, 0.15);
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+    transform: translateY(-4px);
+    background: rgba(51, 65, 85, 0.9);
+    border-color: rgba(100, 116, 139, 0.5);
+    box-shadow:
+            0 12px 40px rgba(0, 0, 0, 0.4),
+            0 0 20px rgba(59, 130, 246, 0.1);
+}
+
+.rate-card:hover .rate-card-gradient {
+    opacity: 1;
+}
+
+.rate-card:hover .rate-value {
+    color: #93c5fd;
 }
 
 .rate-header {
@@ -458,10 +571,13 @@
 }
 
 .rate-value {
-    font-size: 36px;
+    font-size: 38px;
     font-weight: 700;
-    color: #ffffff;
-    margin-bottom: 12px;
+    color: #e2e8f0;
+    margin: 20px 0 14px 0;
+    transition: all 0.3s ease;
+    letter-spacing: -0.02em;
+    font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', monospace;
 }
 
 .rate-name {
@@ -476,9 +592,9 @@
     align-items: center;
     justify-content: center;
     gap: 8px;
-    background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(139, 92, 246, 0.15));
-    border: 1px solid rgba(59, 130, 246, 0.3);
-    color: #60a5fa;
+    background: rgba(30, 58, 138, 0.4);
+    border: 1px solid rgba(59, 130, 246, 0.4);
+    color: #93c5fd;
     padding: 12px;
     border-radius: 10px;
     font-size: 14px;
@@ -488,13 +604,21 @@
 }
 
 .use-rate-btn:hover {
-    background: linear-gradient(135deg, rgba(59, 130, 246, 0.25), rgba(139, 92, 246, 0.25));
+    background: rgba(30, 58, 138, 0.6);
+    border-color: rgba(59, 130, 246, 0.6);
+    color: #bfdbfe;
     transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(30, 64, 175, 0.3);
 }
 
 .use-rate-btn svg {
     width: 16px;
     height: 16px;
+    transition: transform 0.3s ease;
+}
+
+.use-rate-btn:hover svg {
+    transform: translateX(4px);
 }
 
 /* All Rates Table */
@@ -633,10 +757,11 @@
 }
 
 .info-card {
-    background: rgba(30, 32, 60, 0.5);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 20px;
-    padding: 32px;
+    position: relative;
+    background: rgba(30, 41, 59, 0.8);
+    border: 1px solid rgba(71, 85, 105, 0.3);
+    border-radius: 16px;
+    padding: 36px;
     text-align: center;
     backdrop-filter: blur(20px);
     transition: all 0.3s ease;
@@ -644,36 +769,38 @@
 
 .info-card:hover {
     transform: translateY(-4px);
-    background: rgba(40, 42, 80, 0.6);
-    border-color: rgba(255, 255, 255, 0.15);
+    background: rgba(51, 65, 85, 0.9);
+    border-color: rgba(100, 116, 139, 0.5);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
 }
 
 .info-icon {
     width: 64px;
     height: 64px;
     margin: 0 auto 20px;
-    border-radius: 14px;
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
+    transition: all 0.3s ease;
 }
 
 .live-icon {
-    background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(16, 185, 129, 0.2));
-    border: 1px solid rgba(34, 197, 94, 0.3);
-    color: #22c55e;
+    background: rgba(16, 185, 129, 0.2);
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    color: #10b981;
 }
 
 .secure-icon {
-    background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(37, 99, 235, 0.2));
-    border: 1px solid rgba(59, 130, 246, 0.3);
+    background: rgba(59, 130, 246, 0.2);
+    border: 1px solid rgba(59, 130, 246, 0.4);
     color: #3b82f6;
 }
 
 .global-icon {
-    background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(124, 58, 237, 0.2));
-    border: 1px solid rgba(139, 92, 246, 0.3);
-    color: #8b5cf6;
+    background: rgba(168, 85, 247, 0.2);
+    border: 1px solid rgba(168, 85, 247, 0.4);
+    color: #a855f7;
 }
 
 .info-icon svg {
@@ -685,13 +812,13 @@
     font-size: 20px;
     font-weight: 600;
     margin: 0 0 12px 0;
-    color: #ffffff;
+    color: #e2e8f0;
 }
 
 .info-card p {
     font-size: 14px;
     line-height: 1.6;
-    color: rgba(255, 255, 255, 0.6);
+    color: rgba(148, 163, 184, 0.8);
     margin: 0;
 }
 
