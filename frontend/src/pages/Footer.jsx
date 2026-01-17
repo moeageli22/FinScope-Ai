@@ -1,6 +1,6 @@
 import React from 'react';
 import './Footer.css';
-import FinScopeLogoMini from '../components/FinScopeLogoMini.jsx';
+import FinScopeAI from '../components/FinScopeAI.jsx';
 
 const Footer = () => {
     const currentYear = new Date().getFullYear();
@@ -13,12 +13,13 @@ const Footer = () => {
                     <div className="footer-brand">
                         <div className="footer-logo">
                             <div className="footer-logo-icon">
-                                <FinScopeLogoMini />
+                                <FinScopeAI />
                             </div>
                             <span className="footer-logo-text">
                                 FinScope <span className="ai-text">AI</span>
                             </span>
                         </div>
+
                         <p className="footer-tagline">
                             Your intelligent banking companion for smarter financial decisions.
                         </p>

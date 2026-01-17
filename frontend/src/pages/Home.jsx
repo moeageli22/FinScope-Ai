@@ -66,13 +66,14 @@ function Home() {
 
             {/* Header */}
             <header className="home-header">
+
                 <div className="logo" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} style={{ cursor: 'pointer' }}>
                     <div className="logo-icon">
-                        <FinScopeLogoMini />
+                        <FinScopeAI />
                     </div>
                     <span className="logo-text">
-                        FinScope <span className="ai-text">AI</span>
-                    </span>
+        FinScope <span className="ai-text">AI</span>
+    </span>
                 </div>
 
                 {/* Navigation Links */}
