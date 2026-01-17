@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './Home.css';
 import FinScopeAI from '../components/FinScopeAI.jsx';
-import FinScopeLogoMini from '../components/FinScopeLogoMini.jsx';
 import AIChatDemo from './AIChatDemo.jsx';
 import AboutSection from './AboutSection.jsx';
 import DashboardPreview from './DashboardPreview.jsx';
@@ -9,18 +8,23 @@ import ChartsInsights from './ChartsInsights.jsx';
 import ContactSection from './ContactSection.jsx';
 import Footer from './Footer.jsx';
 import CookieBanner from './CookieBanner.jsx';
+import LiveExchange from './LiveExchange.jsx';
 
 function Home() {
     const [activeSection, setActiveSection] = useState('home');
+    const [showExchange, setShowExchange] = useState(false);
 
     // Smooth scroll function
     const scrollToSection = (e, sectionId) => {
         e.preventDefault();
 
-        if (sectionId === 'practice') {
-            alert('Practice Mode coming soon! Stay tuned for this exciting feature.');
+        if (sectionId === 'exchange') {
+            setShowExchange(true);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
             return;
         }
+
+        setShowExchange(false);
 
         const element = document.getElementById(sectionId);
         if (element) {
@@ -37,6 +41,8 @@ function Home() {
 
     // Track active section on scroll
     useEffect(() => {
+        if (showExchange) return;
+
         const handleScroll = () => {
             const sections = ['home', 'about', 'features', 'contact'];
             const scrollPosition = window.scrollY + 150;
@@ -57,8 +63,95 @@ function Home() {
 
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
-    }, []);
+    }, [showExchange]);
 
+    // Show Live Exchange page
+    if (showExchange) {
+        return (
+            <div className="home-container">
+                <CookieBanner />
+
+                {/* Header */}
+                <header className="home-header">
+                    <div className="logo" onClick={() => {
+                        setShowExchange(false);
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }} style={{ cursor: 'pointer' }}>
+                        <div className="logo-icon">
+                            <FinScopeAI />
+                        </div>
+                        <span className="logo-text">
+                            FinScope <span className="ai-text">AI</span>
+                        </span>
+                    </div>
+
+                    <nav className="nav-links">
+                        <a
+                            href="#home"
+                            className="nav-link"
+                            onClick={(e) => {
+                                e.preventDefault();
+                                setShowExchange(false);
+                                window.scrollTo({ top: 0, behavior: 'smooth' });
+                            }}
+                        >
+                            Home
+                        </a>
+                        <a
+                            href="#about"
+                            className="nav-link"
+                            onClick={(e) => {
+                                e.preventDefault();
+                                setShowExchange(false);
+                                setTimeout(() => scrollToSection(e, 'about'), 100);
+                            }}
+                        >
+                            About
+                        </a>
+                        <a
+                            href="#features"
+                            className="nav-link"
+                            onClick={(e) => {
+                                e.preventDefault();
+                                setShowExchange(false);
+                                setTimeout(() => scrollToSection(e, 'features'), 100);
+                            }}
+                        >
+                            Features
+                        </a>
+                        <a
+                            href="#exchange"
+                            className="nav-link active"
+                            onClick={(e) => scrollToSection(e, 'exchange')}
+                        >
+                            Live Exchange
+                        </a>
+                        <a
+                            href="#contact"
+                            className="nav-link"
+                            onClick={(e) => {
+                                e.preventDefault();
+                                setShowExchange(false);
+                                setTimeout(() => scrollToSection(e, 'contact'), 100);
+                            }}
+                        >
+                            Contact
+                        </a>
+                    </nav>
+
+                    <div className="nav-buttons">
+                        <button className="btn-sign-in">Sign In</button>
+                        <button className="btn-get-started">Get Started</button>
+                    </div>
+                </header>
+
+                <LiveExchange />
+                <Footer />
+            </div>
+        );
+    }
+
+    // Main landing page
     return (
         <div className="home-container">
             {/* Cookie Banner */}
@@ -66,14 +159,13 @@ function Home() {
 
             {/* Header */}
             <header className="home-header">
-
                 <div className="logo" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} style={{ cursor: 'pointer' }}>
                     <div className="logo-icon">
                         <FinScopeAI />
                     </div>
                     <span className="logo-text">
-        FinScope <span className="ai-text">AI</span>
-    </span>
+                        FinScope <span className="ai-text">AI</span>
+                    </span>
                 </div>
 
                 {/* Navigation Links */}
@@ -100,11 +192,11 @@ function Home() {
                         Features
                     </a>
                     <a
-                        href="#practice"
+                        href="#exchange"
                         className="nav-link"
-                        onClick={(e) => scrollToSection(e, 'practice')}
+                        onClick={(e) => scrollToSection(e, 'exchange')}
                     >
-                        Try Practice Mode
+                        Live Exchange
                     </a>
                     <a
                         href="#contact"
