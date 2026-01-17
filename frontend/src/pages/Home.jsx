@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './Home.css';
 import FinScopeAI from '../components/FinScopeAI.jsx';
 import AIChatDemo from './AIChatDemo.jsx';
@@ -11,8 +12,18 @@ import CookieBanner from './CookieBanner.jsx';
 import LiveExchange from './LiveExchange.jsx';
 
 function Home() {
+    const navigate = useNavigate();
     const [activeSection, setActiveSection] = useState('home');
     const [showExchange, setShowExchange] = useState(false);
+
+    // Navigation handlers for authentication
+    const handleSignIn = () => {
+        navigate('/login');
+    };
+
+    const handleGetStarted = () => {
+        navigate('/register');
+    };
 
     // Smooth scroll function
     const scrollToSection = (e, sectionId) => {
@@ -140,8 +151,8 @@ function Home() {
                     </nav>
 
                     <div className="nav-buttons">
-                        <button className="btn-sign-in">Sign In</button>
-                        <button className="btn-get-started">Get Started</button>
+                        <button className="btn-sign-in" onClick={handleSignIn}>Sign In</button>
+                        <button className="btn-get-started" onClick={handleGetStarted}>Get Started</button>
                     </div>
                 </header>
 
@@ -208,8 +219,8 @@ function Home() {
                 </nav>
 
                 <div className="nav-buttons">
-                    <button className="btn-sign-in">Sign In</button>
-                    <button className="btn-get-started">Get Started</button>
+                    <button className="btn-sign-in" onClick={handleSignIn}>Sign In</button>
+                    <button className="btn-get-started" onClick={handleGetStarted}>Get Started</button>
                 </div>
             </header>
 
@@ -231,8 +242,8 @@ function Home() {
                 </p>
 
                 <div className="cta-buttons">
-                    <button className="btn-primary">Start Your Journey</button>
-                    <button className="btn-secondary">Sign In</button>
+                    <button className="btn-primary" onClick={handleGetStarted}>Start Your Journey</button>
+                    <button className="btn-secondary" onClick={handleSignIn}>Sign In</button>
                 </div>
 
                 {/* AI Orb - Center Component */}

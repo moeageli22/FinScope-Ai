@@ -1,0 +1,426 @@
+/* Login Page */
+.login-page {
+    min-height: 100vh;
+    background: linear-gradient(180deg, #0a0e27 0%, #1a1535 50%, #0a0e27 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Animated background */
+.login-page::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background:
+            radial-gradient(circle at 20% 30%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+            radial-gradient(circle at 80% 70%, rgba(168, 85, 247, 0.15) 0%, transparent 50%);
+    pointer-events: none;
+    animation: backgroundPulse 8s ease-in-out infinite;
+}
+
+@keyframes backgroundPulse {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 0.8; }
+}
+
+/* Back Button */
+.back-button {
+    position: absolute;
+    top: 30px;
+    left: 30px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.8);
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    z-index: 10;
+}
+
+.back-button:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateX(-4px);
+}
+
+.back-button svg {
+    width: 18px;
+    height: 18px;
+}
+
+/* Login Container */
+.login-container {
+    position: relative;
+    width: 100%;
+    max-width: 480px;
+    background: rgba(20, 22, 45, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 32px;
+    padding: 50px 40px;
+    backdrop-filter: blur(30px);
+    box-shadow:
+            0 20px 60px rgba(0, 0, 0, 0.5),
+            inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    animation: slideUp 0.6s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Header */
+.login-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.login-logo-wrapper {
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.login-logo-wrapper > div {
+    transform: scale(0.3);
+    transform-origin: center center;
+}
+
+.login-title {
+    font-size: 32px;
+    font-weight: 700;
+    margin: 0 0 8px 0;
+    color: #ffffff;
+}
+
+.ai-gradient {
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.login-tagline {
+    font-size: 15px;
+    color: rgba(255, 255, 255, 0.6);
+    margin: 0;
+}
+
+/* Tabs */
+.login-tabs {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 32px;
+    background: rgba(30, 32, 60, 0.6);
+    padding: 6px;
+    border-radius: 14px;
+}
+
+.tab-button {
+    flex: 1;
+    padding: 12px 24px;
+    background: transparent;
+    border: none;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.6);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.tab-button.active {
+    background: linear-gradient(135deg, #06b6d4, #3b82f6);
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
+}
+
+.tab-button:not(.active):hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.8);
+}
+
+/* Form */
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-group label {
+    font-size: 14px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.form-group input {
+    width: 100%;
+    padding: 14px 18px;
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    color: #ffffff;
+    font-size: 15px;
+    transition: all 0.3s ease;
+}
+
+.form-group input:focus {
+    outline: none;
+    background: rgba(30, 41, 59, 0.8);
+    border-color: rgba(59, 130, 246, 0.6);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.form-group input::placeholder {
+    color: rgba(255, 255, 255, 0.3);
+}
+
+.form-group input.error {
+    border-color: rgba(239, 68, 68, 0.6);
+}
+
+.error-message {
+    font-size: 13px;
+    color: #ef4444;
+    margin-top: 4px;
+}
+
+/* Password Input Wrapper */
+.password-label-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.forgot-password-link {
+    background: none;
+    border: none;
+    color: #60a5fa;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: color 0.3s ease;
+    padding: 0;
+    text-decoration: none;
+}
+
+.forgot-password-link:hover {
+    color: #93c5fd;
+    text-decoration: underline;
+}
+
+.password-input-wrapper {
+    position: relative;
+}
+
+.password-input-wrapper input {
+    padding-right: 50px;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.4);
+    cursor: pointer;
+    transition: color 0.3s ease;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.toggle-password:hover {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.toggle-password svg {
+    width: 20px;
+    height: 20px;
+}
+
+/* Sign In Button */
+.btn-sign-in-primary {
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, #06b6d4, #3b82f6);
+    border: none;
+    border-radius: 12px;
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 16px rgba(6, 182, 212, 0.3);
+    margin-top: 8px;
+}
+
+.btn-sign-in-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(6, 182, 212, 0.4);
+    background: linear-gradient(135deg, #0891b2, #2563eb);
+}
+
+.btn-sign-in-primary:active {
+    transform: translateY(0);
+}
+
+/* Sign Up Link */
+.signup-link {
+    text-align: center;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.6);
+    margin: 8px 0 0 0;
+}
+
+.signup-link button {
+    background: none;
+    border: none;
+    color: #60a5fa;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: underline;
+    padding: 0;
+    font-size: 14px;
+    transition: color 0.3s ease;
+}
+
+.signup-link button:hover {
+    color: #93c5fd;
+}
+
+/* Terms Text */
+.terms-text {
+    text-align: center;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.4);
+    line-height: 1.5;
+    margin: 16px 0 0 0;
+}
+
+.terms-text a {
+    color: rgba(255, 255, 255, 0.6);
+    text-decoration: underline;
+    transition: color 0.3s ease;
+}
+
+.terms-text a:hover {
+    color: #60a5fa;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .login-page {
+        padding: 30px 16px;
+    }
+
+    .back-button {
+        top: 20px;
+        left: 20px;
+        padding: 8px 16px;
+        font-size: 13px;
+    }
+
+    .login-container {
+        padding: 40px 28px;
+        border-radius: 24px;
+    }
+
+    .login-logo-wrapper {
+        width: 100px;
+        height: 100px;
+    }
+
+    .login-logo-wrapper > div {
+        transform: scale(0.25);
+    }
+
+    .login-title {
+        font-size: 28px;
+    }
+
+    .login-tagline {
+        font-size: 14px;
+    }
+
+    .tab-button {
+        padding: 10px 20px;
+        font-size: 14px;
+    }
+
+    .form-group input {
+        padding: 12px 16px;
+        font-size: 14px;
+    }
+
+    .btn-sign-in-primary {
+        padding: 14px;
+        font-size: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .login-container {
+        padding: 32px 20px;
+    }
+
+    .login-logo-wrapper {
+        width: 90px;
+        height: 90px;
+        margin-bottom: 16px;
+    }
+
+    .login-logo-wrapper > div {
+        transform: scale(0.22);
+    }
+
+    .login-title {
+        font-size: 24px;
+    }
+
+    .login-header {
+        margin-bottom: 32px;
+    }
+
+    .login-tabs {
+        gap: 8px;
+    }
+
+    .tab-button {
+        padding: 10px 16px;
+        font-size: 13px;
+    }
+}
