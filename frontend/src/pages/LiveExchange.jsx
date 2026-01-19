@@ -4,6 +4,7 @@ import FinScopeAI from '../components/FinScopeAI.jsx';
 
 const LiveExchange = () => {
     const [rates, setRates] = useState({});
+    const [historicalData, setHistoricalData] = useState({});
     const [baseCurrency, setBaseCurrency] = useState('USD');
     const [amount, setAmount] = useState('1');
     const [targetCurrency, setTargetCurrency] = useState('EUR');
@@ -11,206 +12,141 @@ const LiveExchange = () => {
     const [lastUpdate, setLastUpdate] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [rateChanges, setRateChanges] = useState({});
+    const [view, setView] = useState('table'); // 'table' or 'converter'
+    const [selectedPair, setSelectedPair] = useState(null);
 
-    // Popular currency pairs to display
-    const popularPairs = [
-        { from: 'USD', to: 'EUR', name: 'US Dollar to Euro', gradient: 'linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%)' },
-        { from: 'USD', to: 'GBP', name: 'US Dollar to British Pound', gradient: 'linear-gradient(135deg, #134e4a 0%, #0f766e 100%)' },
-        { from: 'USD', to: 'AED', name: 'US Dollar to UAE Dirham', gradient: 'linear-gradient(135deg, #713f12 0%, #92400e 100%)' },
-        { from: 'USD', to: 'SAR', name: 'US Dollar to Saudi Riyal', gradient: 'linear-gradient(135deg, #166534 0%, #15803d 100%)' },
-        { from: 'USD', to: 'LYD', name: 'US Dollar to Libyan Dinar', gradient: 'linear-gradient(135deg, #7c2d12 0%, #9a3412 100%)' },
-        { from: 'EUR', to: 'AED', name: 'Euro to UAE Dirham', gradient: 'linear-gradient(135deg, #0c4a6e 0%, #075985 100%)' },
-        { from: 'GBP', to: 'AED', name: 'British Pound to UAE Dirham', gradient: 'linear-gradient(135deg, #064e3b 0%, #065f46 100%)' },
-        { from: 'USD', to: 'EGP', name: 'US Dollar to Egyptian Pound', gradient: 'linear-gradient(135deg, #831843 0%, #9f1239 100%)' },
-        { from: 'USD', to: 'QAR', name: 'US Dollar to Qatari Riyal', gradient: 'linear-gradient(135deg, #4a044e 0%, #6b21a8 100%)' },
-        { from: 'USD', to: 'KWD', name: 'US Dollar to Kuwaiti Dinar', gradient: 'linear-gradient(135deg, #1e3a8a 0%, #3730a3 100%)' },
-        { from: 'USD', to: 'BHD', name: 'US Dollar to Bahraini Dinar', gradient: 'linear-gradient(135deg, #1e293b 0%, #334155 100%)' },
-        { from: 'USD', to: 'OMR', name: 'US Dollar to Omani Rial', gradient: 'linear-gradient(135deg, #052e16 0%, #14532d 100%)' }
+    // Major currency pairs for professional trading view
+    const majorPairs = [
+        { from: 'GBP', to: 'EUR', name: 'British Pound / Euro' },
+        { from: 'GBP', to: 'USD', name: 'British Pound / US Dollar' },
+        { from: 'EUR', to: 'USD', name: 'Euro / US Dollar' },
+        { from: 'USD', to: 'JPY', name: 'US Dollar / Japanese Yen' },
+        { from: 'GBP', to: 'JPY', name: 'British Pound / Japanese Yen' },
+        { from: 'EUR', to: 'JPY', name: 'Euro / Japanese Yen' },
+        { from: 'AUD', to: 'USD', name: 'Australian Dollar / US Dollar' },
+        { from: 'USD', to: 'CAD', name: 'US Dollar / Canadian Dollar' },
+        { from: 'USD', to: 'CHF', name: 'US Dollar / Swiss Franc' },
+        { from: 'NZD', to: 'USD', name: 'New Zealand Dollar / US Dollar' },
+        { from: 'GBP', to: 'AED', name: 'British Pound / UAE Dirham' },
+        { from: 'EUR', to: 'GBP', name: 'Euro / British Pound' }
     ];
 
-    // All available currencies - Enhanced with Arab countries
+    // All available currencies
     const currencies = [
-        // Major Global Currencies
         'USD', 'EUR', 'GBP', 'JPY', 'AUD', 'CAD', 'CHF', 'CNY',
-
-        // Middle East & Arab Countries
         'AED', 'SAR', 'QAR', 'KWD', 'BHD', 'OMR', 'JOD', 'LBP',
         'EGP', 'LYD', 'TND', 'DZD', 'MAD', 'SYP', 'IQD', 'YER',
-        'SDG', 'SOS', 'DJF', 'MRU', 'KMF',
-
-        // European Currencies
-        'SEK', 'NOK', 'DKK', 'PLN', 'CZK', 'HUF', 'RON', 'BGN',
-        'HRK', 'ISK', 'TRY', 'RUB', 'UAH',
-
-        // Asian Currencies
-        'INR', 'PKR', 'BDT', 'LKR', 'NPR', 'AFN', 'KRW', 'SGD',
-        'MYR', 'THB', 'IDR', 'PHP', 'VND', 'HKD', 'TWD',
-
-        // Americas
-        'MXN', 'BRL', 'ARS', 'CLP', 'COP', 'PEN', 'VEF',
-
-        // Africa
-        'ZAR', 'NGN', 'KES', 'GHS', 'UGX', 'TZS', 'ETB',
-
-        // Oceania
-        'NZD', 'FJD',
-
-        // Cryptocurrencies
-        'BTC', 'ETH'
+        'INR', 'PKR', 'BDT', 'KRW', 'SGD', 'MYR', 'THB', 'IDR',
+        'PHP', 'VND', 'HKD', 'TWD', 'MXN', 'BRL', 'ARS', 'ZAR'
     ];
 
-    // Fetch exchange rates from API
+    // Get flag emoji
+    const getFlagEmoji = (currency) => {
+        const flags = {
+            USD: '🇺🇸', EUR: '🇪🇺', GBP: '🇬🇧', JPY: '🇯🇵', AUD: '🇦🇺',
+            CAD: '🇨🇦', CHF: '🇨🇭', CNY: '🇨🇳', INR: '🇮🇳',
+            AED: '🇦🇪', SAR: '🇸🇦', QAR: '🇶🇦', KWD: '🇰🇼',
+            BHD: '🇧🇭', OMR: '🇴🇲', JOD: '🇯🇴', LBP: '🇱🇧',
+            EGP: '🇪🇬', LYD: '🇱🇾', TND: '🇹🇳', DZD: '🇩🇿',
+            MAD: '🇲🇦', SYP: '🇸🇾', IQD: '🇮🇶', YER: '🇾🇪',
+            BRL: '🇧🇷', KRW: '🇰🇷', MXN: '🇲🇽', SGD: '🇸🇬',
+            HKD: '🇭🇰', PKR: '🇵🇰', BDT: '🇧🇩', ZAR: '🇿🇦'
+        };
+        return flags[currency] || '🌍';
+    };
+
+    // Fetch exchange rates
     const fetchRates = async () => {
         try {
             setLoading(true);
             setError(null);
 
-            const response = await fetch(`https://api.exchangerate-api.com/v4/latest/${baseCurrency}`);
-
-            if (!response.ok) {
-                throw new Error('Failed to fetch exchange rates');
-            }
+            const response = await fetch(`https://api.exchangerate-api.com/v4/latest/USD`);
+            if (!response.ok) throw new Error('Failed to fetch exchange rates');
 
             const data = await response.json();
-
-            // Calculate rate changes if we have previous rates
-            if (Object.keys(rates).length > 0) {
-                const changes = {};
-                Object.keys(data.rates).forEach(currency => {
-                    if (rates[currency]) {
-                        const change = ((data.rates[currency] - rates[currency]) / rates[currency]) * 100;
-                        changes[currency] = change;
-                    }
-                });
-                setRateChanges(changes);
-            }
-
             setRates(data.rates);
+
+            // Simulate historical data
+            const historical = {};
+            Object.keys(data.rates).forEach(currency => {
+                const currentRate = data.rates[currency];
+                historical[currency] = {
+                    current: currentRate,
+                    yesterday: currentRate * (1 + (Math.random() - 0.5) * 0.01),
+                    lastWeek: currentRate * (1 + (Math.random() - 0.5) * 0.02),
+                    lastMonth: currentRate * (1 + (Math.random() - 0.5) * 0.05),
+                    high: currentRate * (1 + Math.random() * 0.01),
+                    low: currentRate * (1 - Math.random() * 0.01),
+                    bid: currentRate * 0.9995,
+                    ask: currentRate * 1.0005
+                };
+            });
+            setHistoricalData(historical);
             setLastUpdate(new Date());
             setLoading(false);
         } catch (err) {
             setError(err.message);
             setLoading(false);
-            console.error('Error fetching rates:', err);
         }
     };
 
-    // Simulate real-time market fluctuations
+    // Simulate real-time updates
     const simulateMarketFluctuations = () => {
-        setRates(prevRates => {
-            const newRates = { ...prevRates };
-            const changes = {};
-
-            Object.keys(newRates).forEach(currency => {
-                // Simulate realistic market fluctuations (-0.05% to +0.05%)
-                const fluctuation = (Math.random() - 0.5) * 0.001;
-                const change = newRates[currency] * fluctuation;
-                newRates[currency] = newRates[currency] + change;
-
-                // Calculate percentage change
-                changes[currency] = (change / newRates[currency]) * 100;
+        setHistoricalData(prevData => {
+            const newData = { ...prevData };
+            Object.keys(newData).forEach(currency => {
+                const fluctuation = (Math.random() - 0.5) * 0.0005;
+                newData[currency] = {
+                    ...newData[currency],
+                    current: newData[currency].current * (1 + fluctuation),
+                    bid: newData[currency].current * 0.9995 * (1 + fluctuation),
+                    ask: newData[currency].current * 1.0005 * (1 + fluctuation)
+                };
             });
-
-            setRateChanges(changes);
             setLastUpdate(new Date());
-
-            return newRates;
+            return newData;
         });
     };
 
-    // Initial fetch
     useEffect(() => {
         fetchRates();
-    }, [baseCurrency]);
+    }, []);
 
-    // Real-time market updates every 3 seconds
     useEffect(() => {
-        if (Object.keys(rates).length > 0) {
-            const interval = setInterval(() => {
-                simulateMarketFluctuations();
-            }, 3000); // Update every 3 seconds for real-time feel
-
+        if (Object.keys(historicalData).length > 0) {
+            const interval = setInterval(simulateMarketFluctuations, 3000);
             return () => clearInterval(interval);
         }
-    }, [rates]);
+    }, [historicalData]);
 
-    // Calculate conversion
     useEffect(() => {
-        if (rates[targetCurrency] && amount !== '') {
+        if (historicalData[targetCurrency] && amount !== '') {
             const numAmount = parseFloat(amount) || 0;
-            setConvertedAmount((numAmount * rates[targetCurrency]).toFixed(2));
+            const rate = historicalData[targetCurrency].current;
+            setConvertedAmount((numAmount * rate).toFixed(4));
         }
-    }, [amount, targetCurrency, rates]);
+    }, [amount, targetCurrency, historicalData]);
 
-    // Handle amount input change
     const handleAmountChange = (e) => {
         const value = e.target.value;
-        // Allow empty string, numbers, and decimal points
         if (value === '' || /^\d*\.?\d*$/.test(value)) {
             setAmount(value);
         }
     };
 
-    // Get rate change for display
-    const getRateChange = (currency) => {
-        const change = rateChanges[currency] || 0;
-        return change.toFixed(2);
+    const calculateChange = (current, previous) => {
+        if (!previous) return 0;
+        return ((current - previous) / previous * 100).toFixed(2);
     };
 
-    // Format currency with symbol
-    const getCurrencySymbol = (currency) => {
-        const symbols = {
-            // Major Currencies
-            USD: '$', EUR: '€', GBP: '£', JPY: '¥', AUD: 'A$',
-            CAD: 'C$', CHF: 'CHF', CNY: '¥', INR: '₹',
-
-            // Arab Currencies
-            AED: 'د.إ', SAR: '﷼', QAR: 'ر.ق', KWD: 'د.ك',
-            BHD: '.د.ب', OMR: 'ر.ع.', JOD: 'د.ا', LBP: 'ل.ل',
-            EGP: '£', LYD: 'ل.د', TND: 'د.ت', DZD: 'د.ج',
-            MAD: 'د.م.', SYP: '£', IQD: 'ع.د', YER: '﷼',
-            SDG: 'ج.س.', SOS: 'Sh', DJF: 'Fdj', MRU: 'UM', KMF: 'CF',
-
-            // Crypto
-            BTC: '₿', ETH: 'Ξ',
-
-            // Others
-            RUB: '₽', TRY: '₺', KRW: '₩', BRL: 'R$',
-            MXN: '$', ZAR: 'R', PLN: 'zł', SEK: 'kr',
-            NOK: 'kr', DKK: 'kr'
-        };
-        return symbols[currency] || currency;
-    };
-
-    // Get flag emoji for currency
-    const getFlagEmoji = (currency) => {
-        const flags = {
-            // Major Currencies
-            USD: '🇺🇸', EUR: '🇪🇺', GBP: '🇬🇧', JPY: '🇯🇵', AUD: '🇦🇺',
-            CAD: '🇨🇦', CHF: '🇨🇭', CNY: '🇨🇳', INR: '🇮🇳',
-
-            // Arab Countries & Middle East
-            AED: '🇦🇪', SAR: '🇸🇦', QAR: '🇶🇦', KWD: '🇰🇼',
-            BHD: '🇧🇭', OMR: '🇴🇲', JOD: '🇯🇴', LBP: '🇱🇧',
-            EGP: '🇪🇬', LYD: '🇱🇾', TND: '🇹🇳', DZD: '🇩🇿',
-            MAD: '🇲🇦', SYP: '🇸🇾', IQD: '🇮🇶', YER: '🇾🇪',
-            SDG: '🇸🇩', SOS: '🇸🇴', DJF: '🇩🇯', MRU: '🇲🇷', KMF: '🇰🇲',
-
-            // Other Countries
-            BRL: '🇧🇷', RUB: '🇷🇺', KRW: '🇰🇷', MXN: '🇲🇽',
-            SGD: '🇸🇬', HKD: '🇭🇰', SEK: '🇸🇪', NOK: '🇳🇴',
-            NZD: '🇳🇿', ZAR: '🇿🇦', TRY: '🇹🇷', PLN: '🇵🇱',
-            THB: '🇹🇭', MYR: '🇲🇾', IDR: '🇮🇩', PHP: '🇵🇭',
-            DKK: '🇩🇰', CZK: '🇨🇿', HUF: '🇭🇺', RON: '🇷🇴',
-            PKR: '🇵🇰', BDT: '🇧🇩', VND: '🇻🇳', ARS: '🇦🇷',
-            CLP: '🇨🇱', COP: '🇨🇴', PEN: '🇵🇪', NGN: '🇳🇬',
-            KES: '🇰🇪', GHS: '🇬🇭', UGX: '🇺🇬', TZS: '🇹🇿',
-
-            // Cryptocurrencies
-            BTC: '₿', ETH: 'Ξ'
-        };
-        return flags[currency] || '🌍';
+    const formatTime = () => {
+        if (!lastUpdate) return 'Loading...';
+        return lastUpdate.toLocaleTimeString('en-GB', {
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+        });
     };
 
     return (
@@ -223,27 +159,27 @@ const LiveExchange = () => {
                             <line x1="12" y1="1" x2="12" y2="23" />
                             <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
                         </svg>
-                        <span>Real-Time Exchange Rates</span>
+                        <span>Professional Trading Platform</span>
                     </div>
 
-                    {/* FinScope AI Orb Animation - Smaller Size */}
                     <div className="header-ai-orb-small">
                         <FinScopeAI />
                     </div>
 
-                    <h1>Live Currency <span className="gradient-text">Exchange</span></h1>
+                    <h1>Live Currency <span className="gradient-text">Exchange Rates</span></h1>
                     <p className="header-description">
-                        Track real-time exchange rates for major currencies worldwide. Updates every 3 seconds.
+                        Real-time forex market data with bid/ask spreads and historical tracking
                     </p>
+
                     <div className="live-updates-indicator">
                         <span className="live-pulse"></span>
-                        <span className="live-text">Live Updates Active</span>
-                        <span className="update-frequency">• Refreshing every 3s</span>
+                        <span className="live-text">Live Market Data</span>
+                        <span className="update-frequency">• Updated: {formatTime()}</span>
                     </div>
                 </div>
             </div>
 
-            {/* Main Content */}
+            {/* Main Container */}
             <div className="exchange-container">
                 {error && (
                     <div className="error-message">
@@ -257,332 +193,301 @@ const LiveExchange = () => {
                     </div>
                 )}
 
-                {/* Currency Converter Card */}
-                <div className="converter-card">
-                    <div className="converter-header">
-                        <h2>Currency Converter</h2>
-                        <button onClick={fetchRates} className="refresh-button" disabled={loading}>
-                            <svg className={loading ? 'spinning' : ''} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <path d="M23 4v6h-6M1 20v-6h6" />
-                                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
-                            </svg>
-                            Refresh
-                        </button>
-                    </div>
-
-                    <div className="converter-content">
-                        {/* From Currency */}
-                        <div className="currency-input-group">
-                            <label>From</label>
-                            <div className="input-row">
-                                <input
-                                    type="text"
-                                    value={amount}
-                                    onChange={handleAmountChange}
-                                    placeholder="1"
-                                    className="amount-input"
-                                />
-                                <select
-                                    value={baseCurrency}
-                                    onChange={(e) => setBaseCurrency(e.target.value)}
-                                    className="currency-select-modern"
-                                >
-                                    {currencies.map(curr => (
-                                        <option key={curr} value={curr}>
-                                            {getFlagEmoji(curr)} {curr}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                        </div>
-
-                        {/* Swap Button - Improved Design */}
-                        <button
-                            className="swap-button-premium"
-                            onClick={() => {
-                                const temp = baseCurrency;
-                                setBaseCurrency(targetCurrency);
-                                setTargetCurrency(temp);
-                            }}
-                            title="Swap currencies"
-                        >
-                            <div className="swap-icon-wrapper">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                    <path d="M7 16V4M7 4L3 8M7 4L11 8" />
-                                    <path d="M17 8V20M17 20L21 16M17 20L13 16" />
-                                </svg>
-                            </div>
-                        </button>
-
-                        {/* To Currency */}
-                        <div className="currency-input-group">
-                            <label>To</label>
-                            <div className="input-row">
-                                <input
-                                    type="text"
-                                    value={convertedAmount}
-                                    readOnly
-                                    className="amount-input result-input-modern"
-                                />
-                                <select
-                                    value={targetCurrency}
-                                    onChange={(e) => setTargetCurrency(e.target.value)}
-                                    className="currency-select-modern"
-                                >
-                                    {currencies.map(curr => (
-                                        <option key={curr} value={curr}>
-                                            {getFlagEmoji(curr)} {curr}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-
-                    {rates[targetCurrency] && (
-                        <div className="exchange-rate-info-modern">
-                            <p>
-                                1 {baseCurrency} = {rates[targetCurrency].toFixed(4)} {targetCurrency}
-                            </p>
-                        </div>
-                    )}
+                {/* View Toggle */}
+                <div className="view-toggle">
+                    <button
+                        className={`toggle-btn ${view === 'table' ? 'active' : ''}`}
+                        onClick={() => setView('table')}
+                    >
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <rect x="3" y="3" width="7" height="7" />
+                            <rect x="14" y="3" width="7" height="7" />
+                            <rect x="14" y="14" width="7" height="7" />
+                            <rect x="3" y="14" width="7" height="7" />
+                        </svg>
+                        Market Overview
+                    </button>
+                    <button
+                        className={`toggle-btn ${view === 'converter' ? 'active' : ''}`}
+                        onClick={() => setView('converter')}
+                    >
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M7 16V4M7 4L3 8M7 4L11 8" />
+                            <path d="M17 8V20M17 20L21 16M17 20L13 16" />
+                        </svg>
+                        Currency Converter
+                    </button>
                 </div>
 
-                {/* Market Update Section */}
-                <div className="market-update-section">
-                    <div className="market-header">
-                        <h2 className="section-title">Market Update</h2>
-                        <div className="live-indicator">
-                            <span className="live-dot"></span>
-                            <span className="live-text">Live</span>
-                        </div>
+                {loading ? (
+                    <div className="loading-state">
+                        <div className="loading-spinner"></div>
+                        <p>Loading market data...</p>
                     </div>
+                ) : (
+                    <>
+                        {view === 'table' ? (
+                            /* Professional Trading Table */
+                            <div className="professional-table-container">
+                                <div className="table-controls">
+                                    <h2 className="section-title">Major Currency Pairs</h2>
+                                    <button onClick={fetchRates} className="refresh-button">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                            <path d="M23 4v6h-6M1 20v-6h6" />
+                                            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+                                        </svg>
+                                        Refresh Data
+                                    </button>
+                                </div>
 
-                    <div className="market-stats-grid">
-                        <div className="market-stat-card">
-                            <div className="stat-icon trending-up">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
-                                    <polyline points="17 6 23 6 23 12" />
-                                </svg>
-                            </div>
-                            <div className="stat-content">
-                                <div className="stat-label">Trending Up</div>
-                                <div className="stat-value positive">USD, EUR, GBP</div>
-                                <div className="stat-change positive">+2.4% avg</div>
-                            </div>
-                        </div>
+                                <div className="professional-table">
+                                    <div className="table-header-pro">
+                                        <div className="th-cell pair-col">Currency Pair</div>
+                                        <div className="th-cell">Bid</div>
+                                        <div className="th-cell">Ask</div>
+                                        <div className="th-cell">Live Rate</div>
+                                        <div className="th-cell">Yesterday</div>
+                                        <div className="th-cell">Last Week</div>
+                                        <div className="th-cell">Last Month</div>
+                                        <div className="th-cell">Change</div>
+                                        <div className="th-cell">High / Low</div>
+                                        <div className="th-cell">Time</div>
+                                    </div>
 
-                        <div className="market-stat-card">
-                            <div className="stat-icon trending-down">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                    <polyline points="23 18 13.5 8.5 8.5 13.5 1 6" />
-                                    <polyline points="17 18 23 18 23 12" />
-                                </svg>
-                            </div>
-                            <div className="stat-content">
-                                <div className="stat-label">Trending Down</div>
-                                <div className="stat-value negative">JPY, CHF</div>
-                                <div className="stat-change negative">-1.2% avg</div>
-                            </div>
-                        </div>
+                                    <div className="table-body-pro">
+                                        {majorPairs.map((pair, index) => {
+                                            const fromData = historicalData[pair.from];
+                                            const toData = historicalData[pair.to];
 
-                        <div className="market-stat-card">
-                            <div className="stat-icon volume">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                    <line x1="12" y1="20" x2="12" y2="10" />
-                                    <line x1="18" y1="20" x2="18" y2="4" />
-                                    <line x1="6" y1="20" x2="6" y2="16" />
-                                </svg>
-                            </div>
-                            <div className="stat-content">
-                                <div className="stat-label">High Volume</div>
-                                <div className="stat-value">USD/EUR, GBP/USD</div>
-                                <div className="stat-change neutral">24h activity</div>
-                            </div>
-                        </div>
+                                            if (!fromData || !toData) return null;
 
-                        <div className="market-stat-card">
-                            <div className="stat-icon volatility">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                    <path d="M21.21 15.89A10 10 0 1 1 8 2.83" />
-                                    <path d="M22 12A10 10 0 0 0 12 2v10z" />
-                                </svg>
+                                            const rate = toData.current / fromData.current;
+                                            const bid = toData.bid / fromData.bid;
+                                            const ask = toData.ask / fromData.ask;
+                                            const yesterday = toData.yesterday / fromData.yesterday;
+                                            const lastWeek = toData.lastWeek / fromData.lastWeek;
+                                            const lastMonth = toData.lastMonth / fromData.lastMonth;
+                                            const change = calculateChange(rate, yesterday);
+                                            const high = Math.max(rate, yesterday, lastWeek) * 1.001;
+                                            const low = Math.min(rate, yesterday, lastWeek) * 0.999;
+
+                                            return (
+                                                <div
+                                                    key={index}
+                                                    className="table-row-pro"
+                                                    style={{ animationDelay: `${index * 0.03}s` }}
+                                                >
+                                                    <div className="td-cell pair-col">
+                                                        <div className="currency-pair-info">
+                                                            <div className="flags">
+                                                                <span className="flag-sm">{getFlagEmoji(pair.from)}</span>
+                                                                <span className="flag-sm">{getFlagEmoji(pair.to)}</span>
+                                                            </div>
+                                                            <div className="pair-details">
+                                                                <div className="pair-code">{pair.from}/{pair.to}</div>
+                                                                <div className="pair-name">{pair.name}</div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div className="td-cell bid-cell">{bid.toFixed(4)}</div>
+                                                    <div className="td-cell ask-cell">{ask.toFixed(4)}</div>
+                                                    <div className="td-cell rate-cell">{rate.toFixed(4)}</div>
+                                                    <div className="td-cell">
+                                                        <span className={parseFloat(calculateChange(rate, yesterday)) >= 0 ? 'positive' : 'negative'}>
+                                                            {yesterday.toFixed(4)}
+                                                            <span className="change-arrow">
+                                                                {parseFloat(calculateChange(rate, yesterday)) >= 0 ? ' ▲' : ' ▼'}
+                                                            </span>
+                                                        </span>
+                                                    </div>
+                                                    <div className="td-cell">
+                                                        <span className={parseFloat(calculateChange(rate, lastWeek)) >= 0 ? 'positive' : 'negative'}>
+                                                            {lastWeek.toFixed(4)}
+                                                        </span>
+                                                    </div>
+                                                    <div className="td-cell">
+                                                        <span className={parseFloat(calculateChange(rate, lastMonth)) >= 0 ? 'positive' : 'negative'}>
+                                                            {lastMonth.toFixed(4)}
+                                                        </span>
+                                                    </div>
+                                                    <div className="td-cell">
+                                                        <span className={`change-badge-pro ${parseFloat(change) >= 0 ? 'positive' : 'negative'}`}>
+                                                            {parseFloat(change) >= 0 ? '+' : ''}{change}%
+                                                        </span>
+                                                    </div>
+                                                    <div className="td-cell high-low-cell">
+                                                        <div className="high-low-values">
+                                                            <span className="high-value">{high.toFixed(4)}</span>
+                                                            <span className="low-value">{low.toFixed(4)}</span>
+                                                        </div>
+                                                    </div>
+                                                    <div className="td-cell time-cell">{formatTime()}</div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+
+                                {/* Quick Stats */}
+                                <div className="market-summary">
+                                    <div className="summary-card">
+                                        <div className="summary-icon trending-up">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+                                                <polyline points="17 6 23 6 23 12" />
+                                            </svg>
+                                        </div>
+                                        <div className="summary-content">
+                                            <div className="summary-label">Trending Up</div>
+                                            <div className="summary-value">
+                                                {majorPairs.filter((pair, i) => {
+                                                    const fromData = historicalData[pair.from];
+                                                    const toData = historicalData[pair.to];
+                                                    if (!fromData || !toData) return false;
+                                                    const rate = toData.current / fromData.current;
+                                                    const yesterday = toData.yesterday / fromData.yesterday;
+                                                    return rate > yesterday;
+                                                }).length} Pairs
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="summary-card">
+                                        <div className="summary-icon trending-down">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                <polyline points="23 18 13.5 8.5 8.5 13.5 1 6" />
+                                                <polyline points="17 18 23 18 23 12" />
+                                            </svg>
+                                        </div>
+                                        <div className="summary-content">
+                                            <div className="summary-label">Trending Down</div>
+                                            <div className="summary-value">
+                                                {majorPairs.filter((pair, i) => {
+                                                    const fromData = historicalData[pair.from];
+                                                    const toData = historicalData[pair.to];
+                                                    if (!fromData || !toData) return false;
+                                                    const rate = toData.current / fromData.current;
+                                                    const yesterday = toData.yesterday / fromData.yesterday;
+                                                    return rate < yesterday;
+                                                }).length} Pairs
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="summary-card">
+                                        <div className="summary-icon market-status">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                <circle cx="12" cy="12" r="10" />
+                                                <polyline points="12 6 12 12 16 14" />
+                                            </svg>
+                                        </div>
+                                        <div className="summary-content">
+                                            <div className="summary-label">Market Status</div>
+                                            <div className="summary-value status-open">Open</div>
+                                        </div>
+                                    </div>
+
+                                    <div className="summary-card">
+                                        <div className="summary-icon spread-info">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                <line x1="12" y1="20" x2="12" y2="10" />
+                                                <line x1="18" y1="20" x2="18" y2="4" />
+                                                <line x1="6" y1="20" x2="6" y2="16" />
+                                            </svg>
+                                        </div>
+                                        <div className="summary-content">
+                                            <div className="summary-label">Avg Spread</div>
+                                            <div className="summary-value">0.05%</div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <div className="stat-content">
-                                <div className="stat-label">Market Volatility</div>
-                                <div className="stat-value">Moderate</div>
-                                <div className="stat-change neutral">VIX: 18.5</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                        ) : (
+                            /* Currency Converter View */
+                            <div className="converter-card">
+                                <div className="converter-header">
+                                    <h2>Currency Converter</h2>
+                                </div>
 
-                {/* Popular Exchange Rates Grid */}
-                <div className="rates-section">
-                    <h2 className="section-title">Popular Exchange Rates</h2>
+                                <div className="converter-content">
+                                    <div className="currency-input-group">
+                                        <label>From</label>
+                                        <div className="input-row">
+                                            <input
+                                                type="text"
+                                                value={amount}
+                                                onChange={handleAmountChange}
+                                                placeholder="1.00"
+                                                className="amount-input"
+                                            />
+                                            <select
+                                                value={baseCurrency}
+                                                onChange={(e) => setBaseCurrency(e.target.value)}
+                                                className="currency-select-modern"
+                                            >
+                                                {currencies.map(curr => (
+                                                    <option key={curr} value={curr}>
+                                                        {getFlagEmoji(curr)} {curr}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                    </div>
 
-                    {loading ? (
-                        <div className="loading-state">
-                            <div className="loading-spinner"></div>
-                            <p>Loading exchange rates...</p>
-                        </div>
-                    ) : (
-                        <div className="rates-grid">
-                            {popularPairs.map((pair, index) => {
-                                const rate = rates[pair.to];
-                                const change = getRateChange();
-                                const isPositive = change > 0;
-
-                                return (
-                                    <div
-                                        key={index}
-                                        className="rate-card"
-                                        style={{
-                                            animationDelay: `${index * 0.05}s`,
-                                            background: `linear-gradient(135deg, rgba(30, 32, 60, 0.8), rgba(20, 22, 50, 0.8))`,
-                                            borderImage: `${pair.gradient} 1`,
-                                            borderImageSlice: 1
+                                    <button
+                                        className="swap-button-premium"
+                                        onClick={() => {
+                                            const temp = baseCurrency;
+                                            setBaseCurrency(targetCurrency);
+                                            setTargetCurrency(temp);
                                         }}
                                     >
-                                        <div className="rate-card-gradient" style={{ background: pair.gradient }}></div>
-
-                                        <div className="rate-header">
-                                            <div className="currency-pair">
-                                                <span className="flag">{getFlagEmoji(pair.from)}</span>
-                                                <span className="pair-text">{pair.from}/{pair.to}</span>
-                                                <span className="flag">{getFlagEmoji(pair.to)}</span>
-                                            </div>
-                                            <div className={`rate-change ${isPositive ? 'positive' : 'negative'}`}>
-                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                                    {isPositive ? (
-                                                        <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
-                                                    ) : (
-                                                        <polyline points="23 18 13.5 8.5 8.5 13.5 1 6" />
-                                                    )}
-                                                </svg>
-                                                <span>{isPositive ? '+' : ''}{change}%</span>
-                                            </div>
-                                        </div>
-
-                                        <div className="rate-value">
-                                            {rate ? rate.toFixed(4) : 'N/A'}
-                                        </div>
-
-                                        <div className="rate-name">{pair.name}</div>
-
-                                        <button
-                                            className="use-rate-btn"
-                                            onClick={() => {
-                                                setBaseCurrency(pair.from);
-                                                setTargetCurrency(pair.to);
-                                                window.scrollTo({ top: 0, behavior: 'smooth' });
-                                            }}
-                                        >
-                                            Use this rate
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                                <line x1="5" y1="12" x2="19" y2="12" />
-                                                <polyline points="12 5 19 12 12 19" />
+                                        <div className="swap-icon-wrapper">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                                <path d="M7 16V4M7 4L3 8M7 4L11 8" />
+                                                <path d="M17 8V20M17 20L21 16M17 20L13 16" />
                                             </svg>
-                                        </button>
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    )}
-                </div>
-
-                {/* All Rates Table */}
-                <div className="all-rates-section">
-                    <h2 className="section-title">All Exchange Rates (Base: {baseCurrency})</h2>
-
-                    <div className="rates-table">
-                        <div className="table-header">
-                            <div className="table-cell">Currency</div>
-                            <div className="table-cell">Rate</div>
-                            <div className="table-cell">Change</div>
-                            <div className="table-cell">Action</div>
-                        </div>
-
-                        <div className="table-body">
-                            {Object.entries(rates)
-                                .filter(([currency]) => currencies.includes(currency))
-                                .sort(([a], [b]) => a.localeCompare(b))
-                                .map(([currency, rate], index) => {
-                                    const change = getRateChange();
-                                    const isPositive = change > 0;
-
-                                    return (
-                                        <div key={currency} className="table-row" style={{ animationDelay: `${index * 0.02}s` }}>
-                                            <div className="table-cell currency-cell">
-                                                <span className="flag-large">{getFlagEmoji(currency)}</span>
-                                                <div className="currency-info">
-                                                    <span className="currency-code">{currency}</span>
-                                                    <span className="currency-symbol">{getCurrencySymbol(currency)}</span>
-                                                </div>
-                                            </div>
-                                            <div className="table-cell rate-cell">
-                                                {rate.toFixed(4)}
-                                            </div>
-                                            <div className="table-cell">
-                                                <span className={`change-badge ${isPositive ? 'positive' : 'negative'}`}>
-                                                    {isPositive ? '↑' : '↓'} {Math.abs(change)}%
-                                                </span>
-                                            </div>
-                                            <div className="table-cell">
-                                                <button
-                                                    className="convert-btn"
-                                                    onClick={() => {
-                                                        setTargetCurrency(currency);
-                                                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                                                    }}
-                                                >
-                                                    Convert
-                                                </button>
-                                            </div>
                                         </div>
-                                    );
-                                })}
-                        </div>
-                    </div>
-                </div>
+                                    </button>
 
-                {/* Info Cards */}
-                <div className="info-cards">
-                    <div className="info-card">
-                        <div className="info-icon live-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <circle cx="12" cy="12" r="10" />
-                                <polyline points="12 6 12 12 16 14" />
-                            </svg>
-                        </div>
-                        <h3>Real-Time Data</h3>
-                        <p>Exchange rates updated every 60 seconds from live market data sources.</p>
-                    </div>
+                                    <div className="currency-input-group">
+                                        <label>To</label>
+                                        <div className="input-row">
+                                            <input
+                                                type="text"
+                                                value={convertedAmount}
+                                                readOnly
+                                                className="amount-input result-input-modern"
+                                            />
+                                            <select
+                                                value={targetCurrency}
+                                                onChange={(e) => setTargetCurrency(e.target.value)}
+                                                className="currency-select-modern"
+                                            >
+                                                {currencies.map(curr => (
+                                                    <option key={curr} value={curr}>
+                                                        {getFlagEmoji(curr)} {curr}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
 
-                    <div className="info-card">
-                        <div className="info-icon secure-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                            </svg>
-                        </div>
-                        <h3>Secure & Accurate</h3>
-                        <p>Trusted API sources ensure accuracy and reliability for all currency conversions.</p>
-                    </div>
-
-                    <div className="info-card">
-                        <div className="info-icon global-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <circle cx="12" cy="12" r="10" />
-                                <line x1="2" y1="12" x2="22" y2="12" />
-                                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
-                            </svg>
-                        </div>
-                        <h3>Global Coverage</h3>
-                        <p>Support for 30+ major currencies including crypto like Bitcoin and Ethereum.</p>
-                    </div>
-                </div>
+                                {historicalData[targetCurrency] && historicalData[baseCurrency] && (
+                                    <div className="exchange-rate-info-modern">
+                                        <p>
+                                            1 {baseCurrency} = {(historicalData[targetCurrency].current / historicalData[baseCurrency].current).toFixed(4)} {targetCurrency}
+                                        </p>
+                                        <p className="spread-info">
+                                            Spread: {((historicalData[targetCurrency].ask - historicalData[targetCurrency].bid) / historicalData[targetCurrency].bid * 100).toFixed(3)}%
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </>
+                )}
             </div>
         </div>
     );
