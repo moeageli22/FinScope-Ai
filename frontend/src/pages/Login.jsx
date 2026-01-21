@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Login.css';
 import FinScopeAI from '../components/FinScopeAI.jsx';
+import { supabase } from '../config/supabase';
 
 const Login = () => {
     const navigate = useNavigate();
@@ -12,6 +13,20 @@ const Login = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [activeTab, setActiveTab] = useState('signin'); // 'signin' or 'signup'
     const [errors, setErrors] = useState({});
+
+    // ✅ Test Supabase connection
+    useEffect(() => {
+        const testConnection = async () => {
+            console.log('🔄 Testing Supabase connection...');
+            const { data, error } = await supabase.auth.getSession();
+            if (error) {
+                console.log('❌ Supabase Error:', error);
+            } else {
+                console.log('✅ Supabase Connected Successfully!', data);
+            }
+        };
+        testConnection();
+    }, []);
 
     const handleChange = (e) => {
         setFormData({
