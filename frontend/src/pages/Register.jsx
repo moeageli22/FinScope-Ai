@@ -2,11 +2,14 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Register.css';
 import FinScopeAI from '../components/FinScopeAI.jsx';
+import { supabase } from '../config/supabase';
 
 const Register = () => {
     const navigate = useNavigate();
     const [currentStep, setCurrentStep] = useState(1);
     const totalSteps = 4;
+    const [loading, setLoading] = useState(false);
+    const [registrationComplete, setRegistrationComplete] = useState(false);
 
     const [formData, setFormData] = useState({
         // Step 1: Personal Information
@@ -172,17 +175,79 @@ const Register = () => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (validateStep(currentStep)) {
+        if (!validateStep(currentStep)) return;
+
+        setLoading(true);
+
+        try {
             // Combine date of birth
             const dateOfBirth = `${formData.birthYear}-${formData.birthMonth}-${formData.birthDay}`;
-            const submitData = { ...formData, dateOfBirth };
 
-            console.log('Registration submitted:', submitData);
-            alert('Registration successful! (Demo)');
-            navigate('/login');
+            // Step 1: Create auth user
+            const { data: authData, error: authError } = await supabase.auth.signUp({
+                email: formData.email,
+                password: formData.password,
+                options: {
+                    data: {
+                        username: formData.username,
+                        first_name: formData.firstName,
+                        middle_name: formData.middleName,
+                        last_name: formData.lastName,
+                    },
+                    emailRedirectTo: `${window.location.origin}/login`
+                }
+            });
+
+            if (authError) {
+                console.error('Auth error:', authError);
+
+                if (authError.message.includes('already registered')) {
+                    setErrors({ email: 'This email is already registered' });
+                } else {
+                    setErrors({ general: authError.message });
+                }
+                setLoading(false);
+                return;
+            }
+
+            // Step 2: Create user profile
+            if (authData.user) {
+                const { error: profileError } = await supabase
+                    .from('user_profiles')
+                    .update({
+                        username: formData.username,
+                        first_name: formData.firstName,
+                        middle_name: formData.middleName,
+                        last_name: formData.lastName,
+                        date_of_birth: dateOfBirth,
+                        gender: formData.gender,
+                        nationality: formData.nationality,
+                        phone: formData.phone,
+                        city: formData.city,
+                        country: formData.country,
+                        employment_status: formData.employmentStatus,
+                        employer_name: formData.employerName,
+                        occupation: formData.occupation,
+                        annual_income: formData.annualIncome
+                    })
+                    .eq('id', authData.user.id);
+
+                if (profileError) {
+                    console.error('Profile error:', profileError);
+                }
+
+                // Show success message
+                setRegistrationComplete(true);
+                setLoading(false);
+            }
+
+        } catch (error) {
+            console.error('Unexpected error:', error);
+            setErrors({ general: 'An unexpected error occurred. Please try again.' });
+            setLoading(false);
         }
     };
 
@@ -190,10 +255,46 @@ const Register = () => {
         navigate('/login');
     };
 
+    // Success Screen
+    if (registrationComplete) {
+        return (
+            <div className="register-page">
+                <div className="register-container">
+                    <div className="success-screen">
+                        <div className="success-icon-large">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                                <polyline points="22 4 12 14.01 9 11.01" />
+                            </svg>
+                        </div>
+                        <h2 className="success-title">Check Your Email!</h2>
+                        <p className="success-message">
+                            We've sent a verification email to<br />
+                            <strong>{formData.email}</strong>
+                        </p>
+                        <p className="success-instructions">
+                            Please click the verification link in the email to activate your account.
+                            The link will expire in 24 hours.
+                        </p>
+                        <p className="success-note">
+                            Didn't receive the email? Check your spam folder or contact support.
+                        </p>
+                        <button
+                            className="btn-back-to-login"
+                            onClick={handleBackToLogin}
+                        >
+                            Back to Login
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="register-page">
             {/* Back Button */}
-            <button className="back-button" onClick={handleBackToLogin}>
+            <button className="back-button" onClick={handleBackToLogin} disabled={loading}>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M19 12H5M12 19l-7-7 7-7" />
                 </svg>
@@ -211,6 +312,18 @@ const Register = () => {
                     </h1>
                     <p className="register-tagline">Join thousands of users managing their finances smartly</p>
                 </div>
+
+                {/* Error Message */}
+                {errors.general && (
+                    <div className="error-alert">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <circle cx="12" cy="12" r="10" />
+                            <line x1="12" y1="8" x2="12" y2="12" />
+                            <line x1="12" y1="16" x2="12.01" y2="16" />
+                        </svg>
+                        <p>{errors.general}</p>
+                    </div>
+                )}
 
                 {/* Progress Bar */}
                 <div className="progress-bar">
@@ -264,6 +377,7 @@ const Register = () => {
                                         onChange={handleChange}
                                         placeholder="John"
                                         className={errors.firstName ? 'error' : ''}
+                                        disabled={loading}
                                     />
                                 </div>
 
@@ -276,6 +390,7 @@ const Register = () => {
                                         value={formData.middleName}
                                         onChange={handleChange}
                                         placeholder="Michael"
+                                        disabled={loading}
                                     />
                                 </div>
                             </div>
@@ -293,8 +408,8 @@ const Register = () => {
                                     onChange={handleChange}
                                     placeholder="Doe"
                                     className={errors.lastName ? 'error' : ''}
+                                    disabled={loading}
                                 />
-
                             </div>
 
                             <div className="form-group">
@@ -312,6 +427,7 @@ const Register = () => {
                                         value={formData.birthDay}
                                         onChange={handleChange}
                                         className={`date-select ${errors.birthDay ? 'error' : ''}`}
+                                        disabled={loading}
                                     >
                                         <option value="">Day</option>
                                         {days.map(day => (
@@ -326,6 +442,7 @@ const Register = () => {
                                         value={formData.birthMonth}
                                         onChange={handleChange}
                                         className={`date-select ${errors.birthMonth ? 'error' : ''}`}
+                                        disabled={loading}
                                     >
                                         <option value="">Month</option>
                                         {months.map(month => (
@@ -340,6 +457,7 @@ const Register = () => {
                                         value={formData.birthYear}
                                         onChange={handleChange}
                                         className={`date-select ${errors.birthYear ? 'error' : ''}`}
+                                        disabled={loading}
                                     >
                                         <option value="">Year</option>
                                         {years.map(year => (
@@ -363,6 +481,7 @@ const Register = () => {
                                         value={formData.gender}
                                         onChange={handleChange}
                                         className={errors.gender ? 'error' : ''}
+                                        disabled={loading}
                                     >
                                         <option value="">Select Gender</option>
                                         <option value="male">Male</option>
@@ -385,6 +504,7 @@ const Register = () => {
                                         onChange={handleChange}
                                         placeholder="e.g., American, British"
                                         className={errors.nationality ? 'error' : ''}
+                                        disabled={loading}
                                     />
                                 </div>
                             </div>
@@ -409,6 +529,7 @@ const Register = () => {
                                     onChange={handleChange}
                                     placeholder="john.doe@example.com"
                                     className={errors.email ? 'error' : ''}
+                                    disabled={loading}
                                 />
                             </div>
 
@@ -425,6 +546,7 @@ const Register = () => {
                                     onChange={handleChange}
                                     placeholder="+1 (555) 123-4567"
                                     className={errors.phone ? 'error' : ''}
+                                    disabled={loading}
                                 />
                             </div>
 
@@ -442,6 +564,7 @@ const Register = () => {
                                         onChange={handleChange}
                                         placeholder="New York"
                                         className={errors.city ? 'error' : ''}
+                                        disabled={loading}
                                     />
                                 </div>
 
@@ -458,6 +581,7 @@ const Register = () => {
                                         onChange={handleChange}
                                         placeholder="United States"
                                         className={errors.country ? 'error' : ''}
+                                        disabled={loading}
                                     />
                                 </div>
                             </div>
@@ -480,6 +604,7 @@ const Register = () => {
                                     value={formData.employmentStatus}
                                     onChange={handleChange}
                                     className={errors.employmentStatus ? 'error' : ''}
+                                    disabled={loading}
                                 >
                                     <option value="">Select Employment Status</option>
                                     <option value="employed">Employed</option>
@@ -505,6 +630,7 @@ const Register = () => {
                                             onChange={handleChange}
                                             placeholder="Company Name"
                                             className={errors.employerName ? 'error' : ''}
+                                            disabled={loading}
                                         />
                                     </div>
 
@@ -521,6 +647,7 @@ const Register = () => {
                                             onChange={handleChange}
                                             placeholder="Software Engineer"
                                             className={errors.occupation ? 'error' : ''}
+                                            disabled={loading}
                                         />
                                     </div>
                                 </>
@@ -537,6 +664,7 @@ const Register = () => {
                                     value={formData.annualIncome}
                                     onChange={handleChange}
                                     className={errors.annualIncome ? 'error' : ''}
+                                    disabled={loading}
                                 >
                                     <option value="">Select Income Range</option>
                                     <option value="0-25000">$0 - $25,000</option>
@@ -546,7 +674,6 @@ const Register = () => {
                                     <option value="100000-150000">$100,000 - $150,000</option>
                                     <option value="150000+">$150,000+</option>
                                 </select>
-
                             </div>
                         </div>
                     )}
@@ -569,6 +696,7 @@ const Register = () => {
                                     onChange={handleChange}
                                     placeholder="Choose a unique username"
                                     className={errors.username ? 'error' : ''}
+                                    disabled={loading}
                                 />
                             </div>
 
@@ -586,11 +714,13 @@ const Register = () => {
                                         onChange={handleChange}
                                         placeholder="Create a strong password"
                                         className={errors.password ? 'error' : ''}
+                                        disabled={loading}
                                     />
                                     <button
                                         type="button"
                                         className="toggle-password"
                                         onClick={() => setShowPassword(!showPassword)}
+                                        disabled={loading}
                                     >
                                         {showPassword ? (
                                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -606,7 +736,6 @@ const Register = () => {
                                     </button>
                                 </div>
                                 <small className="field-help">Must be at least 8 characters with uppercase, lowercase, number, and special character</small>
-
                             </div>
 
                             <div className="form-group">
@@ -623,11 +752,13 @@ const Register = () => {
                                         onChange={handleChange}
                                         placeholder="Re-enter your password"
                                         className={errors.confirmPassword ? 'error' : ''}
+                                        disabled={loading}
                                     />
                                     <button
                                         type="button"
                                         className="toggle-password"
                                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                        disabled={loading}
                                     >
                                         {showConfirmPassword ? (
                                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -642,7 +773,6 @@ const Register = () => {
                                         )}
                                     </button>
                                 </div>
-
                             </div>
 
                             <div className="agreements-section">
@@ -654,6 +784,7 @@ const Register = () => {
                                         checked={formData.agreeTerms}
                                         onChange={handleChange}
                                         className={errors.agreeTerms ? 'error' : ''}
+                                        disabled={loading}
                                     />
                                     <label htmlFor="agreeTerms">
                                         I agree to the <a href="#terms" target="_blank">Terms of Service</a> *
@@ -669,6 +800,7 @@ const Register = () => {
                                         checked={formData.agreePrivacy}
                                         onChange={handleChange}
                                         className={errors.agreePrivacy ? 'error' : ''}
+                                        disabled={loading}
                                     />
                                     <label htmlFor="agreePrivacy">
                                         I agree to the <a href="#privacy" target="_blank">Privacy Policy</a> *
@@ -683,6 +815,7 @@ const Register = () => {
                                         name="agreeMarketing"
                                         checked={formData.agreeMarketing}
                                         onChange={handleChange}
+                                        disabled={loading}
                                     />
                                     <label htmlFor="agreeMarketing">
                                         I agree to receive marketing communications (Optional)
@@ -695,7 +828,12 @@ const Register = () => {
                     {/* Navigation Buttons */}
                     <div className="form-navigation">
                         {currentStep > 1 && (
-                            <button type="button" className="btn-previous" onClick={handlePrevious}>
+                            <button
+                                type="button"
+                                className="btn-previous"
+                                onClick={handlePrevious}
+                                disabled={loading}
+                            >
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                     <path d="M19 12H5M12 19l-7-7 7-7" />
                                 </svg>
@@ -704,18 +842,36 @@ const Register = () => {
                         )}
 
                         {currentStep < totalSteps ? (
-                            <button type="button" className="btn-next" onClick={handleNext}>
+                            <button
+                                type="button"
+                                className="btn-next"
+                                onClick={handleNext}
+                                disabled={loading}
+                            >
                                 Next
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                     <path d="M5 12h14M12 5l7 7-7 7" />
                                 </svg>
                             </button>
                         ) : (
-                            <button type="submit" className="btn-submit">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                    <polyline points="20 6 9 17 4 12" />
-                                </svg>
-                                Create Account
+                            <button
+                                type="submit"
+                                className="btn-submit"
+                                disabled={loading}
+                            >
+                                {loading ? (
+                                    <>
+                                        <span className="spinner"></span>
+                                        Creating Account...
+                                    </>
+                                ) : (
+                                    <>
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                            <polyline points="20 6 9 17 4 12" />
+                                        </svg>
+                                        Create Account
+                                    </>
+                                )}
                             </button>
                         )}
                     </div>
@@ -723,7 +879,7 @@ const Register = () => {
 
                 {/* Already Have Account */}
                 <p className="login-link">
-                    Already have an account? <button onClick={handleBackToLogin}>Sign in</button>
+                    Already have an account? <button onClick={handleBackToLogin} disabled={loading}>Sign in</button>
                 </p>
             </div>
         </div>

@@ -11,35 +11,59 @@ const Login = () => {
         password: ''
     });
     const [showPassword, setShowPassword] = useState(false);
-    const [activeTab, setActiveTab] = useState('signin'); // 'signin' or 'signup'
+    const [activeTab, setActiveTab] = useState('signin');
     const [errors, setErrors] = useState({});
+    const [loading, setLoading] = useState(false);
+    const [message, setMessage] = useState({ type: '', text: '' });
 
-    // ✅ Test Supabase connection
+    // Check if user is already logged in
     useEffect(() => {
-        const testConnection = async () => {
-            console.log('🔄 Testing Supabase connection...');
-            const { data, error } = await supabase.auth.getSession();
-            if (error) {
-                console.log('❌ Supabase Error:', error);
-            } else {
-                console.log('✅ Supabase Connected Successfully!', data);
+        const checkSession = async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session) {
+                navigate('/dashboard');
             }
         };
-        testConnection();
-    }, []);
+        checkSession();
+    }, [navigate]);
+
+    // Listen for auth state changes
+    useEffect(() => {
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+            console.log('Auth event:', event);
+
+            if (event === 'SIGNED_IN' && session) {
+                setMessage({
+                    type: 'success',
+                    text: 'Login successful! Redirecting to dashboard...'
+                });
+                setTimeout(() => {
+                    navigate('/dashboard');
+                }, 1500);
+            }
+
+            if (event === 'SIGNED_OUT') {
+                setMessage({ type: '', text: '' });
+            }
+        });
+
+        return () => subscription.unsubscribe();
+    }, [navigate]);
 
     const handleChange = (e) => {
         setFormData({
             ...formData,
             [e.target.name]: e.target.value
         });
-        // Clear error when user starts typing
+
+        // Clear errors and messages when user types
         if (errors[e.target.name]) {
             setErrors({
                 ...errors,
                 [e.target.name]: ''
             });
         }
+        setMessage({ type: '', text: '' });
     };
 
     const validateForm = () => {
@@ -61,15 +85,62 @@ const Login = () => {
         return Object.keys(newErrors).length === 0;
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (validateForm()) {
-            // Here you would typically make an API call to authenticate
-            console.log('Login submitted:', formData);
-            alert('Sign in successful! (Demo)');
-            // Navigate to dashboard or home
-            // navigate('/dashboard');
+        if (!validateForm()) return;
+
+        setLoading(true);
+        setMessage({ type: '', text: '' });
+
+        try {
+            const { data, error } = await supabase.auth.signInWithPassword({
+                email: formData.email,
+                password: formData.password,
+            });
+
+            if (error) {
+                console.error('Login error:', error);
+
+                // Handle specific error cases
+                if (error.message.includes('Email not confirmed')) {
+                    setMessage({
+                        type: 'warning',
+                        text: 'Please verify your email address. Check your inbox for the verification link.'
+                    });
+                } else if (error.message.includes('Invalid login credentials')) {
+                    setMessage({
+                        type: 'error',
+                        text: 'Invalid email or password. Please try again.'
+                    });
+                } else {
+                    setMessage({
+                        type: 'error',
+                        text: error.message || 'An error occurred during login.'
+                    });
+                }
+                setLoading(false);
+                return;
+            }
+
+            if (data.user) {
+                console.log('User logged in:', data.user);
+                setMessage({
+                    type: 'success',
+                    text: '✓ Login successful! Redirecting...'
+                });
+
+                // Redirect will be handled by the auth state change listener
+            }
+
+        } catch (error) {
+            console.error('Unexpected error:', error);
+            setMessage({
+                type: 'error',
+                text: 'An unexpected error occurred. Please try again.'
+            });
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -119,6 +190,35 @@ const Login = () => {
                     </button>
                 </div>
 
+                {/* Message Alert */}
+                {message.text && (
+                    <div className={`message-alert ${message.type}`}>
+                        <div className="message-icon">
+                            {message.type === 'success' && (
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                                    <polyline points="22 4 12 14.01 9 11.01" />
+                                </svg>
+                            )}
+                            {message.type === 'error' && (
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <circle cx="12" cy="12" r="10" />
+                                    <line x1="12" y1="8" x2="12" y2="12" />
+                                    <line x1="12" y1="16" x2="12.01" y2="16" />
+                                </svg>
+                            )}
+                            {message.type === 'warning' && (
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                                    <line x1="12" y1="9" x2="12" y2="13" />
+                                    <line x1="12" y1="17" x2="12.01" y2="17" />
+                                </svg>
+                            )}
+                        </div>
+                        <p>{message.text}</p>
+                    </div>
+                )}
+
                 {/* Login Form */}
                 <form className="login-form" onSubmit={handleSubmit}>
                     {/* Email Field */}
@@ -132,6 +232,7 @@ const Login = () => {
                             onChange={handleChange}
                             placeholder="you@example.com"
                             className={errors.email ? 'error' : ''}
+                            disabled={loading}
                         />
                         {errors.email && <span className="error-message">{errors.email}</span>}
                     </div>
@@ -144,6 +245,7 @@ const Login = () => {
                                 type="button"
                                 className="forgot-password-link"
                                 onClick={() => navigate('/forgot-password')}
+                                disabled={loading}
                             >
                                 Forgot Password?
                             </button>
@@ -157,11 +259,13 @@ const Login = () => {
                                 onChange={handleChange}
                                 placeholder="••••••••"
                                 className={errors.password ? 'error' : ''}
+                                disabled={loading}
                             />
                             <button
                                 type="button"
                                 className="toggle-password"
                                 onClick={() => setShowPassword(!showPassword)}
+                                disabled={loading}
                             >
                                 {showPassword ? (
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -180,13 +284,24 @@ const Login = () => {
                     </div>
 
                     {/* Sign In Button */}
-                    <button type="submit" className="btn-sign-in-primary">
-                        Sign In
+                    <button
+                        type="submit"
+                        className="btn-sign-in-primary"
+                        disabled={loading}
+                    >
+                        {loading ? (
+                            <>
+                                <span className="spinner"></span>
+                                Signing In...
+                            </>
+                        ) : (
+                            'Sign In'
+                        )}
                     </button>
 
                     {/* Sign Up Link */}
                     <p className="signup-link">
-                        Don't have an account? <button type="button" onClick={handleSignUpClick}>Sign up</button>
+                        Don't have an account? <button type="button" onClick={handleSignUpClick} disabled={loading}>Sign up</button>
                     </p>
 
                     {/* Terms & Privacy */}
