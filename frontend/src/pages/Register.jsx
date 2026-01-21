@@ -197,7 +197,7 @@ const Register = () => {
                         middle_name: formData.middleName,
                         last_name: formData.lastName,
                     },
-                    emailRedirectTo: `${window.location.origin}/login`
+                    emailRedirectTo: `${window.location.origin}/email-confirmed`
                 }
             });
 
