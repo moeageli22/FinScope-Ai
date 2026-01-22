@@ -209,34 +209,36 @@ const Register = () => {
                 return;
             }
             console.log('Registration successful:', authData);
-            // Step 2: Create user profile (will be created by database trigger or can be done here)
+            // Step 2: Create user profile
             if (authData.user) {
-                // Note: The user profile will be created automatically by the database trigger
-                // But we can also update it with additional information here
+                // Create user profile with full name
+                const fullName = `${formData.firstName} ${formData.middleName ? formData.middleName + ' ' : ''}${formData.lastName}`.trim();
 
                 const { error: profileError } = await supabase
                     .from('user_profiles')
-                    .update({
-                        username: formData.username,
-                        first_name: formData.firstName,
-                        middle_name: formData.middleName,
-                        last_name: formData.lastName,
-                        date_of_birth: dateOfBirth,
-                        gender: formData.gender,
-                        nationality: formData.nationality,
-                        phone: formData.phone,
-                        city: formData.city,
-                        country: formData.country,
-                        employment_status: formData.employmentStatus,
-                        employer_name: formData.employerName,
-                        occupation: formData.occupation,
-                        annual_income: formData.annualIncome
-                    })
-                    .eq('id', authData.user.id);
+                    .insert({
+                        id: authData.user.id,
+                        email: formData.email,
+                        full_name: fullName
+                    });
+
                 if (profileError) {
                     console.error('Profile error:', profileError);
-                    // Don't fail registration if profile update fails
+                    // Don't fail registration if profile creation fails
                 }
+                // After user is created, send verification email
+                const { error: emailError } = await supabase.functions.invoke('send-verification-email', {
+                    body: {
+                        email: formData.email,
+                        userId: authData.user.id,
+                        type: 'signup'
+                    }
+                });
+
+                if (emailError) {
+                    console.error('Failed to send verification email:', emailError);
+                }
+
                 // Show success message
                 setRegistrationComplete(true);
                 setLoading(false);

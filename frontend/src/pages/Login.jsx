@@ -32,16 +32,9 @@ const Login = () => {
         const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
             console.log('Auth event:', event);
 
-            if (event === 'SIGNED_IN' && session) {
-                setMessage({
-                    type: 'success',
-                    text: 'Login successful! Redirecting to dashboard...'
-                });
-                setTimeout(() => {
-                    navigate('/dashboard');
-                }, 1500);
-            }
-
+            // Note: We don't automatically redirect on SIGNED_IN anymore
+            // because we're using 2FA flow which handles redirection after verification
+            
             if (event === 'SIGNED_OUT') {
                 setMessage({ type: '', text: '' });
             }
@@ -87,60 +80,86 @@ const Login = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
+        
         if (!validateForm()) return;
-
+        
         setLoading(true);
         setMessage({ type: '', text: '' });
-
+        
         try {
+            // Step 1: Check credentials
             const { data, error } = await supabase.auth.signInWithPassword({
                 email: formData.email,
                 password: formData.password,
             });
-
+            
             if (error) {
-                console.error('Login error:', error);
-
-                // Handle specific error cases
-                if (error.message.includes('Email not confirmed')) {
-                    setMessage({
-                        type: 'warning',
-                        text: 'Please verify your email address. Check your inbox for the verification link.'
-                    });
-                } else if (error.message.includes('Invalid login credentials')) {
-                    setMessage({
-                        type: 'error',
-                        text: 'Invalid email or password. Please try again.'
-                    });
-                } else {
-                    setMessage({
-                        type: 'error',
-                        text: error.message || 'An error occurred during login.'
-                    });
-                }
+                // Log failed attempt
+                await supabase.from('login_attempts').insert({
+                    email: formData.email,
+                    success: false,
+                    ip_address: await getIPAddress(),
+                });
+                
+                setMessage({
+                    type: 'error',
+                    text: 'Invalid email or password.'
+                });
                 setLoading(false);
                 return;
             }
-
-            if (data.user) {
-                console.log('User logged in:', data.user);
+            
+            // Step 2: Sign out immediately (we'll re-authenticate after 2FA)
+            await supabase.auth.signOut();
+            
+            // Step 3: Send 2FA code
+            const { error: twoFAError } = await supabase.functions.invoke('send-2fa-code', {
+                body: {
+                    email: formData.email,
+                    userId: data.user.id,
+                    ipAddress: await getIPAddress(),
+                    userAgent: navigator.userAgent
+                }
+            });
+            
+            if (twoFAError) {
+                console.error('Failed to send 2FA code:', twoFAError);
                 setMessage({
-                    type: 'success',
-                    text: '✓ Login successful! Redirecting...'
+                    type: 'error',
+                    text: 'Failed to send verification code. Please try again.'
                 });
-
-                // Redirect will be handled by the auth state change listener
+                setLoading(false);
+                return;
             }
-
+            
+            // Step 4: Navigate to 2FA verification page
+            navigate('/verify-2fa', {
+                state: {
+                    email: formData.email,
+                    userId: data.user.id,
+                    password: formData.password
+                }
+            });
+            
         } catch (error) {
             console.error('Unexpected error:', error);
             setMessage({
                 type: 'error',
-                text: 'An unexpected error occurred. Please try again.'
+                text: 'An unexpected error occurred.'
             });
         } finally {
             setLoading(false);
+        }
+    };
+    
+    // Helper function to get IP address
+    const getIPAddress = async () => {
+        try {
+            const response = await fetch('https://api.ipify.org?format=json');
+            const data = await response.json();
+            return data.ip;
+        } catch {
+            return 'Unknown';
         }
     };
 
