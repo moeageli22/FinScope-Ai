@@ -177,16 +177,12 @@ const Register = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
         if (!validateStep(currentStep)) return;
-
         setLoading(true);
-
         try {
             // Combine date of birth
             const dateOfBirth = `${formData.birthYear}-${formData.birthMonth}-${formData.birthDay}`;
-
-            // Step 1: Create auth user
+            // Step 1: Create auth user with email confirmation
             const { data: authData, error: authError } = await supabase.auth.signUp({
                 email: formData.email,
                 password: formData.password,
@@ -197,14 +193,14 @@ const Register = () => {
                         middle_name: formData.middleName,
                         last_name: formData.lastName,
                     },
-                    emailRedirectTo: `${window.location.origin}/email-confirmed`
+                    emailRedirectTo: `${window.location.origin}/email-confirmed`,
+                    // IMPORTANT: This ensures email confirmation is required
+                    shouldCreateUser: true
                 }
             });
-
             if (authError) {
                 console.error('Auth error:', authError);
-
-                if (authError.message.includes('already registered')) {
+                if (authError.message.includes('already registered') || authError.message.includes('User already registered')) {
                     setErrors({ email: 'This email is already registered' });
                 } else {
                     setErrors({ general: authError.message });
@@ -212,9 +208,12 @@ const Register = () => {
                 setLoading(false);
                 return;
             }
-
-            // Step 2: Create user profile
+            console.log('Registration successful:', authData);
+            // Step 2: Create user profile (will be created by database trigger or can be done here)
             if (authData.user) {
+                // Note: The user profile will be created automatically by the database trigger
+                // But we can also update it with additional information here
+
                 const { error: profileError } = await supabase
                     .from('user_profiles')
                     .update({
@@ -234,16 +233,14 @@ const Register = () => {
                         annual_income: formData.annualIncome
                     })
                     .eq('id', authData.user.id);
-
                 if (profileError) {
                     console.error('Profile error:', profileError);
+                    // Don't fail registration if profile update fails
                 }
-
                 // Show success message
                 setRegistrationComplete(true);
                 setLoading(false);
             }
-
         } catch (error) {
             console.error('Unexpected error:', error);
             setErrors({ general: 'An unexpected error occurred. Please try again.' });

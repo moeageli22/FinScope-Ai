@@ -10,11 +10,33 @@ import ContactSection from './ContactSection.jsx';
 import Footer from './Footer.jsx';
 import CookieBanner from './CookieBanner.jsx';
 import LiveExchange from './LiveExchange.jsx';
+import UserMenu from '../components/UserMenu.jsx';
+import { supabase } from '../config/supabase';
 
 function Home() {
     const navigate = useNavigate();
     const [activeSection, setActiveSection] = useState('home');
     const [showExchange, setShowExchange] = useState(false);
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [loading, setLoading] = useState(true);
+
+    // Check authentication status
+    useEffect(() => {
+        const checkAuth = async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            setIsAuthenticated(!!session);
+            setLoading(false);
+        };
+
+        checkAuth();
+
+        // Listen for auth changes
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+            setIsAuthenticated(!!session);
+        });
+
+        return () => subscription.unsubscribe();
+    }, []);
 
     // Navigation handlers for authentication
     const handleSignIn = () => {
@@ -23,6 +45,10 @@ function Home() {
 
     const handleGetStarted = () => {
         navigate('/register');
+    };
+
+    const handleDashboard = () => {
+        navigate('/dashboard');
     };
 
     // Smooth scroll function
@@ -151,8 +177,27 @@ function Home() {
                     </nav>
 
                     <div className="nav-buttons">
-                        <button className="btn-sign-in" onClick={handleSignIn}>Sign In</button>
-                        <button className="btn-get-started" onClick={handleGetStarted}>Get Started</button>
+                        {!loading && (
+                            isAuthenticated ? (
+                                <>
+                                    <button className="btn-dashboard" onClick={handleDashboard}>
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                            <rect x="3" y="3" width="7" height="7" />
+                                            <rect x="14" y="3" width="7" height="7" />
+                                            <rect x="14" y="14" width="7" height="7" />
+                                            <rect x="3" y="14" width="7" height="7" />
+                                        </svg>
+                                        Dashboard
+                                    </button>
+                                    <UserMenu />
+                                </>
+                            ) : (
+                                <>
+                                    <button className="btn-sign-in" onClick={handleSignIn}>Sign In</button>
+                                    <button className="btn-get-started" onClick={handleGetStarted}>Get Started</button>
+                                </>
+                            )
+                        )}
                     </div>
                 </header>
 
@@ -219,8 +264,27 @@ function Home() {
                 </nav>
 
                 <div className="nav-buttons">
-                    <button className="btn-sign-in" onClick={handleSignIn}>Sign In</button>
-                    <button className="btn-get-started" onClick={handleGetStarted}>Get Started</button>
+                    {!loading && (
+                        isAuthenticated ? (
+                            <>
+                                <button className="btn-dashboard" onClick={handleDashboard}>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                        <rect x="3" y="3" width="7" height="7" />
+                                        <rect x="14" y="3" width="7" height="7" />
+                                        <rect x="14" y="14" width="7" height="7" />
+                                        <rect x="3" y="14" width="7" height="7" />
+                                    </svg>
+                                    Dashboard
+                                </button>
+                                <UserMenu />
+                            </>
+                        ) : (
+                            <>
+                                <button className="btn-sign-in" onClick={handleSignIn}>Sign In</button>
+                                <button className="btn-get-started" onClick={handleGetStarted}>Get Started</button>
+                            </>
+                        )
+                    )}
                 </div>
             </header>
 
@@ -242,8 +306,14 @@ function Home() {
                 </p>
 
                 <div className="cta-buttons">
-                    <button className="btn-primary" onClick={handleGetStarted}>Start Your Journey</button>
-                    <button className="btn-secondary" onClick={handleSignIn}>Sign In</button>
+                    {isAuthenticated ? (
+                        <button className="btn-primary" onClick={handleDashboard}>Go to Dashboard</button>
+                    ) : (
+                        <>
+                            <button className="btn-primary" onClick={handleGetStarted}>Start Your Journey</button>
+                            <button className="btn-secondary" onClick={handleSignIn}>Sign In</button>
+                        </>
+                    )}
                 </div>
 
                 {/* AI Orb - Center Component */}

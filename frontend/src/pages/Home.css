@@ -179,6 +179,7 @@
 .nav-buttons {
     display: flex;
     gap: 12px;
+    align-items: center;
 }
 
 .btn-sign-in {
@@ -254,6 +255,35 @@
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(6, 182, 212, 0.5);
     background: linear-gradient(135deg, #0891b2, #2563eb);
+}
+
+/* Dashboard Button */
+.btn-dashboard {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, rgba(6, 182, 212, 0.15), rgba(59, 130, 246, 0.15));
+    color: #60a5fa;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.btn-dashboard svg {
+    width: 18px;
+    height: 18px;
+}
+
+.btn-dashboard:hover {
+    background: linear-gradient(135deg, rgba(6, 182, 212, 0.25), rgba(59, 130, 246, 0.25));
+    border-color: rgba(59, 130, 246, 0.5);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 }
 
 /* Main Content */
@@ -487,6 +517,16 @@
         font-size: 13px;
     }
 
+    .btn-dashboard {
+        padding: 8px 14px;
+        font-size: 13px;
+    }
+
+    .btn-dashboard svg {
+        width: 16px;
+        height: 16px;
+    }
+
     .main-heading {
         font-size: 36px;
     }
@@ -526,6 +566,14 @@
 
     .logo-icon > div {
         transform: scale(0.115);
+    }
+
+    .btn-dashboard span {
+        display: none;
+    }
+
+    .btn-dashboard {
+        padding: 8px 12px;
     }
 }
 
