@@ -1,4 +1,11 @@
 /* Home Page Styles */
+
+/* Enable smooth scrolling */
+html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 80px;
+}
+
 .home-container {
     min-height: 100vh;
     background: linear-gradient(180deg, #0a0b1e 0%, #11132b 50%, #1a1535 100%);
@@ -111,6 +118,7 @@
     border-radius: 8px;
     transition: all 0.3s ease;
     cursor: pointer;
+    border: 1px solid transparent;
 }
 
 .nav-link::before {
@@ -139,6 +147,7 @@
     color: #ffffff;
     background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(139, 92, 246, 0.15));
     border: 1px solid rgba(59, 130, 246, 0.3);
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
 }
 
 .nav-link.active::before {

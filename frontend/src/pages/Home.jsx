@@ -51,54 +51,47 @@ function Home() {
         navigate('/dashboard');
     };
 
-    // Smooth scroll function
-    const scrollToSection = (e, sectionId) => {
-        e.preventDefault();
-
-        if (sectionId === 'exchange') {
-            setShowExchange(true);
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Track active section on scroll
+    useEffect(() => {
+        if (showExchange) {
+            setActiveSection('exchange');
             return;
         }
 
-        setShowExchange(false);
-
-        const element = document.getElementById(sectionId);
-        if (element) {
-            const headerOffset = 80;
-            const elementPosition = element.getBoundingClientRect().top;
-            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-
-            window.scrollTo({
-                top: offsetPosition,
-                behavior: 'smooth'
-            });
-        }
-    };
-
-    // Track active section on scroll
-    useEffect(() => {
-        if (showExchange) return;
-
         const handleScroll = () => {
-            const sections = ['home', 'about', 'features', 'contact'];
-            const scrollPosition = window.scrollY + 150;
+            const scrollPosition = window.scrollY;
 
-            for (const section of sections) {
-                const element = document.getElementById(section);
+            // If near the top (first 200px), set home as active
+            if (scrollPosition < 200) {
+                setActiveSection('home');
+                return;
+            }
+
+            // Check each section
+            const sections = ['about', 'features', 'contact'];
+
+            for (const sectionId of sections) {
+                const element = document.getElementById(sectionId);
                 if (element) {
-                    const offsetTop = element.offsetTop;
-                    const offsetHeight = element.offsetHeight;
+                    const rect = element.getBoundingClientRect();
+                    const elementTop = rect.top + window.pageYOffset;
+                    const elementBottom = elementTop + rect.height;
 
-                    if (scrollPosition >= offsetTop && scrollPosition < offsetTop + offsetHeight) {
-                        setActiveSection(section);
-                        break;
+                    // If the section is in view (considering header offset)
+                    if (scrollPosition + 150 >= elementTop && scrollPosition + 150 < elementBottom) {
+                        setActiveSection(sectionId);
+                        return;
                     }
                 }
             }
         };
 
+        // Add scroll listener
         window.addEventListener('scroll', handleScroll);
+
+        // Call once on mount to set initial state
+        handleScroll();
+
         return () => window.removeEventListener('scroll', handleScroll);
     }, [showExchange]);
 
@@ -129,6 +122,7 @@ function Home() {
                             onClick={(e) => {
                                 e.preventDefault();
                                 setShowExchange(false);
+                                setActiveSection('home');
                                 window.scrollTo({ top: 0, behavior: 'smooth' });
                             }}
                         >
@@ -140,7 +134,11 @@ function Home() {
                             onClick={(e) => {
                                 e.preventDefault();
                                 setShowExchange(false);
-                                setTimeout(() => scrollToSection(e, 'about'), 100);
+                                setActiveSection('about');
+                                // Let the anchor link handle scrolling after page loads
+                                setTimeout(() => {
+                                    window.location.hash = 'about';
+                                }, 100);
                             }}
                         >
                             About
@@ -151,7 +149,10 @@ function Home() {
                             onClick={(e) => {
                                 e.preventDefault();
                                 setShowExchange(false);
-                                setTimeout(() => scrollToSection(e, 'features'), 100);
+                                setActiveSection('features');
+                                setTimeout(() => {
+                                    window.location.hash = 'features';
+                                }, 100);
                             }}
                         >
                             Features
@@ -159,7 +160,12 @@ function Home() {
                         <a
                             href="#exchange"
                             className="nav-link active"
-                            onClick={(e) => scrollToSection(e, 'exchange')}
+                            onClick={(e) => {
+                                e.preventDefault();
+                                setShowExchange(true);
+                                setActiveSection('exchange');
+                                window.scrollTo({ top: 0, behavior: 'smooth' });
+                            }}
                         >
                             Live Exchange
                         </a>
@@ -169,7 +175,10 @@ function Home() {
                             onClick={(e) => {
                                 e.preventDefault();
                                 setShowExchange(false);
-                                setTimeout(() => scrollToSection(e, 'contact'), 100);
+                                setActiveSection('contact');
+                                setTimeout(() => {
+                                    window.location.hash = 'contact';
+                                }, 100);
                             }}
                         >
                             Contact
@@ -229,35 +238,41 @@ function Home() {
                     <a
                         href="#home"
                         className={`nav-link ${activeSection === 'home' ? 'active' : ''}`}
-                        onClick={(e) => scrollToSection(e, 'home')}
+                        onClick={(e) => {
+                            e.preventDefault();
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                            setActiveSection('home');
+                        }}
                     >
                         Home
                     </a>
                     <a
                         href="#about"
                         className={`nav-link ${activeSection === 'about' ? 'active' : ''}`}
-                        onClick={(e) => scrollToSection(e, 'about')}
                     >
                         About
                     </a>
                     <a
                         href="#features"
                         className={`nav-link ${activeSection === 'features' ? 'active' : ''}`}
-                        onClick={(e) => scrollToSection(e, 'features')}
                     >
                         Features
                     </a>
                     <a
                         href="#exchange"
-                        className="nav-link"
-                        onClick={(e) => scrollToSection(e, 'exchange')}
+                        className={`nav-link ${activeSection === 'exchange' ? 'active' : ''}`}
+                        onClick={(e) => {
+                            e.preventDefault();
+                            setShowExchange(true);
+                            setActiveSection('exchange');
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                        }}
                     >
                         Live Exchange
                     </a>
                     <a
                         href="#contact"
                         className={`nav-link ${activeSection === 'contact' ? 'active' : ''}`}
-                        onClick={(e) => scrollToSection(e, 'contact')}
                     >
                         Contact
                     </a>
