@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
 
+// Use different variable names since SUPABASE_ prefix is reserved
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY")
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")
@@ -18,52 +19,120 @@ serve(async (req) => {
   }
 
   try {
-    console.log("2FA function invoked!")
+    console.log("=== 2FA Function Invoked ===")
 
-    const { email, userId, ipAddress, userAgent } = await req.json()
-    console.log("Received data:", { email, userId })
+    // Parse request body
+    let requestBody
+    try {
+      requestBody = await req.json()
+      console.log("Request body received:", {
+        hasEmail: !!requestBody.email,
+        hasUserId: !!requestBody.userId,
+        hasIpAddress: !!requestBody.ipAddress,
+        hasUserAgent: !!requestBody.userAgent
+      })
+    } catch (parseError) {
+      console.error("Failed to parse request body:", parseError)
+      return new Response(
+          JSON.stringify({ success: false, error: "Invalid request body" }),
+          {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+            status: 400
+          }
+      )
+    }
 
+    const { email, userId, ipAddress, userAgent } = requestBody
+
+    // Validate required fields
+    if (!email || !userId) {
+      console.error("Missing required fields:", { email: !!email, userId: !!userId })
+      return new Response(
+          JSON.stringify({ success: false, error: "Missing email or userId" }),
+          {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+            status: 400
+          }
+      )
+    }
+
+    console.log("Processing 2FA for:", email, "User ID:", userId)
+
+    // Check environment variables
+    if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+      console.error("Missing Supabase configuration")
+      return new Response(
+          JSON.stringify({ success: false, error: "Server configuration error" }),
+          {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+            status: 500
+          }
+      )
+    }
+
+    // Create Supabase client
     const supabase = createClient(
-        SUPABASE_URL!,
-        SUPABASE_SERVICE_ROLE_KEY!
+        SUPABASE_URL,
+        SUPABASE_SERVICE_ROLE_KEY
     )
 
     // Generate 6-digit code
     const code = Math.floor(100000 + Math.random() * 900000).toString()
-    console.log("Generated code:", code)
+    console.log("Generated 6-digit code")
 
     const expiresAt = new Date()
     expiresAt.setMinutes(expiresAt.getMinutes() + 10)
 
     // Store code in database
-    const { error: dbError } = await supabase
+    console.log("Attempting to store code in database...")
+    const { data: insertData, error: dbError } = await supabase
         .from("two_factor_codes")
         .insert({
           user_id: userId,
           code: code,
           expires_at: expiresAt.toISOString(),
-          ip_address: ipAddress,
-          user_agent: userAgent,
-          verified: false
+          ip_address: ipAddress || 'Unknown',
+          user_agent: userAgent || 'Unknown',
+          used: false
         })
+        .select()
 
     if (dbError) {
       console.error("Database error:", dbError)
-      throw new Error(`Database error: ${dbError.message}`)
+      return new Response(
+          JSON.stringify({ success: false, error: `Database error: ${dbError.message}` }),
+          {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+            status: 500
+          }
+      )
     }
 
-    console.log("Code stored in database")
+    console.log("Code stored successfully in database")
 
-    // Send email via Resend - USING TEST DOMAIN
+    // Check if Resend API key is available
+    if (!RESEND_API_KEY) {
+      console.warn("RESEND_API_KEY not set, skipping email send")
+      return new Response(
+          JSON.stringify({
+            success: true,
+            warning: "Code generated but email not sent - no API key configured",
+            code: code // Only for testing, remove in production
+          }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      )
+    }
+
+    // Send email via Resend
     console.log("Sending email to:", email)
-    const res = await fetch("https://api.resend.com/emails", {
+    const emailResponse = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: "Acme <onboarding@resend.dev>",
+        from: "FinScope AI <onboarding@resend.dev>",
         to: [email],
         subject: "Your Login Verification Code - FinScope AI",
         html: `
@@ -85,7 +154,7 @@ serve(async (req) => {
             <body>
               <div class="container">
                 <div class="header">
-                  <h1>🔐 FinScope AI</h1>
+                  <h1>🔒 FinScope AI</h1>
                 </div>
                 <div class="content">
                   <h2>Your Login Verification Code</h2>
@@ -117,27 +186,47 @@ serve(async (req) => {
       }),
     })
 
-    const resendData = await res.json()
-    console.log("Resend response:", resendData)
+    const resendData = await emailResponse.json()
 
-    if (!res.ok) {
+    if (!emailResponse.ok) {
       console.error("Resend API error:", resendData)
-      throw new Error(`Resend API error: ${JSON.stringify(resendData)}`)
+      return new Response(
+          JSON.stringify({
+            success: false,
+            error: `Failed to send email: ${JSON.stringify(resendData)}`
+          }),
+          {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+            status: 500
+          }
+      )
     }
 
     console.log("Email sent successfully!")
+    console.log("=== 2FA Function Completed Successfully ===")
 
     return new Response(
         JSON.stringify({ success: true }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    )
-  } catch (error) {
-    console.error("Function error:", error)
-    return new Response(
-        JSON.stringify({ success: false, error: error.message }),
         {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
-          status: 400
+          status: 200
+        }
+    )
+
+  } catch (error) {
+    console.error("=== Function Error ===")
+    console.error("Error type:", error.constructor.name)
+    console.error("Error message:", error.message)
+    console.error("Error stack:", error.stack)
+
+    return new Response(
+        JSON.stringify({
+          success: false,
+          error: error.message || "Internal server error"
+        }),
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 500
         }
     )
   }

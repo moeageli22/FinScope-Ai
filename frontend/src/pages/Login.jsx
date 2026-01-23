@@ -32,9 +32,6 @@ const Login = () => {
         const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
             console.log('Auth event:', event);
 
-            // Note: We don't automatically redirect on SIGNED_IN anymore
-            // because we're using 2FA flow which handles redirection after verification
-            
             if (event === 'SIGNED_OUT') {
                 setMessage({ type: '', text: '' });
             }
@@ -78,29 +75,50 @@ const Login = () => {
         return Object.keys(newErrors).length === 0;
     };
 
+    // Helper function to get IP address
+    const getIPAddress = async () => {
+        try {
+            const response = await fetch('https://api.ipify.org?format=json');
+            const data = await response.json();
+            return data.ip;
+        } catch (error) {
+            console.error('Failed to get IP:', error);
+            return 'Unknown';
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
+
         if (!validateForm()) return;
-        
+
         setLoading(true);
         setMessage({ type: '', text: '' });
-        
+
         try {
-            // Step 1: Check credentials
-            const { data, error } = await supabase.auth.signInWithPassword({
+            console.log('=== Login Flow Started ===');
+            console.log('Attempting to sign in with email:', formData.email);
+
+            // Step 1: Verify credentials
+            const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
                 email: formData.email,
                 password: formData.password,
             });
-            
-            if (error) {
+
+            if (signInError) {
+                console.error('Sign in error:', signInError);
+
                 // Log failed attempt
-                await supabase.from('login_attempts').insert({
-                    email: formData.email,
-                    success: false,
-                    ip_address: await getIPAddress(),
-                });
-                
+                try {
+                    await supabase.from('login_attempts').insert({
+                        email: formData.email,
+                        success: false,
+                        ip_address: await getIPAddress(),
+                    });
+                } catch (logError) {
+                    console.error('Failed to log attempt:', logError);
+                }
+
                 setMessage({
                     type: 'error',
                     text: 'Invalid email or password.'
@@ -108,22 +126,44 @@ const Login = () => {
                 setLoading(false);
                 return;
             }
-            
+
+            console.log('✅ Credentials verified successfully');
+            console.log('User ID:', signInData.user.id);
+
             // Step 2: Sign out immediately (we'll re-authenticate after 2FA)
             await supabase.auth.signOut();
-            
-            // Step 3: Send 2FA code
-            const { error: twoFAError } = await supabase.functions.invoke('send-2fa-code', {
-                body: {
-                    email: formData.email,
-                    userId: data.user.id,
-                    ipAddress: await getIPAddress(),
-                    userAgent: navigator.userAgent
-                }
+            console.log('✅ Signed out (temporary for 2FA flow)');
+
+            // Step 3: Get IP address for security logging
+            const ipAddress = await getIPAddress();
+            console.log('IP Address:', ipAddress);
+
+            // Step 4: Prepare 2FA request
+            const requestBody = {
+                email: formData.email,
+                userId: signInData.user.id,
+                ipAddress: ipAddress,
+                userAgent: navigator.userAgent
+            };
+
+            console.log('Sending 2FA request with body:', {
+                email: requestBody.email,
+                userId: requestBody.userId,
+                hasIpAddress: !!requestBody.ipAddress,
+                hasUserAgent: !!requestBody.userAgent
             });
-            
-            if (twoFAError) {
-                console.error('Failed to send 2FA code:', twoFAError);
+
+            // Step 5: Invoke 2FA function
+            const { data: functionData, error: functionError } = await supabase.functions.invoke('send-2fa-code', {
+                body: requestBody
+            });
+
+            console.log('2FA Function Response:', functionData);
+
+            if (functionError) {
+                console.error('❌ 2FA Function Error:', functionError);
+                console.error('Error details:', JSON.stringify(functionError, null, 2));
+
                 setMessage({
                     type: 'error',
                     text: 'Failed to send verification code. Please try again.'
@@ -131,35 +171,51 @@ const Login = () => {
                 setLoading(false);
                 return;
             }
-            
-            // Step 4: Navigate to 2FA verification page
+
+            // Check if function returned success
+            if (functionData && !functionData.success) {
+                console.error('❌ Function returned unsuccessful:', functionData);
+                setMessage({
+                    type: 'error',
+                    text: functionData.error || 'Failed to send verification code.'
+                });
+                setLoading(false);
+                return;
+            }
+
+            console.log('✅ 2FA code sent successfully');
+
+            // Show warning if email wasn't sent (no API key configured)
+            if (functionData?.warning) {
+                console.warn('⚠️', functionData.warning);
+                // For testing: show the code
+                if (functionData.code) {
+                    console.log('🔑 TEST CODE:', functionData.code);
+                }
+            }
+
+            console.log('✅ Navigating to 2FA verification page');
+
+            // Step 6: Navigate to 2FA verification page
             navigate('/verify-2fa', {
                 state: {
                     email: formData.email,
-                    userId: data.user.id,
+                    userId: signInData.user.id,
                     password: formData.password
                 }
             });
-            
+
         } catch (error) {
-            console.error('Unexpected error:', error);
+            console.error('❌ Unexpected error in login flow:', error);
+            console.error('Error type:', error.constructor.name);
+            console.error('Error message:', error.message);
+            console.error('Error stack:', error.stack);
+
             setMessage({
                 type: 'error',
-                text: 'An unexpected error occurred.'
+                text: 'An unexpected error occurred. Please try again.'
             });
-        } finally {
             setLoading(false);
-        }
-    };
-    
-    // Helper function to get IP address
-    const getIPAddress = async () => {
-        try {
-            const response = await fetch('https://api.ipify.org?format=json');
-            const data = await response.json();
-            return data.ip;
-        } catch {
-            return 'Unknown';
         }
     };
 

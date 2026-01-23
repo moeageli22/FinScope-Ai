@@ -110,13 +110,14 @@ const Verify2FA = () => {
                 .select('*')
                 .eq('user_id', userId)
                 .eq('code', codeString)
-                .eq('verified', false)
+                .eq('used', false)  // ✅ Changed from 'verified' to 'used'
                 .gt('expires_at', new Date().toISOString())
                 .order('created_at', { ascending: false })
                 .limit(1)
                 .single();
 
             if (codeError || !codeData) {
+                console.error('Code verification error:', codeError);
                 setError('Invalid or expired code. Please try again.');
                 setCode(['', '', '', '', '', '']);
                 inputRefs.current[0]?.focus();
@@ -124,11 +125,18 @@ const Verify2FA = () => {
                 return;
             }
 
-            // Mark code as verified
-            await supabase
+            // Mark code as used
+            const { error: updateError } = await supabase
                 .from('two_factor_codes')
-                .update({ verified: true })
+                .update({ used: true })  // ✅ Changed from 'verified' to 'used'
                 .eq('id', codeData.id);
+
+            if (updateError) {
+                console.error('Error updating code status:', updateError);
+                setError('An error occurred. Please try again.');
+                setLoading(false);
+                return;
+            }
 
             // Now sign in the user
             const { error: signInError } = await supabase.auth.signInWithPassword({
@@ -137,6 +145,7 @@ const Verify2FA = () => {
             });
 
             if (signInError) {
+                console.error('Sign in error:', signInError);
                 setError('Authentication failed. Please try logging in again.');
                 setLoading(false);
                 return;
@@ -177,6 +186,7 @@ const Verify2FA = () => {
             });
 
             if (error) {
+                console.error('Resend error:', error);
                 setError('Failed to resend code. Please try again.');
             } else {
                 setResendCooldown(60); // 60 second cooldown
@@ -185,6 +195,7 @@ const Verify2FA = () => {
                 inputRefs.current[0]?.focus();
             }
         } catch (error) {
+            console.error('Resend exception:', error);
             setError('Failed to resend code. Please try again.');
         } finally {
             setLoading(false);
