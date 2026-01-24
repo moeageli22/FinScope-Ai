@@ -1,7 +1,9 @@
-// backend/server.js or backend/index.js
+// backend/Server.js - Updated with Terms route
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const contactRoutes = require('./routes/contact');
+const termsRoutes = require('./routes/terms');  // Add this import
 
 const app = express();
 const PORT = process.env.PORT || 5173;
@@ -28,6 +30,11 @@ app.use((req, res, next) => {
     next();
 });
 
+// ===== STATIC FILES =====
+
+// Serve uploaded files (optional - if you want to serve PDFs from uploads directory)
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+
 // ===== ROUTES =====
 
 // Health check endpoint
@@ -41,6 +48,9 @@ app.get('/health', (req, res) => {
 
 // Contact form routes
 app.use('/api', contactRoutes);
+
+// Terms & Conditions routes - ADD THIS
+app.use('/api', termsRoutes);
 
 // 404 handler
 app.use((req, res) => {
@@ -69,6 +79,8 @@ app.listen(PORT, () => {
     console.log(`✅ Server running on port ${PORT}`);
     console.log(`🌐 Health check: http://localhost:${PORT}/health`);
     console.log(`📧 Contact API: http://localhost:${PORT}/api/send-contact-email`);
+    console.log(`📄 Terms Download: http://localhost:${PORT}/api/download-terms`);
+    console.log(`📖 Terms View: http://localhost:${PORT}/api/view-terms`);
     console.log('=================================');
 });
 

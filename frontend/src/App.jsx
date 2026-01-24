@@ -6,6 +6,7 @@ import Register from "./pages/Register.jsx";
 import ForgotPassword from "./pages/Forgotpassword.jsx";
 import EmailConfirmed from "./pages/EmailConfirmed.jsx";
 import Verify2FA from "./pages/Verify2FA";
+import Terms from './pages/Terms'
 import VerifyEmail from "./pages/VerifyEmail";
 import Dashboard from "./pages/Dashboard.jsx";
 import "./App.css";
@@ -23,6 +24,7 @@ function App() {
                     <Route path="/verify-2fa" element={<Verify2FA />} />
                     <Route path="/verify-email" element={<VerifyEmail />} />
                     <Route path="/dashboard" element={<Dashboard />} />
+                    <Route path="/terms" element={<Terms />} />
                 </Routes>
             </div>
         </Router>

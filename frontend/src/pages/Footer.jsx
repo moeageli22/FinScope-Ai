@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import './Footer.css';
 import FinScopeAI from '../components/FinScopeAI.jsx';
 
@@ -46,10 +47,10 @@ const Footer = () => {
                         <div className="footer-column">
                             <h4>Legal</h4>
                             <ul>
-                                <li><a href="#privacy">Privacy Policy</a></li>
-                                <li><a href="#terms">Terms of Service</a></li>
-                                <li><a href="#cookies">Cookie Policy</a></li>
-                                <li><a href="#security">Security</a></li>
+                                <li><Link to="/terms">Privacy Policy</Link></li>
+                                <li><Link to="/terms">Terms of Service</Link></li>
+                                <li><Link to="/terms">Cookie Policy</Link></li>
+                                <li><Link to="/terms">Security</Link></li>
                             </ul>
                         </div>
                     </div>
@@ -79,7 +80,7 @@ const Footer = () => {
                         <a href="mailto:Finscopeai@gmail.com" className="footer-email">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                 <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
-                                <path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16" />
+                                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
                             </svg>
                             Business Email
                         </a>
