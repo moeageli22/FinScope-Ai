@@ -1,21 +1,54 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Terms.css';
 
 const Terms = () => {
     const navigate = useNavigate();
+    const [downloading, setDownloading] = useState(false);
 
     const handleDownload = async () => {
         try {
+            setDownloading(true);
+            console.log('Starting PDF download...');
+
             // Fetch the PDF from your backend API
-            const response = await fetch('http://localhost:5173/api/download-terms');
+            const response = await fetch('http://localhost:5173/api/download-terms', {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/pdf',
+                },
+            });
+
+            console.log('Response status:', response.status);
+            console.log('Response content-type:', response.headers.get('content-type'));
+
+            // Check if response is an error (will be JSON)
+            const contentType = response.headers.get('content-type');
 
             if (!response.ok) {
-                throw new Error('Failed to download PDF');
+                // If it's an error, try to parse JSON
+                if (contentType && contentType.includes('application/json')) {
+                    const errorData = await response.json();
+                    console.error('Server error:', errorData);
+                    throw new Error(errorData.message || 'Failed to download PDF');
+                } else {
+                    throw new Error(`Server returned ${response.status}: ${response.statusText}`);
+                }
+            }
+
+            // Check if we actually got a PDF
+            if (!contentType || !contentType.includes('application/pdf')) {
+                throw new Error(`Expected PDF but got ${contentType}`);
             }
 
             // Convert response to blob
             const blob = await response.blob();
+            console.log('Blob size:', blob.size, 'bytes');
+            console.log('Blob type:', blob.type);
+
+            if (blob.size === 0) {
+                throw new Error('Downloaded file is empty');
+            }
 
             // Create a temporary URL for the blob
             const url = window.URL.createObjectURL(blob);
@@ -24,15 +57,26 @@ const Terms = () => {
             const link = document.createElement('a');
             link.href = url;
             link.download = 'FinScopeAITerms.pdf';
+            link.style.display = 'none';
             document.body.appendChild(link);
+
+            console.log('✅ Triggering download...');
             link.click();
 
-            // Cleanup
-            document.body.removeChild(link);
-            window.URL.revokeObjectURL(url);
+            // Cleanup after a short delay
+            setTimeout(() => {
+                document.body.removeChild(link);
+                window.URL.revokeObjectURL(url);
+                console.log('✅ Download cleanup complete');
+            }, 100);
+
+            console.log('✅ PDF downloaded successfully!');
+
         } catch (error) {
-            console.error('Download error:', error);
-            alert('Failed to download PDF. Please try again.');
+            console.error('❌ Download error:', error);
+            alert(`Failed to download PDF: ${error.message}\n\nPlease check the console for more details.`);
+        } finally {
+            setDownloading(false);
         }
     };
 
@@ -69,13 +113,17 @@ const Terms = () => {
                         Last updated: January 2025
                     </p>
 
-                    <button className="download-button" onClick={handleDownload}>
+                    <button
+                        className="download-button"
+                        onClick={handleDownload}
+                        disabled={downloading}
+                    >
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
                             <polyline points="7 10 12 15 17 10" />
                             <line x1="12" y1="15" x2="12" y2="3" />
                         </svg>
-                        Download Terms & Conditions (PDF)
+                        {downloading ? 'Downloading...' : 'Download Terms & Conditions (PDF)'}
                     </button>
                 </div>
 
