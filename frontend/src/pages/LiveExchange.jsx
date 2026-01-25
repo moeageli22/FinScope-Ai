@@ -306,13 +306,28 @@ const LiveExchange = () => {
         }
     }, [showFromDropdown, showToDropdown, showChartFromDropdown, showChartToDropdown]);
 
-    // Update chart data when currencies or timerange change
+    // Initial chart data load (only once when historicalData is first available)
+    const [chartInitialized, setChartInitialized] = useState(false);
+
     useEffect(() => {
-        if (historicalData[chartFrom] && historicalData[chartTo]) {
+        if (historicalData[chartFrom] && historicalData[chartTo] && !chartInitialized) {
             const data = generateChartData(chartFrom, chartTo, chartTimeRange);
             setChartData(data);
+            setChartInitialized(true);
         }
-    }, [chartFrom, chartTo, chartTimeRange, historicalData, generateChartData]);
+    }, [historicalData, chartFrom, chartTo, chartTimeRange, chartInitialized]);
+
+    // Update chart data ONLY when user changes currencies or timerange manually
+    const handleChartUpdate = useCallback((newFrom, newTo, newTimeRange) => {
+        if (historicalData[newFrom || chartFrom] && historicalData[newTo || chartTo]) {
+            const data = generateChartData(
+                newFrom || chartFrom,
+                newTo || chartTo,
+                newTimeRange || chartTimeRange
+            );
+            setChartData(data);
+        }
+    }, [historicalData, chartFrom, chartTo, chartTimeRange, generateChartData]);
 
     const handleAmountChange = (e) => {
         const value = e.target.value;
@@ -416,7 +431,10 @@ const LiveExchange = () => {
                         <button
                             key={range}
                             className={`timerange-pill ${chartTimeRange === range ? 'active' : ''}`}
-                            onClick={() => setChartTimeRange(range)}
+                            onClick={() => {
+                                setChartTimeRange(range);
+                                handleChartUpdate(null, null, range);
+                            }}
                         >
                             {range}
                         </button>
@@ -898,6 +916,7 @@ const LiveExchange = () => {
                                                                         onClick={(e) => {
                                                                             e.stopPropagation();
                                                                             setChartFrom(code);
+                                                                            handleChartUpdate(code, null, null);
                                                                             setShowChartFromDropdown(false);
                                                                             setSearchChartFrom('');
                                                                         }}
@@ -927,6 +946,7 @@ const LiveExchange = () => {
                                                             onClick={(e) => {
                                                                 e.stopPropagation();
                                                                 setChartFrom(curr.code);
+                                                                handleChartUpdate(curr.code, null, null);
                                                                 setShowChartFromDropdown(false);
                                                                 setSearchChartFrom('');
                                                             }}
@@ -1005,6 +1025,7 @@ const LiveExchange = () => {
                                                                         onClick={(e) => {
                                                                             e.stopPropagation();
                                                                             setChartTo(code);
+                                                                            handleChartUpdate(null, code, null);
                                                                             setShowChartToDropdown(false);
                                                                             setSearchChartTo('');
                                                                         }}
@@ -1034,6 +1055,7 @@ const LiveExchange = () => {
                                                             onClick={(e) => {
                                                                 e.stopPropagation();
                                                                 setChartTo(curr.code);
+                                                                handleChartUpdate(null, curr.code, null);
                                                                 setShowChartToDropdown(false);
                                                                 setSearchChartTo('');
                                                             }}
