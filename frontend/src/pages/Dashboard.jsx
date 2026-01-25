@@ -3,12 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../config/supabase';
 import UserMenu from '../components/UserMenu';
 import FinScopeAI from '../components/FinScopeAI';
+import AIAssistant from '../components/AIAssistant';
 import './Dashboard.css';
 
 const Dashboard = () => {
     const navigate = useNavigate();
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [showAIAssistant, setShowAIAssistant] = useState(false);
 
     useEffect(() => {
         checkUser();
@@ -35,6 +37,14 @@ const Dashboard = () => {
         navigate('/');
     };
 
+    const openAIAssistant = () => {
+        setShowAIAssistant(true);
+    };
+
+    const closeAIAssistant = () => {
+        setShowAIAssistant(false);
+    };
+
     if (loading) {
         return (
             <div className="dashboard-loading">
@@ -58,18 +68,18 @@ const Dashboard = () => {
                 </div>
 
                 <div className="dashboard-header-right">
-                    <button className="btn-ai-assistant">
+                    <button className="btn-ai-assistant" onClick={openAIAssistant}>
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
                         </svg>
-                        Ask AI Assistant
+                        <span>Ask FinScope AI</span>
                     </button>
                     <button className="btn-leave" onClick={handleLeave}>
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
                             <polyline points="9 22 9 12 15 12 15 22" />
                         </svg>
-                        Leave
+                        <span>Leave</span>
                     </button>
                     <UserMenu />
                 </div>
@@ -144,10 +154,9 @@ const Dashboard = () => {
                                 <div className="stat-value">$0.00</div>
                                 <div className="stat-change neutral">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                        <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
-                                        <polyline points="17 6 23 6 23 12" />
+                                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
                                     </svg>
-                                    0% of target reached
+                                    +0% progress
                                 </div>
                             </div>
                             <div className="stat-trend-icon neutral">
@@ -219,7 +228,7 @@ const Dashboard = () => {
                                     <div className="legend-row">
                                         <div className="legend-item">
                                             <span className="legend-dot food"></span>
-                                            <span>Food</span>
+                                            <span>Food & Dining</span>
                                         </div>
                                         <div className="legend-item">
                                             <span className="legend-dot transport"></span>
@@ -233,7 +242,7 @@ const Dashboard = () => {
                                         </div>
                                         <div className="legend-item">
                                             <span className="legend-dot bills"></span>
-                                            <span>Bills</span>
+                                            <span>Bills & Utilities</span>
                                         </div>
                                     </div>
                                 </div>
@@ -281,16 +290,19 @@ const Dashboard = () => {
                                     <p>Add your bills to get timely reminders and never miss a payment.</p>
                                 </div>
                             </div>
-                            <button className="insights-btn">
+                            <button className="insights-btn" onClick={openAIAssistant}>
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
                                 </svg>
-                                Get More Insights
+                                Ask FinScope AI
                             </button>
                         </div>
                     </div>
                 </div>
             </main>
+
+            {/* AI Assistant Modal */}
+            {showAIAssistant && <AIAssistant onClose={closeAIAssistant} user={user} />}
         </div>
     );
 };
