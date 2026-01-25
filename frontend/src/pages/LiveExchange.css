@@ -2000,3 +2000,826 @@
     font-family: 'SF Mono', Monaco, 'Courier New', monospace;
     border: 1px solid rgba(59, 130, 246, 0.25);
 }
+
+/* ==================== XE.COM STYLE MARKET OVERVIEW ==================== */
+
+.xe-style-market-container {
+    animation: fadeInUp 0.5s ease;
+    margin: 30px 0;
+}
+
+.xe-market-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.xe-market-title {
+    font-size: 42px;
+    font-weight: 800;
+    color: #ffffff;
+    margin: 0 0 12px 0;
+    background: linear-gradient(135deg, #ffffff, #e0e7ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.xe-market-subtitle {
+    font-size: 16px;
+    color: rgba(255, 255, 255, 0.6);
+    margin: 0;
+}
+
+.xe-market-table-header {
+    display: grid;
+    grid-template-columns: 2fr 1.2fr 1.2fr 1.5fr 0.8fr;
+    gap: 20px;
+    padding: 16px 24px;
+    background: rgba(30, 41, 59, 0.4);
+    border-radius: 12px 12px 0 0;
+    border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.xe-header-cell {
+    font-size: 13px;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.5);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+}
+
+.xe-market-rows {
+    background: rgba(30, 41, 59, 0.6);
+    border-radius: 0 0 12px 12px;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+    border: 1.5px solid rgba(59, 130, 246, 0.25);
+    border-top: none;
+    overflow: hidden;
+}
+
+.xe-market-row {
+    display: grid;
+    grid-template-columns: 2fr 1.2fr 1.2fr 1.5fr 0.8fr;
+    gap: 20px;
+    padding: 20px 24px;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+    transition: all 0.3s;
+    animation: fadeInUp 0.4s ease both;
+}
+
+.xe-market-row:last-child {
+    border-bottom: none;
+}
+
+.xe-market-row:hover {
+    background: rgba(59, 130, 246, 0.08);
+}
+
+.xe-cell {
+    display: flex;
+    align-items: center;
+}
+
+.currency-cell {
+    gap: 16px;
+}
+
+.xe-flag {
+    font-size: 32px;
+    line-height: 1;
+}
+
+.xe-currency-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.xe-currency-code {
+    font-size: 17px;
+    font-weight: 800;
+    color: #ffffff;
+}
+
+.xe-currency-name {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.xe-rate {
+    font-size: 18px;
+    font-weight: 700;
+    color: #ffffff;
+    font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+}
+
+.xe-change-badge {
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 800;
+    font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+}
+
+.xe-change-badge.positive {
+    background: rgba(16, 185, 129, 0.15);
+    color: #10b981;
+    border: 1.5px solid rgba(16, 185, 129, 0.3);
+}
+
+.xe-change-badge.negative {
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+    border: 1.5px solid rgba(239, 68, 68, 0.3);
+}
+
+.chart-cell {
+    justify-content: center;
+}
+
+.chart-cell svg {
+    display: block;
+}
+
+.xe-view-button {
+    padding: 10px 28px;
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    border: none;
+    border-radius: 10px;
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.xe-view-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(59, 130, 246, 0.5);
+}
+
+.xe-view-button:active {
+    transform: translateY(0);
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .xe-market-table-header,
+    .xe-market-row {
+        grid-template-columns: 2fr 1fr 1fr 1.2fr 0.8fr;
+    }
+}
+
+@media (max-width: 1024px) {
+    .xe-market-table-header,
+    .xe-market-row {
+        grid-template-columns: 2fr 1fr 1fr 1fr 0.8fr;
+        gap: 12px;
+        padding: 16px 20px;
+    }
+
+    .xe-flag {
+        font-size: 28px;
+    }
+
+    .xe-currency-code {
+        font-size: 16px;
+    }
+
+    .xe-rate {
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 768px) {
+    .xe-market-title {
+        font-size: 32px;
+    }
+
+    .xe-market-subtitle {
+        font-size: 14px;
+    }
+
+    .xe-market-table-header {
+        display: none;
+    }
+
+    .xe-market-row {
+        grid-template-columns: 1fr;
+        gap: 16px;
+        padding: 20px;
+    }
+
+    .xe-cell {
+        justify-content: space-between;
+    }
+
+    .currency-cell {
+        grid-column: 1 / -1;
+    }
+
+    .chart-cell {
+        grid-column: 1 / -1;
+        justify-content: flex-start;
+    }
+
+    .action-cell {
+        grid-column: 1 / -1;
+    }
+
+    .xe-view-button {
+        width: 100%;
+    }
+}
+
+/* ==================== COMPREHENSIVE MOBILE RESPONSIVE DESIGN ==================== */
+
+/* Tablet and Below */
+@media (max-width: 1024px) {
+    /* Header */
+    .exchange-header {
+        padding: 40px 20px;
+    }
+
+    .header-content h1 {
+        font-size: 36px;
+    }
+
+    .header-description {
+        font-size: 15px;
+    }
+
+    /* View Toggle */
+    .view-toggle {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .toggle-btn {
+        flex: 1;
+        min-width: 150px;
+        padding: 12px 16px;
+        font-size: 13px;
+    }
+
+    .toggle-btn svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    /* Summary Cards */
+    .market-summary {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+    }
+}
+
+/* Mobile Devices */
+@media (max-width: 768px) {
+    /* Page Container */
+    .live-exchange-page {
+        padding: 0;
+    }
+
+    .exchange-container {
+        padding: 15px;
+    }
+
+    /* Header */
+    .exchange-header {
+        padding: 30px 20px;
+    }
+
+    .header-badge {
+        font-size: 11px;
+        padding: 6px 12px;
+    }
+
+    .header-badge svg {
+        width: 14px;
+        height: 14px;
+    }
+
+    .header-content h1 {
+        font-size: 28px;
+        line-height: 1.2;
+    }
+
+    .header-description {
+        font-size: 14px;
+    }
+
+    .live-updates-indicator {
+        flex-direction: column;
+        gap: 8px;
+        font-size: 12px;
+    }
+
+    /* View Toggle */
+    .view-toggle {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+
+    .toggle-btn {
+        padding: 10px 12px;
+        font-size: 12px;
+        min-width: 0;
+    }
+
+    .toggle-btn svg {
+        width: 16px;
+        height: 16px;
+    }
+
+    /* Professional Table - Make it scrollable */
+    .professional-table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .professional-table {
+        min-width: 1000px;
+    }
+
+    .table-controls {
+        flex-direction: column;
+        gap: 15px;
+        align-items: flex-start;
+    }
+
+    .section-title {
+        font-size: 22px;
+    }
+
+    /* Summary Cards */
+    .market-summary {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .summary-card {
+        padding: 16px;
+    }
+
+    /* Converter - Mobile Optimized */
+    .converter-view-container {
+        padding: 20px 15px;
+    }
+
+    .converter-main-card {
+        padding: 24px 16px;
+    }
+
+    .converter-header h2 {
+        font-size: 24px;
+    }
+
+    .amount-input-upgraded {
+        font-size: 28px;
+        padding: 20px;
+    }
+
+    .currency-selector-box-upgraded {
+        padding: 14px 16px;
+    }
+
+    .currency-flag-upgraded {
+        font-size: 28px;
+    }
+
+    .currency-code-upgraded {
+        font-size: 16px;
+    }
+
+    .currency-name-small {
+        font-size: 13px;
+    }
+
+    .swap-button-upgraded {
+        width: 50px;
+        height: 50px;
+    }
+
+    .convert-button-upgraded {
+        padding: 16px;
+        font-size: 16px;
+    }
+
+    .conversion-result-card {
+        padding: 24px 20px;
+    }
+
+    .converted-amount-display {
+        font-size: 36px;
+    }
+
+    .current-rate-display {
+        font-size: 15px;
+    }
+
+    /* Chart View Mobile */
+    .charts-view-container {
+        padding: 0;
+    }
+
+    .chart-currency-controls {
+        padding: 20px 16px;
+    }
+
+    .chart-pair-selector {
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .swap-chart-btn {
+        order: 2;
+        align-self: center;
+        transform: rotate(90deg);
+    }
+
+    .currency-selector-box-chart {
+        padding: 14px 16px;
+    }
+
+    .currency-flag-chart {
+        font-size: 28px;
+    }
+
+    .currency-code-chart {
+        font-size: 15px;
+    }
+
+    .chart-display-container {
+        padding: 20px 12px;
+    }
+
+    .chart-header-info h3 {
+        font-size: 22px;
+    }
+
+    .chart-subtitle {
+        font-size: 13px;
+    }
+
+    .chart-live-rate {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .live-rate-value {
+        font-size: 18px;
+    }
+
+    .timerange-selector {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .timerange-btn {
+        padding: 8px 14px;
+        font-size: 13px;
+    }
+
+    .chart-svg-wrapper {
+        height: 300px;
+    }
+
+    /* Dropdown Mobile */
+    .currency-dropdown-panel {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        top: auto;
+        max-height: 70vh;
+        border-radius: 20px 20px 0 0;
+        animation: slideUpMobile 0.3s ease;
+    }
+
+    @keyframes slideUpMobile {
+        from {
+            transform: translateY(100%);
+        }
+        to {
+            transform: translateY(0);
+        }
+    }
+
+    .dropdown-search-box {
+        padding: 16px;
+    }
+
+    .dropdown-search-box input {
+        font-size: 16px;
+        padding: 12px 16px 12px 44px;
+    }
+
+    .dropdown-currency-item {
+        padding: 16px 20px;
+        gap: 16px;
+    }
+
+    .dropdown-flag {
+        font-size: 32px;
+    }
+
+    .dropdown-code {
+        font-size: 17px;
+    }
+
+    .dropdown-name {
+        font-size: 14px;
+    }
+
+    .dropdown-symbol {
+        font-size: 13px;
+        padding: 3px 8px;
+    }
+
+    /* Currency Symbol Display */
+    .currency-symbol-display {
+        font-size: 14px;
+        padding: 2px 8px;
+    }
+}
+
+/* Small Mobile Devices */
+@media (max-width: 480px) {
+    /* Header */
+    .header-content h1 {
+        font-size: 24px;
+    }
+
+    .header-description {
+        font-size: 13px;
+    }
+
+    .header-ai-orb-small {
+        width: 60px;
+        height: 60px;
+    }
+
+    /* View Toggle - Stack vertically on very small screens */
+    .view-toggle {
+        grid-template-columns: 1fr;
+    }
+
+    .toggle-btn {
+        width: 100%;
+    }
+
+    /* Converter */
+    .converter-header h2 {
+        font-size: 20px;
+    }
+
+    .amount-input-upgraded {
+        font-size: 24px;
+        padding: 16px;
+    }
+
+    .converted-amount-display {
+        font-size: 28px;
+    }
+
+    .convert-button-upgraded {
+        font-size: 15px;
+    }
+
+    /* Chart */
+    .chart-header-info h3 {
+        font-size: 18px;
+    }
+
+    .chart-performance-badge {
+        font-size: 13px;
+        padding: 6px 12px;
+    }
+
+    .timerange-btn {
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+
+    .chart-svg-wrapper {
+        height: 250px;
+    }
+
+    /* XE Style Table - Stack Cards */
+    .xe-market-title {
+        font-size: 26px;
+    }
+
+    .xe-market-subtitle {
+        font-size: 13px;
+    }
+
+    .xe-market-row {
+        padding: 16px;
+    }
+
+    .xe-flag {
+        font-size: 28px;
+    }
+
+    .xe-currency-code {
+        font-size: 15px;
+    }
+
+    .xe-rate {
+        font-size: 16px;
+    }
+
+    .xe-view-button {
+        padding: 10px 20px;
+        font-size: 14px;
+    }
+}
+
+/* Landscape Mobile */
+@media (max-width: 896px) and (orientation: landscape) {
+    .exchange-header {
+        padding: 20px;
+    }
+
+    .header-content h1 {
+        font-size: 24px;
+    }
+
+    .chart-svg-wrapper {
+        height: 200px;
+    }
+
+    .currency-dropdown-panel {
+        max-height: 60vh;
+    }
+}
+
+/* Fix for touch devices */
+@media (hover: none) and (pointer: coarse) {
+    .toggle-btn:hover,
+    .xe-view-button:hover,
+    .convert-button-upgraded:hover {
+        transform: none;
+    }
+
+    .toggle-btn:active,
+    .xe-view-button:active,
+    .convert-button-upgraded:active {
+        transform: scale(0.98);
+    }
+
+    /* Increase touch targets */
+    .dropdown-currency-item {
+        min-height: 60px;
+    }
+
+    .timerange-btn {
+        min-height: 44px;
+        min-width: 60px;
+    }
+
+    .xe-view-button {
+        min-height: 44px;
+    }
+}
+
+/* Exchange Now Button */
+.exchange-now-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    margin: 20px 0;
+    background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+    border: 1.5px solid rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow:
+            0 3px 10px rgba(59, 130, 246, 0.3),
+            0 0 0 0 rgba(59, 130, 246, 0);
+    position: relative;
+    text-transform: uppercase;
+}
+
+.exchange-now-button::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 8px;
+    padding: 1.5px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.1));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.exchange-now-button:hover {
+    transform: translateY(-2px);
+    box-shadow:
+            0 6px 18px rgba(59, 130, 246, 0.4),
+            0 0 0 3px rgba(59, 130, 246, 0.1);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.exchange-now-button:hover::before {
+    opacity: 1;
+}
+
+.exchange-now-button:active {
+    transform: translateY(-1px);
+    box-shadow: 0 3px 10px rgba(59, 130, 246, 0.35);
+}
+
+.exchange-now-button svg {
+    width: 16px;
+    height: 16px;
+    stroke-width: 2.5;
+    transition: transform 0.3s;
+}
+
+.exchange-now-button:hover svg {
+    transform: rotate(180deg);
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+    .exchange-now-button {
+        padding: 9px 18px;
+        font-size: 13px;
+        margin: 18px 0;
+        gap: 7px;
+    }
+
+    .exchange-now-button svg {
+        width: 15px;
+        height: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .exchange-now-button {
+        width: auto;
+        max-width: 240px;
+        justify-content: center;
+        padding: 10px 20px;
+        font-size: 12px;
+        margin: 16px auto;
+    }
+
+    .exchange-now-button svg {
+        width: 14px;
+        height: 14px;
+    }
+}
+
+/* Header Top Row - Badge and Live Indicator */
+.header-top-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+/* Adjust live updates indicator for top right position */
+.header-top-row .live-updates-indicator {
+    margin: 0;
+}
+
+/* Mobile adjustments for top row */
+@media (max-width: 768px) {
+    .header-top-row {
+        flex-direction: column;
+        gap: 12px;
+        align-items: center;
+        margin-bottom: 16px;
+    }
+
+    .header-top-row .live-updates-indicator {
+        order: 2;
+    }
+
+    .header-top-row .header-badge {
+        order: 1;
+    }
+}
+
+@media (max-width: 480px) {
+    .header-top-row {
+        gap: 10px;
+        margin-bottom: 12px;
+    }
+}

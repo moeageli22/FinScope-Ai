@@ -12,7 +12,7 @@ const LiveExchange = () => {
     const [lastUpdate, setLastUpdate] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [view, setView] = useState('table'); // 'table', 'converter', or 'charts'
+    const [view, setView] = useState('table'); // 'table', 'xe-table', 'charts', or 'converter'
     const [selectedPair, setSelectedPair] = useState(null);
 
     // Chart states
@@ -603,12 +603,20 @@ const LiveExchange = () => {
             {/* Header */}
             <div className="exchange-header">
                 <div className="header-content">
-                    <div className="header-badge">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <line x1="12" y1="1" x2="12" y2="23" />
-                            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-                        </svg>
-                        <span>Professional Trading Platform</span>
+                    <div className="header-top-row">
+                        <div className="header-badge">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <line x1="12" y1="1" x2="12" y2="23" />
+                                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                            </svg>
+                            <span>Professional Trading Platform</span>
+                        </div>
+
+                        <div className="live-updates-indicator">
+                            <span className="live-pulse"></span>
+                            <span className="live-text">Live Market Data</span>
+                            <span className="update-frequency">• Updated: {formatTime()}</span>
+                        </div>
                     </div>
 
                     <div className="header-ai-orb-small">
@@ -620,11 +628,16 @@ const LiveExchange = () => {
                         Real-time forex market data with bid/ask spreads and historical tracking
                     </p>
 
-                    <div className="live-updates-indicator">
-                        <span className="live-pulse"></span>
-                        <span className="live-text">Live Market Data</span>
-                        <span className="update-frequency">• Updated: {formatTime()}</span>
-                    </div>
+                    <button
+                        className="exchange-now-button"
+                        onClick={() => setView('converter')}
+                    >
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                            <path d="M7 16V4M7 4L3 8M7 4L11 8" />
+                            <path d="M17 8V20M17 20L21 16M17 20L13 16" />
+                        </svg>
+                        Exchange now
+                    </button>
                 </div>
             </div>
 
@@ -655,6 +668,17 @@ const LiveExchange = () => {
                             <rect x="3" y="14" width="7" height="7" />
                         </svg>
                         Market Overview
+                    </button>
+                    <button
+                        className={`toggle-btn ${view === 'xe-table' ? 'active' : ''}`}
+                        onClick={() => setView('xe-table')}
+                    >
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z" />
+                            <line x1="3" y1="10" x2="21" y2="10" />
+                            <line x1="10" y1="3" x2="10" y2="21" />
+                        </svg>
+                        Live Rates
                     </button>
                     <button
                         className={`toggle-btn ${view === 'charts' ? 'active' : ''}`}
@@ -784,6 +808,180 @@ const LiveExchange = () => {
                                             );
                                         })}
                                     </div>
+                                </div>
+
+                                {/* Quick Stats */}
+                                <div className="market-summary">
+                                    <div className="summary-card">
+                                        <div className="summary-icon trending-up">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+                                                <polyline points="17 6 23 6 23 12" />
+                                            </svg>
+                                        </div>
+                                        <div className="summary-content">
+                                            <div className="summary-label">Trending Up</div>
+                                            <div className="summary-value">
+                                                {majorPairs.filter((pair, i) => {
+                                                    const fromData = historicalData[pair.from];
+                                                    const toData = historicalData[pair.to];
+                                                    if (!fromData || !toData) return false;
+                                                    const rate = toData.current / fromData.current;
+                                                    const yesterday = toData.yesterday / fromData.yesterday;
+                                                    return rate > yesterday;
+                                                }).length} Pairs
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="summary-card">
+                                        <div className="summary-icon trending-down">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                <polyline points="23 18 13.5 8.5 8.5 13.5 1 6" />
+                                                <polyline points="17 18 23 18 23 12" />
+                                            </svg>
+                                        </div>
+                                        <div className="summary-content">
+                                            <div className="summary-label">Trending Down</div>
+                                            <div className="summary-value">
+                                                {majorPairs.filter((pair, i) => {
+                                                    const fromData = historicalData[pair.from];
+                                                    const toData = historicalData[pair.to];
+                                                    if (!fromData || !toData) return false;
+                                                    const rate = toData.current / fromData.current;
+                                                    const yesterday = toData.yesterday / fromData.yesterday;
+                                                    return rate < yesterday;
+                                                }).length} Pairs
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="summary-card">
+                                        <div className="summary-icon market-status">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                <circle cx="12" cy="12" r="10" />
+                                                <polyline points="12 6 12 12 16 14" />
+                                            </svg>
+                                        </div>
+                                        <div className="summary-content">
+                                            <div className="summary-label">Market Status</div>
+                                            <div className="summary-value status-open">Open</div>
+                                        </div>
+                                    </div>
+
+                                    <div className="summary-card">
+                                        <div className="summary-icon spread-info">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                <line x1="12" y1="20" x2="12" y2="10" />
+                                                <line x1="18" y1="20" x2="18" y2="4" />
+                                                <line x1="6" y1="20" x2="6" y2="16" />
+                                            </svg>
+                                        </div>
+                                        <div className="summary-content">
+                                            <div className="summary-label">Avg Spread</div>
+                                            <div className="summary-value">0.05%</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        ) : view === 'xe-table' ? (
+                            /* XE.com Style Market Overview */
+                            <div className="xe-style-market-container">
+                                <div className="xe-market-header">
+                                    <h2 className="xe-market-title">Live exchange rates</h2>
+                                    <p className="xe-market-subtitle">Compare 100+ currencies in real time & find the right moment to transfer funds</p>
+                                </div>
+
+                                <div className="xe-market-table-header">
+                                    <div className="xe-header-cell currency-header">Currency</div>
+                                    <div className="xe-header-cell amount-header">Amount</div>
+                                    <div className="xe-header-cell change-header">Change (24h)</div>
+                                    <div className="xe-header-cell chart-header">Chart (24h)</div>
+                                    <div className="xe-header-cell action-header"></div>
+                                </div>
+
+                                <div className="xe-market-rows">
+                                    {majorPairs.slice(0, 8).map((pair, index) => {
+                                        const fromData = historicalData[pair.from];
+                                        const toData = historicalData[pair.to];
+
+                                        if (!fromData || !toData) return null;
+
+                                        const rate = toData.current / fromData.current;
+                                        const yesterday = toData.yesterday / fromData.yesterday;
+                                        const change = calculateChange(rate, yesterday);
+                                        const isPositive = parseFloat(change) >= 0;
+
+                                        // Generate mini chart data (simple 24h trend)
+                                        const miniChartPoints = 20;
+                                        const miniData = [];
+                                        for (let i = 0; i < miniChartPoints; i++) {
+                                            const progress = i / (miniChartPoints - 1);
+                                            const trend = (rate - yesterday) * progress;
+                                            const noise = (Math.random() - 0.5) * rate * 0.001;
+                                            miniData.push(yesterday + trend + noise);
+                                        }
+
+                                        const minRate = Math.min(...miniData);
+                                        const maxRate = Math.max(...miniData);
+                                        const rangeRate = maxRate - minRate || 1;
+
+                                        const svgWidth = 120;
+                                        const svgHeight = 40;
+
+                                        return (
+                                            <div key={index} className="xe-market-row" style={{ animationDelay: `${index * 0.05}s` }}>
+                                                <div className="xe-cell currency-cell">
+                                                    <span className="xe-flag">{getFlagEmoji(pair.to)}</span>
+                                                    <div className="xe-currency-info">
+                                                        <div className="xe-currency-code">{pair.to}</div>
+                                                        <div className="xe-currency-name">{getCurrencyName(pair.to)}</div>
+                                                    </div>
+                                                </div>
+
+                                                <div className="xe-cell amount-cell">
+                                                    <div className="xe-rate">{rate.toFixed(4)}</div>
+                                                </div>
+
+                                                <div className="xe-cell change-cell">
+                                                    <span className={`xe-change-badge ${isPositive ? 'positive' : 'negative'}`}>
+                                                        {isPositive ? '+' : ''}{change}%
+                                                    </span>
+                                                </div>
+
+                                                <div className="xe-cell chart-cell">
+                                                    <svg width={svgWidth} height={svgHeight} viewBox={`0 0 ${svgWidth} ${svgHeight}`}>
+                                                        <path
+                                                            d={miniData.map((val, i) => {
+                                                                const x = (i / (miniChartPoints - 1)) * svgWidth;
+                                                                const y = svgHeight - ((val - minRate) / rangeRate) * svgHeight;
+                                                                return `${i === 0 ? 'M' : 'L'} ${x} ${y}`;
+                                                            }).join(' ')}
+                                                            fill="none"
+                                                            stroke={isPositive ? '#10b981' : '#ef4444'}
+                                                            strokeWidth="2"
+                                                            strokeLinecap="round"
+                                                            strokeLinejoin="round"
+                                                        />
+                                                    </svg>
+                                                </div>
+
+                                                <div className="xe-cell action-cell">
+                                                    <button
+                                                        className="xe-view-button"
+                                                        onClick={() => {
+                                                            setChartFrom(pair.from);
+                                                            setChartTo(pair.to);
+                                                            handleChartUpdate(pair.from, pair.to, null);
+                                                            setView('charts');
+                                                        }}
+                                                    >
+                                                        View
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
                                 </div>
 
                                 {/* Quick Stats */}
