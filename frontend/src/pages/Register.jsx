@@ -876,7 +876,7 @@ const Register = () => {
                     </div>
                 </form>
 
-                {/* Already Have Accounts */}
+                {/* Already Have Accountss */}
                 <p className="login-link">
                     Already have an account? <button onClick={handleBackToLogin} disabled={loading}>Sign in</button>
                 </p>
