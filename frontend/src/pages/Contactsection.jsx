@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import './ContactSection.css';
 import ownerImage from '../assets/owner.jpg';
+import FinScopeAI from '../components/FinScopeAI';
 
 const ContactSection = () => {
     const [formData, setFormData] = useState({
@@ -254,7 +254,7 @@ const ContactSection = () => {
                 </div>
             </div>
 
-            {/* Success Modal with Lottie Animation */}
+            {/* Success Modal with FinScopeAI Animation */}
             {showSuccessModal && (
                 <div className="success-modal-overlay">
                     <div className="success-modal" onClick={(e) => e.stopPropagation()}>
@@ -266,12 +266,7 @@ const ContactSection = () => {
                         </button>
 
                         <div className="success-animation">
-                            <DotLottieReact
-                                src="https://lottie.host/d45eb88a-85ee-468a-a030-5c186f2b9198/OvlJlYU07r.lottie"
-                                loop={false}
-                                autoplay
-                                style={{ width: '200px', height: '200px' }}
-                            />
+                            <FinScopeAI />
                         </div>
 
                         <div className="success-modal-content">
