@@ -7,24 +7,37 @@ const resend = new Resend('re_GF41aVJg_5Ek1QwtztqALjuGLMaAxF4qV');
 
 router.post('/send-contact-email', async (req, res) => {
     try {
-        console.log('Received contact form submission:', req.body);
+        console.log('=== Contact Form Submission Received ===');
+        console.log('Request body:', req.body);
+        console.log('Request headers:', req.headers);
 
         const { name, email, message } = req.body;
 
         // Validate input
         if (!name || !email || !message) {
-            console.log('Validation failed: Missing fields');
+            console.log('❌ Validation failed: Missing fields');
             return res.status(400).json({
-                error: 'Missing required fields',
-                success: false
+                success: false,
+                error: 'Missing required fields'
             });
         }
 
-        console.log('Sending emails...');
+        // Validate email format
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            console.log('❌ Validation failed: Invalid email format');
+            return res.status(400).json({
+                success: false,
+                error: 'Invalid email format'
+            });
+        }
+
+        console.log('✅ Validation passed');
+        console.log('📧 Sending emails...');
 
         // Email to owner (you)
         const ownerEmail = await resend.emails.send({
-            from: 'FinScope AI <onboarding@resend.dev>', // Use Resend's test domain for now
+            from: 'FinScope AI <onboarding@resend.dev>',
             to: 'mohammadmunir2004@gmail.com',
             subject: `New Contact Form Submission from ${name}`,
             html: `
@@ -101,11 +114,11 @@ router.post('/send-contact-email', async (req, res) => {
             `
         });
 
-        console.log('Owner email sent:', ownerEmail);
+        console.log('✅ Owner email sent successfully:', ownerEmail.id);
 
         // Auto-reply email to user
         const userEmail = await resend.emails.send({
-            from: 'FinScope AI <onboarding@resend.dev>', // Use Resend's test domain for now
+            from: 'FinScope AI <onboarding@resend.dev>',
             to: email,
             subject: 'Thank You for Contacting FinScope AI',
             html: `
@@ -200,7 +213,7 @@ router.post('/send-contact-email', async (req, res) => {
                         </div>
 
                         <div style="text-align: center;">
-                            <a href="http://localhost:3000" class="button">Visit FinScope AI</a>
+                            <a href="http://localhost:5174" class="button">Visit FinScope AI</a>
                         </div>
                     </div>
                     <div class="footer">
@@ -215,11 +228,11 @@ router.post('/send-contact-email', async (req, res) => {
             `
         });
 
-        console.log('User email sent:', userEmail);
-        console.log('Emails sent successfully!');
+        console.log('✅ User email sent successfully:', userEmail.id);
+        console.log('=== Email Sending Complete ===');
 
-        // IMPORTANT: Send proper JSON response
-        return res.status(200).json({
+        // Send success response - MUST be JSON
+        res.status(200).json({
             success: true,
             message: 'Emails sent successfully',
             ownerEmailId: ownerEmail.id,
@@ -227,10 +240,13 @@ router.post('/send-contact-email', async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Error sending emails:', error);
+        console.error('=== Error in Contact Route ===');
+        console.error('Error type:', error.constructor.name);
+        console.error('Error message:', error.message);
+        console.error('Error stack:', error.stack);
 
-        // IMPORTANT: Send proper JSON error response
-        return res.status(500).json({
+        // Send error response - MUST be JSON
+        res.status(500).json({
             success: false,
             error: 'Failed to send emails',
             details: error.message

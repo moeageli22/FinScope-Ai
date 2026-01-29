@@ -24,8 +24,10 @@ const ContactSection = () => {
         setSubmitStatus(null);
 
         try {
-            // Send email notification
-            const response = await fetch('/api/send-contact-email', {
+            console.log('Submitting form data:', formData);
+
+            // Updated to use full backend URL
+            const response = await fetch('http://localhost:5173/api/send-contact-email', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -37,14 +39,24 @@ const ContactSection = () => {
                 })
             });
 
-            const data = await response.json();
+            console.log('Response status:', response.status);
+            console.log('Response headers:', response.headers);
 
-            if (response.ok) {
+            // Check if response is JSON
+            const contentType = response.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+                throw new Error('Server did not return JSON response');
+            }
+
+            const data = await response.json();
+            console.log('Response data:', data);
+
+            if (response.ok && data.success) {
                 setSubmitStatus('success');
                 setFormData({ name: '', email: '', message: '' });
             } else {
                 setSubmitStatus('error');
-                console.error('Error sending email:', data.error);
+                console.error('Error sending email:', data.error || 'Unknown error');
             }
         } catch (error) {
             setSubmitStatus('error');
