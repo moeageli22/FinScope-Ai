@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import './ContactSection.css';
 import ownerImage from '../assets/owner.jpg';
 
@@ -10,6 +11,7 @@ const ContactSection = () => {
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitStatus, setSubmitStatus] = useState(null);
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
 
     const handleChange = (e) => {
         setFormData({
@@ -26,7 +28,6 @@ const ContactSection = () => {
         try {
             console.log('Submitting form data:', formData);
 
-            // Updated to use full backend URL
             const response = await fetch('http://localhost:5173/api/send-contact-email', {
                 method: 'POST',
                 headers: {
@@ -40,9 +41,7 @@ const ContactSection = () => {
             });
 
             console.log('Response status:', response.status);
-            console.log('Response headers:', response.headers);
 
-            // Check if response is JSON
             const contentType = response.headers.get('content-type');
             if (!contentType || !contentType.includes('application/json')) {
                 throw new Error('Server did not return JSON response');
@@ -53,7 +52,13 @@ const ContactSection = () => {
 
             if (response.ok && data.success) {
                 setSubmitStatus('success');
+                setShowSuccessModal(true);
                 setFormData({ name: '', email: '', message: '' });
+
+                // Auto-close modal after 5 seconds
+                setTimeout(() => {
+                    setShowSuccessModal(false);
+                }, 5000);
             } else {
                 setSubmitStatus('error');
                 console.error('Error sending email:', data.error || 'Unknown error');
@@ -64,6 +69,10 @@ const ContactSection = () => {
         } finally {
             setIsSubmitting(false);
         }
+    };
+
+    const closeSuccessModal = () => {
+        setShowSuccessModal(false);
     };
 
     return (
@@ -235,16 +244,6 @@ const ContactSection = () => {
                                 )}
                             </button>
 
-                            {submitStatus === 'success' && (
-                                <div className="submit-message success">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                                        <polyline points="22 4 12 14.01 9 11.01" />
-                                    </svg>
-                                    Thank you for contacting us! We'll get back to you within 24-48 hours.
-                                </div>
-                            )}
-
                             {submitStatus === 'error' && (
                                 <div className="submit-message error">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -259,6 +258,68 @@ const ContactSection = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Success Modal with Lottie Animation */}
+            {showSuccessModal && (
+                <div className="success-modal-overlay" onClick={closeSuccessModal}>
+                    <div className="success-modal" onClick={(e) => e.stopPropagation()}>
+                        <button className="success-modal-close" onClick={closeSuccessModal}>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <line x1="18" y1="6" x2="6" y2="18" />
+                                <line x1="6" y1="6" x2="18" y2="18" />
+                            </svg>
+                        </button>
+
+                        <div className="success-animation">
+                            <DotLottieReact
+                                src="https://lottie.host/d45eb88a-85ee-468a-a030-5c186f2b9198/OvlJlYU07r.lottie"
+                                loop={false}
+                                autoplay
+                                style={{ width: '200px', height: '200px' }}
+                            />
+                        </div>
+
+                        <div className="success-modal-content">
+                            <h2 className="success-modal-title">
+                                Thank You for Contacting Us! 🎉
+                            </h2>
+                            <p className="success-modal-message">
+                                Your message has been successfully received and we're excited to connect with you!
+                            </p>
+
+                            <div className="success-modal-details">
+                                <div className="success-detail-item">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                        <polyline points="20 6 9 17 4 12" />
+                                    </svg>
+                                    <span>Confirmation email sent to your inbox</span>
+                                </div>
+                                <div className="success-detail-item">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                        <circle cx="12" cy="12" r="10" />
+                                        <polyline points="12 6 12 12 16 14" />
+                                    </svg>
+                                    <span>We'll respond within 24-48 hours</span>
+                                </div>
+                                <div className="success-detail-item">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                                    </svg>
+                                    <span>Need urgent help? Call us directly</span>
+                                </div>
+                            </div>
+
+                            <button className="success-modal-button" onClick={closeSuccessModal}>
+                                Got It!
+                            </button>
+
+                            <p className="success-modal-footer">
+                                This modal will close automatically in a few seconds
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            )}
         </section>
     );
 };
