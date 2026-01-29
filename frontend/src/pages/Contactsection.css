@@ -438,7 +438,7 @@
     color: #ef4444;
 }
 
-/* ===== SUCCESS MODAL ===== */
+/* ===== SUCCESS MODAL - MANUAL CLOSE ONLY ===== */
 .success-modal-overlay {
     position: fixed;
     top: 0;
@@ -453,6 +453,7 @@
     z-index: 9999;
     padding: 20px;
     animation: fadeIn 0.3s ease;
+    /* NO CLICK-TO-CLOSE - Removed pointer events */
 }
 
 @keyframes fadeIn {
@@ -476,6 +477,8 @@
     box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5),
     0 0 100px rgba(59, 130, 246, 0.2);
     animation: slideUp 0.4s ease;
+    /* Prevent modal from closing when clicked */
+    pointer-events: auto;
 }
 
 @keyframes slideUp {
@@ -504,6 +507,7 @@
     cursor: pointer;
     transition: all 0.3s ease;
     padding: 0;
+    z-index: 10;
 }
 
 .success-modal-close:hover {
@@ -522,6 +526,7 @@
     display: flex;
     justify-content: center;
     margin-bottom: 24px;
+    pointer-events: none;
 }
 
 .success-modal-content {

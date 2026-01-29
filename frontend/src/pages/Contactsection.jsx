@@ -54,11 +54,6 @@ const ContactSection = () => {
                 setSubmitStatus('success');
                 setShowSuccessModal(true);
                 setFormData({ name: '', email: '', message: '' });
-
-                // Auto-close modal after 5 seconds
-                setTimeout(() => {
-                    setShowSuccessModal(false);
-                }, 5000);
             } else {
                 setSubmitStatus('error');
                 console.error('Error sending email:', data.error || 'Unknown error');
@@ -80,7 +75,7 @@ const ContactSection = () => {
             <div className="contact-container">
                 <div className="contact-header">
                     <h2>Get in Touch</h2>
-                    <p>Have questions? We'd love to hear from you.</p>
+                    <p>Have questions? I'd love to hear from you.</p>
                 </div>
 
                 <div className="contact-content">
@@ -180,8 +175,8 @@ const ContactSection = () => {
                     {/* Contact Form */}
                     <div className="contact-form-wrapper">
                         <div className="contact-form-header">
-                            <h3>Send us a Message</h3>
-                            <p>Fill out the form below and we'll get back to you as soon as possible.</p>
+                            <h3>Send me a Message</h3>
+                            <p>Fill out the form below and I'll get back to you as soon as possible.</p>
                         </div>
 
                         <form onSubmit={handleSubmit} className="contact-form">
@@ -218,7 +213,7 @@ const ContactSection = () => {
                                     name="message"
                                     value={formData.message}
                                     onChange={handleChange}
-                                    placeholder="Tell us what you're thinking..."
+                                    placeholder="Tell me what you're thinking..."
                                     rows="6"
                                     required
                                 ></textarea>
@@ -251,7 +246,7 @@ const ContactSection = () => {
                                         <line x1="15" y1="9" x2="9" y2="15" />
                                         <line x1="9" y1="9" x2="15" y2="15" />
                                     </svg>
-                                    Something went wrong. Please try again or email us directly.
+                                    Something went wrong. Please try again or email me directly.
                                 </div>
                             )}
                         </form>
@@ -261,7 +256,7 @@ const ContactSection = () => {
 
             {/* Success Modal with Lottie Animation */}
             {showSuccessModal && (
-                <div className="success-modal-overlay" onClick={closeSuccessModal}>
+                <div className="success-modal-overlay">
                     <div className="success-modal" onClick={(e) => e.stopPropagation()}>
                         <button className="success-modal-close" onClick={closeSuccessModal}>
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -281,10 +276,10 @@ const ContactSection = () => {
 
                         <div className="success-modal-content">
                             <h2 className="success-modal-title">
-                                Thank You for Contacting Us! 🎉
+                                Thank You for Reaching Out! ✨
                             </h2>
                             <p className="success-modal-message">
-                                Your message has been successfully received and we're excited to connect with you!
+                                Your message has been successfully received! I'm excited to read what you have to say and will personally review your message as soon as possible.
                             </p>
 
                             <div className="success-modal-details">
@@ -299,22 +294,16 @@ const ContactSection = () => {
                                         <circle cx="12" cy="12" r="10" />
                                         <polyline points="12 6 12 12 16 14" />
                                     </svg>
-                                    <span>We'll respond within 24-48 hours</span>
-                                </div>
-                                <div className="success-detail-item">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
-                                    </svg>
-                                    <span>Need urgent help? Call us directly</span>
+                                    <span>I'll personally respond within 24-48 hours</span>
                                 </div>
                             </div>
 
                             <button className="success-modal-button" onClick={closeSuccessModal}>
-                                Got It!
+                                Perfect, Got It!
                             </button>
 
                             <p className="success-modal-footer">
-                                This modal will close automatically in a few seconds
+                                Looking forward to connecting with you soon! 🚀
                             </p>
                         </div>
                     </div>
