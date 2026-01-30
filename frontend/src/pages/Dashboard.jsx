@@ -4,13 +4,15 @@ import { supabase } from '../config/supabase';
 import UserMenu from '../components/UserMenu';
 import FinScopeAI from '../components/FinScopeAI';
 import AIAssistant from '../components/AIAssistant';
-import './Dashboard.css';
+import './Dashboard-Enhanced.css';
 
 const Dashboard = () => {
     const navigate = useNavigate();
     const [user, setUser] = useState(null);
+    const [profile, setProfile] = useState(null);
     const [loading, setLoading] = useState(true);
     const [showAIAssistant, setShowAIAssistant] = useState(false);
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
     useEffect(() => {
         checkUser();
@@ -26,6 +28,18 @@ const Dashboard = () => {
             }
 
             setUser(user);
+
+            // Fetch user profile
+            const { data: profileData } = await supabase
+                .from('user_profiles')
+                .select('*')
+                .eq('id', user.id)
+                .single();
+
+            if (profileData) {
+                setProfile(profileData);
+            }
+
             setLoading(false);
         } catch (error) {
             console.error('Error checking user:', error);
@@ -45,44 +59,95 @@ const Dashboard = () => {
         setShowAIAssistant(false);
     };
 
+    const getUserDisplayName = () => {
+        if (profile?.full_name) return profile.full_name;
+        return user?.email?.split('@')[0] || 'User';
+    };
+
     if (loading) {
         return (
             <div className="dashboard-loading">
-                <div className="spinner"></div>
+                <div className="loading-orb">
+                    <FinScopeAI />
+                </div>
+                <p className="loading-text">Loading your dashboard...</p>
             </div>
         );
     }
 
     return (
         <div className="dashboard">
-            {/* Header */}
+            {/* Enhanced Header with Mobile Support */}
             <header className="dashboard-header">
-                <div className="dashboard-header-left">
-                    <div className="dashboard-logo">
-                        <FinScopeAI />
+                <div className="dashboard-header-content">
+                    <div className="dashboard-header-left">
+                        <div className="dashboard-logo">
+                            <FinScopeAI />
+                        </div>
+                        <div className="welcome-text">
+                            <h1>Welcome back, <span className="username">{getUserDisplayName()}</span></h1>
+                            <p>Here's your financial overview</p>
+                        </div>
                     </div>
-                    <div className="welcome-text">
-                        <h1>Welcome back, <span className="username">{user?.email?.split('@')[0] || 'User'}</span></h1>
-                        <p>Here's your financial overview</p>
+
+                    {/* Desktop Actions */}
+                    <div className="dashboard-header-right desktop-only">
+                        <button className="btn-ai-assistant" onClick={openAIAssistant}>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                            </svg>
+                            <span>Ask FinScope AI</span>
+                        </button>
+                        <button className="btn-leave" onClick={handleLeave}>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                                <polyline points="9 22 9 12 15 12 15 22" />
+                            </svg>
+                            <span>Home</span>
+                        </button>
+                        <UserMenu />
                     </div>
+
+                    {/* Mobile Menu Toggle */}
+                    <button
+                        className="mobile-menu-toggle mobile-only"
+                        onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                    >
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            {mobileMenuOpen ? (
+                                <path d="M18 6L6 18M6 6l12 12" />
+                            ) : (
+                                <path d="M3 12h18M3 6h18M3 18h18" />
+                            )}
+                        </svg>
+                    </button>
                 </div>
 
-                <div className="dashboard-header-right">
-                    <button className="btn-ai-assistant" onClick={openAIAssistant}>
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-                        </svg>
-                        <span>Ask FinScope AI</span>
-                    </button>
-                    <button className="btn-leave" onClick={handleLeave}>
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-                            <polyline points="9 22 9 12 15 12 15 22" />
-                        </svg>
-                        <span>Leave</span>
-                    </button>
-                    <UserMenu />
-                </div>
+                {/* Mobile Menu */}
+                {mobileMenuOpen && (
+                    <div className="mobile-menu">
+                        <button className="mobile-menu-item" onClick={() => {
+                            openAIAssistant();
+                            setMobileMenuOpen(false);
+                        }}>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                            </svg>
+                            <span>Ask FinScope AI</span>
+                        </button>
+                        <button className="mobile-menu-item" onClick={() => {
+                            handleLeave();
+                            setMobileMenuOpen(false);
+                        }}>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                            </svg>
+                            <span>Home</span>
+                        </button>
+                        <div className="mobile-menu-divider"></div>
+                        <UserMenu />
+                    </div>
+                )}
             </header>
 
             {/* Main Content */}
@@ -108,12 +173,6 @@ const Dashboard = () => {
                                     +0% from last month
                                 </div>
                             </div>
-                            <div className="stat-trend-icon up">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
-                                    <polyline points="17 6 23 6 23 12" />
-                                </svg>
-                            </div>
                         </div>
 
                         <div className="stat-card spending">
@@ -134,12 +193,6 @@ const Dashboard = () => {
                                     -0% from last month
                                 </div>
                             </div>
-                            <div className="stat-trend-icon down">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                    <polyline points="23 18 13.5 8.5 8.5 13.5 1 6" />
-                                    <polyline points="17 18 23 18 23 12" />
-                                </svg>
-                            </div>
                         </div>
 
                         <div className="stat-card savings">
@@ -158,12 +211,6 @@ const Dashboard = () => {
                                     </svg>
                                     +0% progress
                                 </div>
-                            </div>
-                            <div className="stat-trend-icon neutral">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
-                                    <polyline points="17 6 23 6 23 12" />
-                                </svg>
                             </div>
                         </div>
                     </div>
@@ -300,6 +347,13 @@ const Dashboard = () => {
                     </div>
                 </div>
             </main>
+
+            {/* Floating AI Assistant Button (Mobile) */}
+            <button className="floating-ai-btn mobile-only" onClick={openAIAssistant}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                </svg>
+            </button>
 
             {/* AI Assistant Modal */}
             {showAIAssistant && <AIAssistant onClose={closeAIAssistant} user={user} />}

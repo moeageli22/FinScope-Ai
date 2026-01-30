@@ -1,5 +1,6 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { ToastProvider } from "./components/Toast";
 import Home from "./pages/Home.jsx";
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
@@ -13,21 +14,23 @@ import "./App.css";
 
 function App() {
     return (
-        <Router>
-            <div className="App">
-                <Routes>
-                    <Route path="/" element={<Home />} />
-                    <Route path="/login" element={<Login />} />
-                    <Route path="/register" element={<Register />} />
-                    <Route path="/forgot-password" element={<ForgotPassword />} />
-                    <Route path="/email-confirmed" element={<EmailConfirmed />} />
-                    <Route path="/verify-2fa" element={<Verify2FA />} />
-                    <Route path="/verify-email" element={<VerifyEmail />} />
-                    <Route path="/dashboard" element={<Dashboard />} />
-                    <Route path="/terms" element={<Terms />} />
-                </Routes>
-            </div>
-        </Router>
+        <ToastProvider>
+            <Router>
+                <div className="App">
+                    <Routes>
+                        <Route path="/" element={<Home />} />
+                        <Route path="/login" element={<Login />} />
+                        <Route path="/register" element={<Register />} />
+                        <Route path="/forgot-password" element={<ForgotPassword />} />
+                        <Route path="/email-confirmed" element={<EmailConfirmed />} />
+                        <Route path="/verify-2fa" element={<Verify2FA />} />
+                        <Route path="/verify-email" element={<VerifyEmail />} />
+                        <Route path="/dashboard" element={<Dashboard />} />
+                        <Route path="/terms" element={<Terms />} />
+                    </Routes>
+                </div>
+            </Router>
+        </ToastProvider>
     );
 }
 

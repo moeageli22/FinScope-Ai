@@ -1,19 +1,37 @@
-/* Dashboard Container */
+/* Enhanced Dashboard Container */
 .dashboard {
     min-height: 100vh;
     background: linear-gradient(135deg, #0a0e27 0%, #1a1535 50%, #0f1729 100%);
     color: #ffffff;
 }
 
+/* Utility Classes */
+.desktop-only {
+    display: flex !important;
+}
+
+.mobile-only {
+    display: none !important;
+}
+
 /* Header */
 .dashboard-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 24px 48px;
     background: rgba(15, 23, 42, 0.6);
     backdrop-filter: blur(20px);
     border-bottom: 1px solid rgba(59, 130, 246, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    transition: all 0.3s ease;
+}
+
+.dashboard-header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 48px;
+    max-width: 1600px;
+    margin: 0 auto;
 }
 
 .dashboard-header-left {
@@ -61,20 +79,111 @@
     gap: 16px;
 }
 
-/* AI Assistant Button */
-.btn-ai-assistant {
+/* Mobile Menu Toggle */
+.mobile-menu-toggle {
+    display: none;
+    width: 44px;
+    height: 44px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.mobile-menu-toggle svg {
+    width: 24px;
+    height: 24px;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.mobile-menu-toggle:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.mobile-menu-toggle:active {
+    transform: scale(0.95);
+}
+
+/* Mobile Menu */
+.mobile-menu {
+    display: none;
+    flex-direction: column;
+    padding: 16px 20px;
+    background: rgba(10, 14, 39, 0.95);
+    border-top: 1px solid rgba(59, 130, 246, 0.1);
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.mobile-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 14px 16px;
+    background: transparent;
+    border: none;
+    border-radius: 12px;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: left;
+}
+
+.mobile-menu-item:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #ffffff;
+}
+
+.mobile-menu-item svg {
+    width: 20px;
+    height: 20px;
+    min-width: 20px;
+}
+
+.mobile-menu-divider {
+    height: 1px;
+    background: linear-gradient(
+            90deg,
+            transparent 0%,
+            rgba(255, 255, 255, 0.1) 50%,
+            transparent 100%
+    );
+    margin: 12px 0;
+}
+
+/* Action Buttons */
+.btn-ai-assistant,
+.btn-leave {
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 12px 24px;
-    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-    border: none;
+    padding: 12px 20px;
+    border: 1px solid rgba(59, 130, 246, 0.3);
     border-radius: 12px;
-    color: #ffffff;
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
+}
+
+.btn-ai-assistant {
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+    color: #ffffff;
 }
 
 .btn-ai-assistant:hover {
@@ -82,25 +191,9 @@
     box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
 }
 
-.btn-ai-assistant svg {
-    width: 18px;
-    height: 18px;
-}
-
-/* Leave Button */
 .btn-leave {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 12px 20px;
     background: rgba(6, 182, 212, 0.1);
-    border: 1px solid rgba(6, 182, 212, 0.3);
-    border-radius: 12px;
     color: #06b6d4;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
 }
 
 .btn-leave:hover {
@@ -109,6 +202,7 @@
     transform: translateY(-2px);
 }
 
+.btn-ai-assistant svg,
 .btn-leave svg {
     width: 18px;
     height: 18px;
@@ -254,38 +348,6 @@
 .stat-change svg {
     width: 14px;
     height: 14px;
-}
-
-.stat-trend-icon {
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: absolute;
-    top: 24px;
-    right: 24px;
-}
-
-.stat-trend-icon.up {
-    background: rgba(16, 185, 129, 0.15);
-    color: #10b981;
-}
-
-.stat-trend-icon.down {
-    background: rgba(239, 68, 68, 0.15);
-    color: #ef4444;
-}
-
-.stat-trend-icon.neutral {
-    background: rgba(139, 92, 246, 0.15);
-    color: #8b5cf6;
-}
-
-.stat-trend-icon svg {
-    width: 16px;
-    height: 16px;
 }
 
 /* Charts Row */
@@ -645,27 +707,81 @@
     height: 18px;
 }
 
+/* Floating AI Button (Mobile) */
+.floating-ai-btn {
+    display: none;
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+    border: none;
+    border-radius: 50%;
+    color: #ffffff;
+    cursor: pointer;
+    box-shadow: 0 8px 24px rgba(59, 130, 246, 0.4);
+    z-index: 50;
+    transition: all 0.3s ease;
+    align-items: center;
+    justify-content: center;
+}
+
+.floating-ai-btn svg {
+    width: 28px;
+    height: 28px;
+}
+
+.floating-ai-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 12px 32px rgba(59, 130, 246, 0.5);
+}
+
+.floating-ai-btn:active {
+    transform: scale(0.95);
+}
+
 /* Loading State */
 .dashboard-loading {
     min-height: 100vh;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     background: linear-gradient(135deg, #0a0e27 0%, #1a1535 50%, #0f1729 100%);
+    gap: 24px;
 }
 
-.spinner {
-    width: 48px;
-    height: 48px;
-    border: 4px solid rgba(59, 130, 246, 0.1);
-    border-top-color: #3b82f6;
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
+.loading-orb {
+    width: 120px;
+    height: 120px;
+    animation: pulse 2s ease-in-out infinite;
 }
 
-@keyframes spin {
-    to {
-        transform: rotate(360deg);
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.05);
+        opacity: 0.8;
+    }
+}
+
+.loading-text {
+    font-size: 16px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.7);
+    animation: fadeInOut 2s ease-in-out infinite;
+}
+
+@keyframes fadeInOut {
+    0%, 100% {
+        opacity: 0.5;
+    }
+    50% {
+        opacity: 1;
     }
 }
 
@@ -690,43 +806,39 @@
     }
 }
 
-@media (max-width: 768px) {
-    .dashboard-header {
-        flex-direction: column;
-        gap: 20px;
-        padding: 20px;
-    }
-
-    .dashboard-header-left {
-        width: 100%;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 16px;
-    }
-
-    .dashboard-header-right {
-        width: 100%;
-        justify-content: space-between;
+@media (max-width: 1024px) {
+    .dashboard-header-content {
+        padding: 16px 30px;
     }
 
     .dashboard-main {
-        padding: 20px;
-    }
-
-    .welcome-text h1 {
-        font-size: 20px;
-    }
-
-    .stat-value {
-        font-size: 28px;
-    }
-
-    .btn-ai-assistant span {
-        display: none;
+        padding: 24px 30px;
     }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 768px) {
+    /* Show mobile elements */
+    .mobile-only {
+        display: flex !important;
+    }
+
+    .desktop-only {
+        display: none !important;
+    }
+
+    .mobile-menu-toggle {
+        display: flex;
+    }
+
+    .mobile-menu {
+        display: flex;
+    }
+
+    /* Header adjustments */
+    .dashboard-header-content {
+        padding: 16px 20px;
+    }
+
     .dashboard-logo {
         width: 50px;
         height: 50px;
@@ -736,13 +848,208 @@
         transform: scale(0.125);
     }
 
-    .btn-ai-assistant,
-    .btn-leave {
-        padding: 10px;
+    .welcome-text h1 {
+        font-size: 18px;
     }
 
-    .btn-ai-assistant span,
-    .btn-leave span:not(.sr-only) {
-        display: none;
+    .welcome-text p {
+        font-size: 13px;
+    }
+
+    /* Main content adjustments */
+    .dashboard-main {
+        padding: 20px;
+        padding-bottom: 100px; /* Space for floating button */
+    }
+
+    /* Stat cards */
+    .stat-card {
+        padding: 24px 20px;
+    }
+
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        min-width: 48px;
+    }
+
+    .stat-icon svg {
+        width: 24px;
+        height: 24px;
+    }
+
+    .stat-value {
+        font-size: 28px;
+    }
+
+    .stat-label {
+        font-size: 13px;
+    }
+
+    .stat-change {
+        font-size: 12px;
+    }
+
+    /* Charts */
+    .chart-card {
+        padding: 20px;
+    }
+
+    .chart-header h3 {
+        font-size: 16px;
+    }
+
+    .empty-chart {
+        height: 220px;
+    }
+
+    .line-chart-svg {
+        height: 200px;
+    }
+
+    /* Bottom cards */
+    .transactions-card,
+    .insights-card {
+        padding: 20px;
+    }
+
+    .section-header h3 {
+        font-size: 16px;
+    }
+
+    /* Show floating AI button */
+    .floating-ai-btn {
+        display: flex;
+    }
+}
+
+@media (max-width: 480px) {
+    .dashboard-header-content {
+        gap: 12px;
+    }
+
+    .dashboard-header-left {
+        gap: 12px;
+        min-width: 0;
+        flex: 1;
+    }
+
+    .dashboard-logo {
+        width: 45px;
+        height: 45px;
+    }
+
+    .dashboard-logo > div {
+        transform: scale(0.115);
+    }
+
+    .welcome-text {
+        min-width: 0;
+        flex: 1;
+    }
+
+    .welcome-text h1 {
+        font-size: 16px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .welcome-text p {
+        font-size: 12px;
+    }
+
+    .mobile-menu-toggle {
+        width: 40px;
+        height: 40px;
+    }
+
+    .mobile-menu-toggle svg {
+        width: 20px;
+        height: 20px;
+    }
+
+    .dashboard-main {
+        padding: 16px;
+        padding-bottom: 100px;
+    }
+
+    .stat-value {
+        font-size: 24px;
+    }
+
+    .chart-card {
+        padding: 16px;
+    }
+
+    .donut-chart-container {
+        height: 200px;
+    }
+
+    .donut-svg {
+        width: 160px;
+        height: 160px;
+    }
+
+    .legend-row {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .insight-item {
+        padding: 16px;
+    }
+
+    .insight-item h4 {
+        font-size: 14px;
+    }
+
+    .insight-item p {
+        font-size: 12px;
+    }
+
+    .floating-ai-btn {
+        width: 56px;
+        height: 56px;
+        bottom: 20px;
+        right: 20px;
+    }
+
+    .floating-ai-btn svg {
+        width: 24px;
+        height: 24px;
+    }
+}
+
+/* Dark mode optimizations */
+@media (prefers-color-scheme: dark) {
+    .dashboard {
+        background: linear-gradient(135deg, #050614 0%, #0a0b1e 50%, #0a0e27 100%);
+    }
+}
+
+/* Reduced motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+    .stat-card,
+    .chart-card,
+    .transactions-card,
+    .insights-card {
+        border-width: 2px;
+    }
+
+    .btn-ai-assistant,
+    .btn-leave,
+    .view-all-btn,
+    .insights-btn {
+        border-width: 2px;
     }
 }

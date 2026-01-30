@@ -3,9 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import './Login.css';
 import FinScopeAI from '../components/FinScopeAI.jsx';
 import { supabase } from '../config/supabase';
+import { useToast } from '../components/Toast';
 
 const Login = () => {
     const navigate = useNavigate();
+    const { addToast } = useToast();
     const [formData, setFormData] = useState({
         email: '',
         password: ''
@@ -14,7 +16,6 @@ const Login = () => {
     const [activeTab, setActiveTab] = useState('signin');
     const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false);
-    const [message, setMessage] = useState({ type: '', text: '' });
 
     // Check if user is already logged in
     useEffect(() => {
@@ -33,7 +34,7 @@ const Login = () => {
             console.log('Auth event:', event);
 
             if (event === 'SIGNED_OUT') {
-                setMessage({ type: '', text: '' });
+                // Clear any messages
             }
         });
 
@@ -41,19 +42,19 @@ const Login = () => {
     }, [navigate]);
 
     const handleChange = (e) => {
+        const { name, value } = e.target;
         setFormData({
             ...formData,
-            [e.target.name]: e.target.value
+            [name]: value
         });
 
-        // Clear errors and messages when user types
-        if (errors[e.target.name]) {
+        // Clear errors when user types
+        if (errors[name]) {
             setErrors({
                 ...errors,
-                [e.target.name]: ''
+                [name]: ''
             });
         }
-        setMessage({ type: '', text: '' });
     };
 
     const validateForm = () => {
@@ -90,10 +91,12 @@ const Login = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (!validateForm()) return;
+        if (!validateForm()) {
+            addToast('Please fix the errors in the form', 'error');
+            return;
+        }
 
         setLoading(true);
-        setMessage({ type: '', text: '' });
 
         try {
             console.log('=== Login Flow Started ===');
@@ -119,10 +122,7 @@ const Login = () => {
                     console.error('Failed to log attempt:', logError);
                 }
 
-                setMessage({
-                    type: 'error',
-                    text: 'Invalid email or password.'
-                });
+                addToast('Invalid email or password', 'error');
                 setLoading(false);
                 return;
             }
@@ -164,10 +164,7 @@ const Login = () => {
                 console.error('❌ 2FA Function Error:', functionError);
                 console.error('Error details:', JSON.stringify(functionError, null, 2));
 
-                setMessage({
-                    type: 'error',
-                    text: 'Failed to send verification code. Please try again.'
-                });
+                addToast('Failed to send verification code. Please try again.', 'error');
                 setLoading(false);
                 return;
             }
@@ -175,19 +172,20 @@ const Login = () => {
             // Check if function returned success
             if (functionData && !functionData.success) {
                 console.error('❌ Function returned unsuccessful:', functionData);
-                setMessage({
-                    type: 'error',
-                    text: functionData.error || 'Failed to send verification code.'
-                });
+                addToast(functionData.error || 'Failed to send verification code', 'error');
                 setLoading(false);
                 return;
             }
 
             console.log('✅ 2FA code sent successfully');
 
+            // Show success message
+            addToast('Verification code sent to your email', 'success');
+
             // Show warning if email wasn't sent (no API key configured)
             if (functionData?.warning) {
                 console.warn('⚠️', functionData.warning);
+                addToast('Email service not configured - Check console for code', 'warning', 10000);
                 // For testing: show the code
                 if (functionData.code) {
                     console.log('🔑 TEST CODE:', functionData.code);
@@ -211,10 +209,7 @@ const Login = () => {
             console.error('Error message:', error.message);
             console.error('Error stack:', error.stack);
 
-            setMessage({
-                type: 'error',
-                text: 'An unexpected error occurred. Please try again.'
-            });
+            addToast('An unexpected error occurred. Please try again.', 'error');
             setLoading(false);
         }
     };
@@ -227,10 +222,14 @@ const Login = () => {
         navigate('/');
     };
 
+    const handleForgotPassword = () => {
+        navigate('/forgot-password');
+    };
+
     return (
         <div className="login-page">
             {/* Back Button */}
-            <button className="back-button" onClick={handleBackClick}>
+            <button className="back-button" onClick={handleBackClick} disabled={loading}>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M19 12H5M12 19l-7-7 7-7" />
                 </svg>
@@ -254,45 +253,18 @@ const Login = () => {
                     <button
                         className={`tab-button ${activeTab === 'signin' ? 'active' : ''}`}
                         onClick={() => setActiveTab('signin')}
+                        disabled={loading}
                     >
                         Sign In
                     </button>
                     <button
                         className={`tab-button ${activeTab === 'signup' ? 'active' : ''}`}
                         onClick={handleSignUpClick}
+                        disabled={loading}
                     >
                         Sign Up
                     </button>
                 </div>
-
-                {/* Message Alert */}
-                {message.text && (
-                    <div className={`message-alert ${message.type}`}>
-                        <div className="message-icon">
-                            {message.type === 'success' && (
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                                    <polyline points="22 4 12 14.01 9 11.01" />
-                                </svg>
-                            )}
-                            {message.type === 'error' && (
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                    <circle cx="12" cy="12" r="10" />
-                                    <line x1="12" y1="8" x2="12" y2="12" />
-                                    <line x1="12" y1="16" x2="12.01" y2="16" />
-                                </svg>
-                            )}
-                            {message.type === 'warning' && (
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-                                    <line x1="12" y1="9" x2="12" y2="13" />
-                                    <line x1="12" y1="17" x2="12.01" y2="17" />
-                                </svg>
-                            )}
-                        </div>
-                        <p>{message.text}</p>
-                    </div>
-                )}
 
                 {/* Login Form */}
                 <form className="login-form" onSubmit={handleSubmit}>
@@ -308,6 +280,7 @@ const Login = () => {
                             placeholder="you@example.com"
                             className={errors.email ? 'error' : ''}
                             disabled={loading}
+                            autoComplete="email"
                         />
                         {errors.email && <span className="error-message">{errors.email}</span>}
                     </div>
@@ -319,7 +292,7 @@ const Login = () => {
                             <button
                                 type="button"
                                 className="forgot-password-link"
-                                onClick={() => navigate('/forgot-password')}
+                                onClick={handleForgotPassword}
                                 disabled={loading}
                             >
                                 Forgot Password?
@@ -335,12 +308,14 @@ const Login = () => {
                                 placeholder="••••••••"
                                 className={errors.password ? 'error' : ''}
                                 disabled={loading}
+                                autoComplete="current-password"
                             />
                             <button
                                 type="button"
                                 className="toggle-password"
                                 onClick={() => setShowPassword(!showPassword)}
                                 disabled={loading}
+                                aria-label={showPassword ? 'Hide password' : 'Show password'}
                             >
                                 {showPassword ? (
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -381,7 +356,7 @@ const Login = () => {
 
                     {/* Terms & Privacy */}
                     <p className="terms-text">
-                        By continuing, you agree to FinScope AI's <a href="#terms">Terms of Service</a> and <a href="#privacy">Privacy Policy</a>
+                        By continuing, you agree to FinScope AI's <a href="/terms">Terms of Service</a> and <a href="/terms">Privacy Policy</a>
                     </p>
                 </form>
             </div>
