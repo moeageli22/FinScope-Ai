@@ -1,49 +1,86 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '../config/supabase';
 import FinScopeAI from '../components/FinScopeAI.jsx';
 import './EmailConfirmed.css';
 
 const EmailConfirmed = () => {
     const navigate = useNavigate();
-    const [searchParams] = useSearchParams();
     const [status, setStatus] = useState('verifying'); // verifying, success, error
 
     useEffect(() => {
         const verifyEmail = async () => {
             try {
-                // Get token from URL
-                const token = searchParams.get('token');
-                const type = searchParams.get('type');
+                console.log('=== Email Verification Started ===');
 
-                if (type === 'signup' && token) {
-                    // Verify the token
-                    const { data, error } = await supabase.auth.verifyOtp({
-                        token_hash: token,
-                        type: 'signup'
+                // Supabase automatically handles email confirmation via the URL
+                // We just need to check if there's a hash fragment
+                const hashParams = new URLSearchParams(window.location.hash.substring(1));
+                const accessToken = hashParams.get('access_token');
+                const type = hashParams.get('type');
+                const error = hashParams.get('error');
+                const errorDescription = hashParams.get('error_description');
+
+                console.log('Hash params:', {
+                    hasAccessToken: !!accessToken,
+                    type,
+                    error,
+                    errorDescription
+                });
+
+                // Check for errors in URL
+                if (error) {
+                    console.error('Error in URL:', error, errorDescription);
+                    setStatus('error');
+                    return;
+                }
+
+                // If we have an access token and it's a signup confirmation
+                if (accessToken && type === 'signup') {
+                    // The session is already set by Supabase automatically
+                    // Let's verify the session
+                    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+
+                    console.log('Session check:', {
+                        hasSession: !!session,
+                        sessionError
                     });
 
-                    if (error) {
-                        console.error('Verification error:', error);
+                    if (sessionError) {
+                        console.error('Session error:', sessionError);
                         setStatus('error');
-                    } else {
+                        return;
+                    }
+
+                    if (session && session.user) {
+                        console.log('✅ Email verified successfully for user:', session.user.id);
+                        console.log('User email confirmed:', session.user.email_confirmed_at);
+
+                        // Sign out the user so they can do proper login with 2FA
+                        await supabase.auth.signOut();
+
                         setStatus('success');
+
                         // Redirect to login after 3 seconds
                         setTimeout(() => {
                             navigate('/login');
                         }, 3000);
+                    } else {
+                        console.error('No session found after verification');
+                        setStatus('error');
                     }
                 } else {
+                    console.error('Missing required parameters for email verification');
                     setStatus('error');
                 }
             } catch (error) {
-                console.error('Unexpected error:', error);
+                console.error('Unexpected verification error:', error);
                 setStatus('error');
             }
         };
 
         verifyEmail();
-    }, [searchParams, navigate]);
+    }, [navigate]);
 
     return (
         <div className="email-confirmed-page">

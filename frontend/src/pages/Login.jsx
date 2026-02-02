@@ -99,17 +99,24 @@ const Login = () => {
         setLoading(true);
 
         try {
-            console.log('=== Login Flow Started ===');
+            console.log('=== Login Flow Started (WITH 2FA) ===');
             console.log('Attempting to sign in with email:', formData.email);
 
-            // Step 1: Verify credentials
+            // Step 1: Verify credentials by signing in
             const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
                 email: formData.email,
                 password: formData.password,
             });
 
             if (signInError) {
-                console.error('Sign in error:', signInError);
+                console.error('❌ Sign in error:', signInError);
+
+                // Check if email is not confirmed
+                if (signInError.message.includes('Email not confirmed')) {
+                    addToast('Please verify your email address before signing in', 'error');
+                    setLoading(false);
+                    return;
+                }
 
                 // Log failed attempt
                 try {
@@ -129,16 +136,38 @@ const Login = () => {
 
             console.log('✅ Credentials verified successfully');
             console.log('User ID:', signInData.user.id);
+            console.log('Email confirmed:', signInData.user.email_confirmed_at);
+
+            // Check if email is confirmed
+            if (!signInData.user.email_confirmed_at) {
+                await supabase.auth.signOut();
+                addToast('Please verify your email address before signing in', 'error');
+                setLoading(false);
+                return;
+            }
 
             // Step 2: Sign out immediately (we'll re-authenticate after 2FA)
             await supabase.auth.signOut();
             console.log('✅ Signed out (temporary for 2FA flow)');
 
-            // Step 3: Get IP address for security logging
+            // Step 3: Clean up any existing unused 2FA codes for this user
+            const { error: cleanupError } = await supabase
+                .from('two_factor_codes')
+                .delete()
+                .eq('user_id', signInData.user.id)
+                .eq('used', false);
+
+            if (cleanupError) {
+                console.warn('Failed to cleanup old codes:', cleanupError);
+            } else {
+                console.log('✅ Cleaned up old 2FA codes');
+            }
+
+            // Step 4: Get IP address for security logging
             const ipAddress = await getIPAddress();
             console.log('IP Address:', ipAddress);
 
-            // Step 4: Prepare 2FA request
+            // Step 5: Prepare 2FA request
             const requestBody = {
                 email: formData.email,
                 userId: signInData.user.id,
@@ -153,7 +182,7 @@ const Login = () => {
                 hasUserAgent: !!requestBody.userAgent
             });
 
-            // Step 5: Invoke 2FA function
+            // Step 6: Invoke 2FA function
             const { data: functionData, error: functionError } = await supabase.functions.invoke('send-2fa-code', {
                 body: requestBody
             });
@@ -194,7 +223,7 @@ const Login = () => {
 
             console.log('✅ Navigating to 2FA verification page');
 
-            // Step 6: Navigate to 2FA verification page
+            // Step 7: Navigate to 2FA verification page
             navigate('/verify-2fa', {
                 state: {
                     email: formData.email,
