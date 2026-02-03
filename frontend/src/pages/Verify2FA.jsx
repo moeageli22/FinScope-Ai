@@ -17,10 +17,16 @@ const Verify2FA = () => {
     const { email, userId, password } = location.state || {};
 
     useEffect(() => {
-        if (!email || !userId) {
+        console.log('=== Verify2FA Component Mounted ===');
+        console.log('Email:', email);
+        console.log('User ID:', userId);
+        console.log('Has password:', !!password);
+
+        if (!email || !userId || !password) {
+            console.error('Missing required data, redirecting to login');
             navigate('/login');
         }
-    }, [email, userId, navigate]);
+    }, [email, userId, password, navigate]);
 
     // Countdown timer
     useEffect(() => {
@@ -104,17 +110,25 @@ const Verify2FA = () => {
         setError('');
 
         try {
+            console.log('=== Starting 2FA Verification ===');
+            console.log('Code to verify:', codeString);
+            console.log('User ID:', userId);
+            console.log('Email:', email);
+            console.log('Has password:', !!password);
+
             // Verify the code from database
             const { data: codeData, error: codeError } = await supabase
                 .from('two_factor_codes')
                 .select('*')
                 .eq('user_id', userId)
                 .eq('code', codeString)
-                .eq('used', false)  // ✅ Changed from 'verified' to 'used'
+                .eq('verified', false)
                 .gt('expires_at', new Date().toISOString())
                 .order('created_at', { ascending: false })
                 .limit(1)
                 .single();
+
+            console.log('Code query result:', { codeData, codeError });
 
             if (codeError || !codeData) {
                 console.error('Code verification error:', codeError);
@@ -125,10 +139,12 @@ const Verify2FA = () => {
                 return;
             }
 
-            // Mark code as used
+            console.log('✅ Code verified successfully');
+
+            // Mark code as verified
             const { error: updateError } = await supabase
                 .from('two_factor_codes')
-                .update({ used: true })  // ✅ Changed from 'verified' to 'used'
+                .update({ verified: true })
                 .eq('id', codeData.id);
 
             if (updateError) {
@@ -138,11 +154,25 @@ const Verify2FA = () => {
                 return;
             }
 
+            console.log('✅ Code marked as used');
+
+            // Check if password is available
+            if (!password) {
+                console.error('❌ Password not available');
+                setError('Session expired. Please log in again.');
+                setTimeout(() => navigate('/login'), 2000);
+                setLoading(false);
+                return;
+            }
+
             // Now sign in the user
-            const { error: signInError } = await supabase.auth.signInWithPassword({
+            console.log('Attempting to sign in with email:', email);
+            const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
                 email: email,
                 password: password,
             });
+
+            console.log('Sign in result:', { signInData, signInError });
 
             if (signInError) {
                 console.error('Sign in error:', signInError);
@@ -151,18 +181,28 @@ const Verify2FA = () => {
                 return;
             }
 
+            console.log('✅ User signed in successfully');
+
             // Log successful login
-            await supabase.from('login_attempts').insert({
-                email: email,
-                success: true,
-                ip_address: await getIPAddress(),
-            });
+            try {
+                await supabase.from('login_attempts').insert({
+                    email: email,
+                    success: true,
+                    ip_address: await getIPAddress(),
+                });
+            } catch (logError) {
+                console.error('Failed to log attempt:', logError);
+                // Don't fail the login if logging fails
+            }
+
+            console.log('✅ Redirecting to dashboard');
 
             // Success - redirect to dashboard
             navigate('/dashboard');
 
         } catch (error) {
-            console.error('Verification error:', error);
+            console.error('❌ Verification error:', error);
+            console.error('Error details:', error.message, error.stack);
             setError('An error occurred. Please try again.');
         } finally {
             setLoading(false);
