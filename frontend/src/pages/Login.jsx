@@ -151,14 +151,16 @@ const Login = () => {
             console.log('✅ Signed out (temporary for 2FA flow)');
 
             // Step 3: Clean up any existing unused 2FA codes for this user
+            console.log('Cleaning up old 2FA codes...');
             const { error: cleanupError } = await supabase
                 .from('two_factor_codes')
                 .delete()
                 .eq('user_id', signInData.user.id)
-                .eq('used', false);
+                .eq('verified', false); // FIXED: Changed from 'used' to 'verified'
 
             if (cleanupError) {
                 console.warn('Failed to cleanup old codes:', cleanupError);
+                // Don't fail the login, just log the warning
             } else {
                 console.log('✅ Cleaned up old 2FA codes');
             }
@@ -175,12 +177,7 @@ const Login = () => {
                 userAgent: navigator.userAgent
             };
 
-            console.log('Sending 2FA request with body:', {
-                email: requestBody.email,
-                userId: requestBody.userId,
-                hasIpAddress: !!requestBody.ipAddress,
-                hasUserAgent: !!requestBody.userAgent
-            });
+            console.log('Sending 2FA request...');
 
             // Step 6: Invoke 2FA function
             const { data: functionData, error: functionError } = await supabase.functions.invoke('send-2fa-code', {

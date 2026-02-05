@@ -116,13 +116,13 @@ const Verify2FA = () => {
             console.log('Email:', email);
             console.log('Has password:', !!password);
 
-            // Verify the code from database
+            // Verify the code from database - FIXED: Using 'verified' column
             const { data: codeData, error: codeError } = await supabase
                 .from('two_factor_codes')
                 .select('*')
                 .eq('user_id', userId)
                 .eq('code', codeString)
-                .eq('verified', false)
+                .eq('verified', false) // FIXED: Changed from 'used' to 'verified'
                 .gt('expires_at', new Date().toISOString())
                 .order('created_at', { ascending: false })
                 .limit(1)
@@ -141,10 +141,10 @@ const Verify2FA = () => {
 
             console.log('✅ Code verified successfully');
 
-            // Mark code as verified
+            // Mark code as verified - FIXED: Using 'verified' column
             const { error: updateError } = await supabase
                 .from('two_factor_codes')
-                .update({ verified: true })
+                .update({ verified: true }) // FIXED: Changed from 'used' to 'verified'
                 .eq('id', codeData.id);
 
             if (updateError) {
@@ -154,7 +154,7 @@ const Verify2FA = () => {
                 return;
             }
 
-            console.log('✅ Code marked as used');
+            console.log('✅ Code marked as verified');
 
             // Check if password is available
             if (!password) {
