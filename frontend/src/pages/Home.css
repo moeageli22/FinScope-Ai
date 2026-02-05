@@ -352,7 +352,9 @@ html {
     display: flex;
     gap: 16px;
     justify-content: center;
+    align-items: center;
     margin-bottom: 40px;
+    flex-wrap: wrap;
 }
 
 .btn-primary {
@@ -390,6 +392,63 @@ html {
     background: rgba(255, 255, 255, 0.15);
     border-color: rgba(255, 255, 255, 0.3);
 }
+
+/* ══════════════════════════════════════
+   "How It Works" Button
+   ══════════════════════════════════════ */
+.btn-how-it-works {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(139, 92, 246, 0.12);
+    color: #c4b5fd;
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    padding: 14px 28px;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-how-it-works svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    transition: transform 0.3s ease;
+}
+
+.btn-how-it-works:hover {
+    background: rgba(139, 92, 246, 0.2);
+    border-color: rgba(139, 92, 246, 0.5);
+    color: #ddd6fe;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(139, 92, 246, 0.3);
+}
+
+.btn-how-it-works:hover svg {
+    transform: scale(1.15);
+}
+
+/* Shimmer sweep on hover */
+.btn-how-it-works::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.15), transparent);
+    transition: left 0.5s ease;
+}
+
+.btn-how-it-works:hover::before {
+    left: 100%;
+}
+
 
 /* AI Orb Container */
 .ai-orb-container {
@@ -550,9 +609,11 @@ html {
     }
 
     .btn-primary,
-    .btn-secondary {
+    .btn-secondary,
+    .btn-how-it-works {
         width: 100%;
         max-width: 300px;
+        justify-content: center;
     }
 
     .features-grid {
@@ -583,6 +644,11 @@ html {
 
     .btn-dashboard {
         padding: 8px 12px;
+    }
+
+    .btn-how-it-works {
+        padding: 12px 22px;
+        font-size: 14px;
     }
 }
 

@@ -11,6 +11,7 @@ import Footer from './Footer.jsx';
 import CookieBanner from './CookieBanner.jsx';
 import LiveExchange from './LiveExchange.jsx';
 import UserMenu from '../components/UserMenu.jsx';
+import DashboardTutorial from '../components/DashboardTutorial.jsx';
 import { supabase } from '../config/supabase';
 
 function Home() {
@@ -19,6 +20,7 @@ function Home() {
     const [showExchange, setShowExchange] = useState(false);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [showTutorial, setShowTutorial] = useState(false);
 
     // Check authentication status
     useEffect(() => {
@@ -222,6 +224,14 @@ function Home() {
             {/* Cookie Banner */}
             <CookieBanner />
 
+            {/* Tutorial Overlay */}
+            {showTutorial && (
+                <DashboardTutorial
+                    onComplete={() => setShowTutorial(false)}
+                    onSkip={() => setShowTutorial(false)}
+                />
+            )}
+
             {/* Header */}
             <header className="home-header">
                 <div className="logo" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} style={{ cursor: 'pointer' }}>
@@ -329,6 +339,13 @@ function Home() {
                             <button className="btn-secondary" onClick={handleSignIn}>Sign In</button>
                         </>
                     )}
+                    <button className="btn-how-it-works" onClick={() => setShowTutorial(true)}>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <circle cx="12" cy="12" r="10" />
+                            <polygon points="10 8 16 12 10 16 10 8" />
+                        </svg>
+                        How It Works
+                    </button>
                 </div>
 
                 {/* AI Orb - Center Component */}
