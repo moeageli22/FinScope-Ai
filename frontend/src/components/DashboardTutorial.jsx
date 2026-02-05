@@ -1,19 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import FinScopeAI from './FinScopeAI';
 import './DashboardTutorial.css';
 
 const DashboardTutorial = ({ onComplete, onSkip }) => {
     const [currentStep, setCurrentStep] = useState(0);
-    const [isAnimating, setIsAnimating] = useState(false);
-    const [showOrb, setShowOrb] = useState(true);
+    const [animKey, setAnimKey] = useState(0);
 
     const tutorialSteps = [
         {
             id: 'welcome',
             title: 'Welcome to FinScope AI! 👋',
-            description: 'Your intelligent financial companion is ready to help you master your money. Let me show you around!',
+            description: 'Your intelligent financial companion is ready to help you master your money. Let me give you a quick tour of everything you can do.',
             highlight: null,
-            orbPosition: 'center',
             animation: 'fadeIn'
         },
         {
@@ -21,10 +19,9 @@ const DashboardTutorial = ({ onComplete, onSkip }) => {
             title: 'Start with Demo Mode 🎮',
             description: 'Try FinScope risk-free! Choose a virtual balance and simulate real financial scenarios without using actual money.',
             highlight: 'demo-setup',
-            orbPosition: 'left',
             animation: 'slideIn',
             features: [
-                '💰 Choose £1K - £1M virtual balance',
+                '💰 Choose £1K – £1M virtual balance',
                 '📊 Realistic transaction simulation',
                 '🔄 Reset anytime you want',
                 '🎯 Perfect for learning'
@@ -33,13 +30,12 @@ const DashboardTutorial = ({ onComplete, onSkip }) => {
         {
             id: 'transactions',
             title: 'Track Every Penny 💸',
-            description: 'Add income and expenses easily. Our smart categorization helps you understand where your money goes.',
+            description: 'Add income and expenses easily. Our smart categorisation helps you understand exactly where your money goes.',
             highlight: 'add-transaction',
-            orbPosition: 'right',
             animation: 'slideIn',
             features: [
                 '➕ Quick-add transactions',
-                '🏷️ Auto-categorization',
+                '🏷️ Auto-categorisation',
                 '📝 Custom descriptions',
                 '📅 Date tracking'
             ]
@@ -47,9 +43,8 @@ const DashboardTutorial = ({ onComplete, onSkip }) => {
         {
             id: 'analytics',
             title: 'Beautiful Insights 📈',
-            description: 'Watch your financial story unfold through stunning charts and real-time analytics.',
+            description: 'Watch your financial story unfold through stunning charts and real-time analytics, all in one place.',
             highlight: 'charts',
-            orbPosition: 'bottom',
             animation: 'slideUp',
             features: [
                 '📊 Spending trends over time',
@@ -61,69 +56,79 @@ const DashboardTutorial = ({ onComplete, onSkip }) => {
         {
             id: 'ai-assistant',
             title: 'Meet Your AI Advisor 🤖',
-            description: 'Chat with FinScope AI for personalized insights, smart suggestions, and financial guidance.',
+            description: 'Chat with FinScope AI for personalised insights, smart suggestions, and financial guidance tailored just for you.',
             highlight: 'ai-chat',
-            orbPosition: 'center',
             animation: 'pulse',
             features: [
                 '💬 Natural conversation',
                 '🧠 Smart predictions',
-                '💡 Personalized tips',
+                '💡 Personalised tips',
                 '🎯 Goal tracking'
             ]
         },
         {
             id: 'ready',
-            title: 'You\'re All Set! 🚀',
-            description: 'Start your financial journey now. Remember, you can always access this tutorial from Settings.',
+            title: "You're All Set! 🚀",
+            description: 'Start your financial journey now. You can always re-open this tutorial from the header.',
             highlight: null,
-            orbPosition: 'center',
             animation: 'celebrate'
         }
     ];
 
     const currentStepData = tutorialSteps[currentStep];
     const isLastStep = currentStep === tutorialSteps.length - 1;
+    const isFirstStep = currentStep === 0;
 
-    useEffect(() => {
-        setIsAnimating(true);
-        const timer = setTimeout(() => setIsAnimating(false), 600);
-        return () => clearTimeout(timer);
-    }, [currentStep]);
+    const goToStep = useCallback((newStep) => {
+        if (newStep >= 0 && newStep < tutorialSteps.length) {
+            setCurrentStep(newStep);
+            setAnimKey(prev => prev + 1);
+        }
+    }, [tutorialSteps.length]);
 
-    const handleNext = () => {
+    const handleNext = useCallback(() => {
         if (isLastStep) {
-            handleComplete();
+            localStorage.setItem('finscope_tutorial_completed', 'true');
+            onComplete();
         } else {
-            setCurrentStep(prev => prev + 1);
+            goToStep(currentStep + 1);
         }
-    };
+    }, [isLastStep, currentStep, goToStep, onComplete]);
 
-    const handlePrevious = () => {
-        if (currentStep > 0) {
-            setCurrentStep(prev => prev - 1);
+    const handlePrevious = useCallback(() => {
+        if (!isFirstStep) {
+            goToStep(currentStep - 1);
         }
-    };
+    }, [isFirstStep, currentStep, goToStep]);
 
-    const handleComplete = () => {
-        // Mark tutorial as completed
-        localStorage.setItem('finscope_tutorial_completed', 'true');
-        onComplete();
-    };
-
-    const handleSkipTutorial = () => {
+    const handleSkipTutorial = useCallback(() => {
         localStorage.setItem('finscope_tutorial_completed', 'true');
         onSkip();
-    };
+    }, [onSkip]);
+
+    // Keyboard navigation
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if (e.key === 'ArrowRight' || e.key === 'Enter') {
+                handleNext();
+            } else if (e.key === 'ArrowLeft') {
+                handlePrevious();
+            } else if (e.key === 'Escape') {
+                handleSkipTutorial();
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [handleNext, handlePrevious, handleSkipTutorial]);
 
     return (
-        <div className="tutorial-overlay">
+        <div className="tutorial-overlay" role="dialog" aria-modal="true" aria-label="Dashboard tutorial">
             <div className="tutorial-background" />
 
-            {/* Tutorial Modal */}
-            <div className={`tutorial-modal ${isAnimating ? 'animating' : ''} ${currentStepData.animation}`}>
+            <div className="tutorial-modal">
                 {/* Progress Bar */}
-                <div className="tutorial-progress">
+                <div className="tutorial-progress" role="progressbar" aria-valuenow={currentStep + 1} aria-valuemin={1} aria-valuemax={tutorialSteps.length}>
                     {tutorialSteps.map((_, index) => (
                         <div
                             key={index}
@@ -133,18 +138,16 @@ const DashboardTutorial = ({ onComplete, onSkip }) => {
                 </div>
 
                 {/* Skip Button */}
-                <button className="tutorial-skip" onClick={handleSkipTutorial}>
-                    Skip Tutorial
+                <button className="tutorial-skip" onClick={handleSkipTutorial} aria-label="Skip tutorial">
+                    Skip
                 </button>
 
                 {/* Content Container */}
-                <div className="tutorial-content">
-                    {/* AI Orb Animation */}
-                    {showOrb && (
-                        <div className={`tutorial-orb orb-${currentStepData.orbPosition} ${currentStepData.animation}`}>
-                            <FinScopeAI />
-                        </div>
-                    )}
+                <div className="tutorial-content" key={animKey}>
+                    {/* AI Orb */}
+                    <div className={`tutorial-orb ${currentStepData.animation}`}>
+                        <FinScopeAI />
+                    </div>
 
                     {/* Step Content */}
                     <div className="tutorial-text">
@@ -167,7 +170,7 @@ const DashboardTutorial = ({ onComplete, onSkip }) => {
                                     <div
                                         key={index}
                                         className="feature-item"
-                                        style={{ animationDelay: `${index * 0.1}s` }}
+                                        style={{ animationDelay: `${0.2 + index * 0.08}s` }}
                                     >
                                         {feature}
                                     </div>
@@ -175,10 +178,10 @@ const DashboardTutorial = ({ onComplete, onSkip }) => {
                             </div>
                         )}
 
-                        {/* Special Content for Last Step */}
+                        {/* Celebration for last step */}
                         {isLastStep && (
                             <div className="tutorial-celebration">
-                                <div className="celebration-emoji">🎉</div>
+                                <span className="celebration-emoji">🎉</span>
                                 <div className="celebration-text">
                                     You're ready to take control of your finances!
                                 </div>
@@ -192,39 +195,30 @@ const DashboardTutorial = ({ onComplete, onSkip }) => {
                     <button
                         className="btn-tutorial-nav btn-previous"
                         onClick={handlePrevious}
-                        disabled={currentStep === 0}
+                        disabled={isFirstStep}
+                        aria-label="Previous step"
                     >
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             <path d="M19 12H5M12 19l-7-7 7-7" />
                         </svg>
-                        Previous
+                        Back
                     </button>
 
                     <button
                         className="btn-tutorial-nav btn-next"
                         onClick={handleNext}
+                        aria-label={isLastStep ? 'Get started' : 'Next step'}
                     >
-                        {isLastStep ? (
-                            <>
-                                Get Started
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                    <path d="M5 12h14M12 5l7 7-7 7" />
-                                </svg>
-                            </>
-                        ) : (
-                            <>
-                                Next
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                    <path d="M5 12h14M12 5l7 7-7 7" />
-                                </svg>
-                            </>
-                        )}
+                        {isLastStep ? 'Get Started' : 'Next'}
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M5 12h14M12 5l7 7-7 7" />
+                        </svg>
                     </button>
                 </div>
 
                 {/* Keyboard Hint */}
                 <div className="tutorial-hint">
-                    Use arrow keys or click to navigate
+                    Use arrow keys to navigate · Esc to skip
                 </div>
             </div>
 

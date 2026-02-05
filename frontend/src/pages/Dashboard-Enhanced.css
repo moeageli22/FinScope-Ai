@@ -195,11 +195,32 @@
     background: rgba(6, 182, 212, 0.1);
     color: #06b6d4;
 }
+/* Tutorial Button */
+.btn-tutorial {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
 
-.btn-leave:hover {
-    background: rgba(6, 182, 212, 0.2);
-    border-color: rgba(6, 182, 212, 0.5);
+.btn-tutorial:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.2);
     transform: translateY(-2px);
+}
+
+.btn-tutorial svg {
+    width: 18px;
+    height: 18px;
 }
 
 .btn-ai-assistant svg,
