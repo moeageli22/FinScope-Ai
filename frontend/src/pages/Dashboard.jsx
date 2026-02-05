@@ -4,6 +4,7 @@ import { supabase } from '../config/supabase';
 import UserMenu from '../components/UserMenu';
 import FinScopeAI from '../components/FinScopeAI';
 import AIAssistant from '../components/AIAssistant';
+import DashboardTutorial from '../components/DashboardTutorial';
 import './Dashboard-Enhanced.css';
 
 const Dashboard = () => {
@@ -13,10 +14,23 @@ const Dashboard = () => {
     const [loading, setLoading] = useState(true);
     const [showAIAssistant, setShowAIAssistant] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [showTutorial, setShowTutorial] = useState(false);
 
     useEffect(() => {
         checkUser();
     }, []);
+
+    // Check if user should see tutorial on first login
+    useEffect(() => {
+        const tutorialCompleted = localStorage.getItem('finscope_tutorial_completed');
+        if (!tutorialCompleted && user) {
+            // Show tutorial after a brief delay for better UX
+            const timer = setTimeout(() => {
+                setShowTutorial(true);
+            }, 1000);
+            return () => clearTimeout(timer);
+        }
+    }, [user]);
 
     const checkUser = async () => {
         try {
@@ -59,6 +73,19 @@ const Dashboard = () => {
         setShowAIAssistant(false);
     };
 
+    const handleTutorialComplete = () => {
+        setShowTutorial(false);
+        console.log('Tutorial completed!');
+    };
+
+    const handleTutorialSkip = () => {
+        setShowTutorial(false);
+    };
+
+    const restartTutorial = () => {
+        setShowTutorial(true);
+    };
+
     const getUserDisplayName = () => {
         if (profile?.full_name) return profile.full_name;
         return user?.email?.split('@')[0] || 'User';
@@ -77,6 +104,14 @@ const Dashboard = () => {
 
     return (
         <div className="dashboard">
+            {/* Tutorial Overlay */}
+            {showTutorial && (
+                <DashboardTutorial
+                    onComplete={handleTutorialComplete}
+                    onSkip={handleTutorialSkip}
+                />
+            )}
+
             {/* Enhanced Header with Mobile Support */}
             <header className="dashboard-header">
                 <div className="dashboard-header-content">
@@ -92,6 +127,13 @@ const Dashboard = () => {
 
                     {/* Desktop Actions */}
                     <div className="dashboard-header-right desktop-only">
+                        <button className="btn-tutorial" onClick={restartTutorial}>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <circle cx="12" cy="12" r="10" />
+                                <path d="M12 16v-4M12 8h.01" />
+                            </svg>
+                            <span>Tutorial</span>
+                        </button>
                         <button className="btn-ai-assistant" onClick={openAIAssistant}>
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
@@ -126,6 +168,16 @@ const Dashboard = () => {
                 {/* Mobile Menu */}
                 {mobileMenuOpen && (
                     <div className="mobile-menu">
+                        <button className="mobile-menu-item" onClick={() => {
+                            restartTutorial();
+                            setMobileMenuOpen(false);
+                        }}>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <circle cx="12" cy="12" r="10" />
+                                <path d="M12 16v-4M12 8h.01" />
+                            </svg>
+                            <span>Tutorial</span>
+                        </button>
                         <button className="mobile-menu-item" onClick={() => {
                             openAIAssistant();
                             setMobileMenuOpen(false);
