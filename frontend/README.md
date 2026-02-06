@@ -1,16 +1,8 @@
-# React + Vite
+💰 FinScope AI – Intelligent Personal Finance & Smart Banking System
+📌 Overview
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+FinScope AI is an AI-powered personal finance platform designed to help users track, analyse, and optimise their financial behaviour through intelligent insights, automation, and real-time financial data processing.
 
-Currently, two official plugins are available:
+The system combines financial dashboards, AI-driven analytics, currency intelligence, and smart chatbot assistance to create a next-generation digital banking experience.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+This project is developed as part of my Final Year BSc Computer Science project.
