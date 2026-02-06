@@ -116,7 +116,7 @@ const TransactionsVisual = () => {
     );
 };
 
-// Step 3: Analytics - FIXED layout
+// Step 3: Analytics
 const AnalyticsVisual = () => {
     const [chartProgress, setChartProgress] = useState(0);
     const barHeights = [35, 55, 45, 70, 60, 85, 75];
@@ -149,7 +149,6 @@ const AnalyticsVisual = () => {
 
     return (
         <div className="analytics-visual">
-            {/* Stat row */}
             <div className="analytics-header">
                 <div className="analytics-stat">
                     <span className="analytics-stat-label">Income</span>
@@ -165,7 +164,6 @@ const AnalyticsVisual = () => {
                 </div>
             </div>
 
-            {/* Charts row - bar left, donut right */}
             <div className="analytics-charts-row">
                 <div className="analytics-bar-card">
                     <div className="chart-label">Weekly Spending</div>
@@ -223,7 +221,6 @@ const AnalyticsVisual = () => {
                 </div>
             </div>
 
-            {/* Trend line */}
             <div className="analytics-trend">
                 <svg viewBox="0 0 200 36" className="trend-svg">
                     <defs>
@@ -252,7 +249,7 @@ const AnalyticsVisual = () => {
     );
 };
 
-// Step 4: AI Chat - with animated mini orb avatars
+// Step 4: AI Chat
 const AIChatVisual = () => {
     const [visibleMessages, setVisibleMessages] = useState(0);
     const [typing, setTyping] = useState(false);
@@ -337,7 +334,131 @@ const AIChatVisual = () => {
     );
 };
 
-// Step 5: Ready
+// Step 5: Live Exchange
+const LiveExchangeVisual = () => {
+    const [visibleRows, setVisibleRows] = useState(0);
+    const [rateFlicker, setRateFlicker] = useState({});
+
+    const pairs = [
+        { from: '🇬🇧', fromCode: 'GBP', to: '🇺🇸', toCode: 'USD', rate: '1.2684', change: '+0.32', positive: true },
+        { from: '🇪🇺', fromCode: 'EUR', to: '🇺🇸', toCode: 'USD', rate: '1.0847', change: '-0.15', positive: false },
+        { from: '🇺🇸', fromCode: 'USD', to: '🇯🇵', toCode: 'JPY', rate: '149.52', change: '+0.48', positive: true },
+        { from: '🇬🇧', fromCode: 'GBP', to: '🇪🇺', toCode: 'EUR', rate: '1.1693', change: '+0.18', positive: true },
+    ];
+
+    const sparklines = [
+        [4, 6, 5, 8, 7, 10, 9, 12, 11, 14],
+        [10, 9, 11, 8, 7, 9, 6, 8, 5, 7],
+        [3, 5, 4, 7, 9, 8, 11, 10, 13, 14],
+        [6, 7, 5, 8, 9, 7, 10, 11, 9, 12],
+    ];
+
+    useEffect(() => {
+        const timers = pairs.map((_, i) =>
+            setTimeout(() => setVisibleRows(i + 1), 300 + i * 350)
+        );
+        return () => timers.forEach(clearTimeout);
+    }, []);
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            const idx = Math.floor(Math.random() * pairs.length);
+            setRateFlicker(prev => ({ ...prev, [idx]: true }));
+            setTimeout(() => setRateFlicker(prev => ({ ...prev, [idx]: false })), 600);
+        }, 2000);
+        return () => clearInterval(interval);
+    }, []);
+
+    const renderSparkline = (data, positive) => {
+        const w = 60, h = 20;
+        const max = Math.max(...data);
+        const min = Math.min(...data);
+        const range = max - min || 1;
+        const points = data.map((v, i) => {
+            const x = (i / (data.length - 1)) * w;
+            const y = h - ((v - min) / range) * h;
+            return `${x},${y}`;
+        }).join(' ');
+        return (
+            <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} className="exchange-sparkline">
+                <polyline
+                    points={points}
+                    fill="none"
+                    stroke={positive ? '#10b981' : '#ef4444'}
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                />
+            </svg>
+        );
+    };
+
+    return (
+        <div className="exchange-visual">
+            <div className="exchange-panel">
+                <div className="exchange-panel-header">
+                    <div className="exchange-panel-title">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <line x1="12" y1="1" x2="12" y2="23" />
+                            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                        </svg>
+                        <span>Live Exchange</span>
+                    </div>
+                    <div className="exchange-panel-live">
+                        <span className="exchange-live-dot" />
+                        <span>Live</span>
+                    </div>
+                </div>
+
+                <div className="exchange-table-head">
+                    <span className="exchange-th exchange-th-pair">Pair</span>
+                    <span className="exchange-th">Rate</span>
+                    <span className="exchange-th">24h</span>
+                    <span className="exchange-th exchange-th-chart">Chart</span>
+                </div>
+
+                <div className="exchange-table-body">
+                    {pairs.map((pair, i) => (
+                        <div
+                            key={i}
+                            className={`exchange-row ${i < visibleRows ? 'exchange-row-visible' : ''} ${rateFlicker[i] ? 'exchange-row-flicker' : ''}`}
+                        >
+                            <div className="exchange-pair-cell">
+                                <div className="exchange-flags">
+                                    <span className="exchange-flag">{pair.from}</span>
+                                    <span className="exchange-flag-sep">/</span>
+                                    <span className="exchange-flag">{pair.to}</span>
+                                </div>
+                                <span className="exchange-pair-code">{pair.fromCode}/{pair.toCode}</span>
+                            </div>
+                            <div className={`exchange-rate-cell ${rateFlicker[i] ? (pair.positive ? 'rate-flash-green' : 'rate-flash-red') : ''}`}>
+                                {pair.rate}
+                            </div>
+                            <div className={`exchange-change-cell ${pair.positive ? 'exchange-positive' : 'exchange-negative'}`}>
+                                <span className="exchange-change-badge">
+                                    {pair.positive ? '▲' : '▼'} {pair.change}%
+                                </span>
+                            </div>
+                            <div className="exchange-chart-cell">
+                                {renderSparkline(sparklines[i], pair.positive)}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+
+                <div className="exchange-panel-footer">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M7 16V4M7 4L3 8M7 4L11 8" />
+                        <path d="M17 8V20M17 20L21 16M17 20L13 16" />
+                    </svg>
+                    <span>50+ currencies · Real-time data · Charts & converter</span>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+// Step 6: Ready
 const ReadyVisual = () => {
     const [show, setShow] = useState(false);
     useEffect(() => {
@@ -350,6 +471,7 @@ const ReadyVisual = () => {
         { icon: '💸', label: 'Transactions', color: '#3b82f6' },
         { icon: '📊', label: 'Analytics', color: '#06b6d4' },
         { icon: '🤖', label: 'AI Advisor', color: '#10b981' },
+        { icon: '💱', label: 'Live Exchange', color: '#f59e0b' },
     ];
 
     return (
@@ -386,6 +508,7 @@ const DashboardTutorial = ({ onComplete, onSkip }) => {
         { id: 'transactions', title: 'Track Every Penny', subtitle: 'Smart categorisation', description: 'Add income and expenses effortlessly. Our AI auto-categorises everything.', visual: 'transactions' },
         { id: 'analytics', title: 'Beautiful Insights', subtitle: 'Charts that tell your story', description: 'Watch your financial story unfold through stunning charts and real-time analytics.', visual: 'analytics' },
         { id: 'ai-assistant', title: 'Meet Your AI Advisor', subtitle: 'Like having a financial expert on call', description: 'Chat naturally with FinScope AI for personalised insights and guidance.', visual: 'chat' },
+        { id: 'live-exchange', title: 'Live Currency Exchange', subtitle: 'Real-time market data at your fingertips', description: 'Track 50+ currencies with live rates, interactive charts, and a built-in converter — all updated in real time.', visual: 'exchange' },
         { id: 'ready', title: "You're All Set!", subtitle: 'Everything unlocked', description: 'Start your financial journey now. Re-open this tutorial anytime from the header.', visual: 'ready' },
     ];
 
@@ -431,6 +554,7 @@ const DashboardTutorial = ({ onComplete, onSkip }) => {
             case 'transactions': return <TransactionsVisual />;
             case 'analytics': return <AnalyticsVisual />;
             case 'chat': return <AIChatVisual />;
+            case 'exchange': return <LiveExchangeVisual />;
             case 'ready': return <ReadyVisual />;
             default: return null;
         }
