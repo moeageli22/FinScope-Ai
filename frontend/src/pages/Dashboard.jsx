@@ -20,43 +20,63 @@ const Dashboard = () => {
         checkUser();
     }, []);
 
-    // Check if user should see tutorial on first login
+    // FIXED: Only check tutorial ONCE after user is fully loaded
+    // This prevents tutorial from appearing every time dashboard loads
     useEffect(() => {
-        const tutorialCompleted = localStorage.getItem('finscope_tutorial_completed');
-        if (!tutorialCompleted && user) {
-            // Show tutorial after a brief delay for better UX
-            const timer = setTimeout(() => {
-                setShowTutorial(true);
-            }, 1000);
-            return () => clearTimeout(timer);
+        if (!loading && user) {
+            // Check if this is the user's first time AND they haven't seen tutorial
+            const tutorialCompleted = localStorage.getItem('finscope_tutorial_completed');
+            const hasSeenDashboard = sessionStorage.getItem('dashboard_visited');
+
+            // Only show tutorial if:
+            // 1. Tutorial has never been completed
+            // 2. This is their first time visiting dashboard in this session
+            if (!tutorialCompleted && !hasSeenDashboard) {
+                const timer = setTimeout(() => {
+                    setShowTutorial(true);
+                }, 1500);
+
+                // Mark that they've visited dashboard in this session
+                sessionStorage.setItem('dashboard_visited', 'true');
+
+                return () => clearTimeout(timer);
+            }
         }
-    }, [user]);
+    }, [user, loading]);
 
     const checkUser = async () => {
         try {
-            const { data: { user } } = await supabase.auth.getUser();
+            const { data: { user }, error: userError } = await supabase.auth.getUser();
 
-            if (!user) {
+            if (userError || !user) {
+                console.log('No user found, redirecting to login');
+                setLoading(false);
                 navigate('/login');
                 return;
             }
 
             setUser(user);
 
-            // Fetch user profile
-            const { data: profileData } = await supabase
-                .from('user_profiles')
-                .select('*')
-                .eq('id', user.id)
-                .single();
+            // Fetch user profile - non-critical
+            try {
+                const { data: profileData } = await supabase
+                    .from('user_profiles')
+                    .select('*')
+                    .eq('id', user.id)
+                    .single();
 
-            if (profileData) {
-                setProfile(profileData);
+                if (profileData) {
+                    setProfile(profileData);
+                }
+            } catch (profileError) {
+                console.warn('Profile not found (non-critical)');
             }
 
             setLoading(false);
+
         } catch (error) {
-            console.error('Error checking user:', error);
+            console.error('Error in checkUser:', error);
+            setLoading(false);
             navigate('/login');
         }
     };
@@ -75,7 +95,6 @@ const Dashboard = () => {
 
     const handleTutorialComplete = () => {
         setShowTutorial(false);
-        console.log('Tutorial completed!');
     };
 
     const handleTutorialSkip = () => {
@@ -88,7 +107,8 @@ const Dashboard = () => {
 
     const getUserDisplayName = () => {
         if (profile?.full_name) return profile.full_name;
-        return user?.email?.split('@')[0] || 'User';
+        if (user?.email) return user.email.split('@')[0];
+        return 'User';
     };
 
     if (loading) {
@@ -102,9 +122,14 @@ const Dashboard = () => {
         );
     }
 
+    if (!user) {
+        navigate('/login');
+        return null;
+    }
+
     return (
         <div className="dashboard">
-            {/* Tutorial Overlay */}
+            {/* Tutorial Overlay - Only shows when explicitly triggered */}
             {showTutorial && (
                 <DashboardTutorial
                     onComplete={handleTutorialComplete}
@@ -112,7 +137,7 @@ const Dashboard = () => {
                 />
             )}
 
-            {/* Enhanced Header with Mobile Support */}
+            {/* Header */}
             <header className="dashboard-header">
                 <div className="dashboard-header-content">
                     <div className="dashboard-header-left">
@@ -400,7 +425,7 @@ const Dashboard = () => {
                 </div>
             </main>
 
-            {/* Floating AI Assistant Button (Mobile) */}
+            {/* Floating AI Button (Mobile) */}
             <button className="floating-ai-btn mobile-only" onClick={openAIAssistant}>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
