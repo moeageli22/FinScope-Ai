@@ -1,4 +1,5 @@
-<img width="937" height="636" alt="Screenshot 2025-11-29 at 1 36 45 PM" src="https://github.com/user-attachments/assets/2de3db2e-e011-488e-b561-98f9c6363e85" />
+<img width="806" height="542" alt="Screenshot 2026-02-07 at 1 57 16 PM" src="https://github.com/user-attachments/assets/6badb60a-9e9f-4f0a-958b-7f8e3da09b83" />
+
 
 
 # FinScope-Ai
