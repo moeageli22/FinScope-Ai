@@ -16,9 +16,11 @@ const Dashboard = () => {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [showTutorial, setShowTutorial] = useState(false);
 
+    // IMPORTANT: Reload profile every time Dashboard mounts
+    // This ensures the name is always up-to-date after profile changes
     useEffect(() => {
         checkUser();
-    }, []);
+    }, []); // Runs on mount and when navigating back to Dashboard
 
     // FIXED: Only check tutorial ONCE after user is fully loaded
     // This prevents tutorial from appearing every time dashboard loads
@@ -57,7 +59,8 @@ const Dashboard = () => {
 
             setUser(user);
 
-            // Fetch user profile - non-critical
+            // IMPORTANT: Always fetch fresh profile data
+            // This ensures updated names from Profile page are displayed
             try {
                 const { data: profileData } = await supabase
                     .from('user_profiles')
@@ -67,6 +70,7 @@ const Dashboard = () => {
 
                 if (profileData) {
                     setProfile(profileData);
+                    console.log('✅ Profile loaded:', profileData);
                 }
             } catch (profileError) {
                 console.warn('Profile not found (non-critical)');
@@ -105,9 +109,21 @@ const Dashboard = () => {
         setShowTutorial(true);
     };
 
+    // FIXED: Updated to use first_name and last_name
     const getUserDisplayName = () => {
-        if (profile?.full_name) return profile.full_name;
-        if (user?.email) return user.email.split('@')[0];
+        // Priority 1: Use first_name + last_name
+        if (profile?.first_name && profile?.last_name) {
+            return `${profile.first_name} ${profile.last_name}`;
+        }
+        // Priority 2: Use username
+        if (profile?.username) {
+            return profile.username;
+        }
+        // Priority 3: Use email (before @)
+        if (user?.email) {
+            return user.email.split('@')[0];
+        }
+        // Fallback
         return 'User';
     };
 
