@@ -101,27 +101,41 @@ const Profile = () => {
     const handleSave = async () => {
         setSaving(true);
         try {
+            // Clean the data - convert empty strings to null for date fields
+            const cleanedData = {
+                ...formData,
+                date_of_birth: formData.date_of_birth || null, // Convert empty string to null
+                monthly_income: formData.monthly_income || null, // Also good for numbers
+            };
+
             const updateData = {
                 id: user.id,
-                ...formData,
+                ...cleanedData,
+                avatar_url: avatarUrl,
                 updated_at: new Date().toISOString(),
             };
 
-            const { error } = await supabase
+            console.log('💾 Saving profile data:', updateData);
+
+            const { data, error } = await supabase
                 .from('user_profiles')
                 .upsert(updateData, { onConflict: 'id' });
 
-            if (error) throw error;
+            if (error) {
+                console.error('❌ Database error:', error);
+                throw error;
+            }
+
+            console.log('✅ Profile saved successfully');
             showToast(t('profileUpdated'));
             setEditing(false);
         } catch (error) {
-            console.error('Save error:', error);
-            showToast(t('profileError'), 'error');
+            console.error('💥 Save error:', error);
+            showToast(error.message || t('profileError'), 'error');
         } finally {
             setSaving(false);
         }
     };
-
     const handleAvatarUpload = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
