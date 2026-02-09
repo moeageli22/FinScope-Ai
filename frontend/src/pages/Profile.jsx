@@ -433,24 +433,18 @@ const Profile = () => {
                                     color: (cardThemes[selectedCardTheme] || cardThemes['neon']).textColor
                                 }}
                             >
-                                {/* Background AI Orb */}
+                                {/* AI Orb - Top Right Corner (Revolut Style) */}
                                 <div className="card-ai-background">
                                     <FinScopeAI />
                                 </div>
 
-                                {/* Top Section */}
+                                {/* Top Section - Brand Only */}
                                 <div className="card-top">
                                     <div className="card-brand-text">
                                         <div className="brand-name">FinScope AI</div>
                                         <div className="virtual-label">VIRTUAL</div>
                                     </div>
-                                    <div className="contactless-icon">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                            <path d="M12 18a6 6 0 0 0 0-12"/>
-                                            <path d="M12 15a3 3 0 0 0 0-6"/>
-                                            <path d="M12 21a9 9 0 0 0 0-18"/>
-                                        </svg>
-                                    </div>
+                                    {/* Contactless icon removed - AI orb in top-right replaces it */}
                                 </div>
 
                                 {/* Card Number - Center */}
@@ -461,18 +455,8 @@ const Profile = () => {
                                     <span className="highlighted-digits">5000</span>
                                 </div>
 
-                                {/* Bottom Section */}
+                                {/* Bottom Section - Only Network Logo */}
                                 <div className="card-bottom-info">
-                                    <div className="card-details-group">
-                                        <div className="detail-item">
-                                            <div className="detail-label">VALID THRU</div>
-                                            <div className="detail-value">01/24</div>
-                                        </div>
-                                        <div className="detail-item">
-                                            <div className="detail-label">CVV</div>
-                                            <div className="detail-value">***</div>
-                                        </div>
-                                    </div>
                                     <div className="card-network-logo">
                                         {selectedCardType === 'mastercard' && (
                                             <svg viewBox="0 0 131.39 86.9" fill="none">

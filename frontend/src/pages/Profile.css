@@ -412,16 +412,17 @@
             0 0 60px rgba(59, 130, 246, 0.3);
 }
 
-/* Background AI Orb */
+/* Background AI Orb - Top Right Corner like Revolut */
 .card-ai-background {
     position: absolute;
-    right: 40px;
-    top: 50%;
-    transform: translateY(-50%) scale(0.30);
-    opacity: 0.25;
+    right: 50px;
+    top: 50px;
+    transform: scale(0.20);
+    opacity: 0.85;
     pointer-events: none;
-    z-index: 1;
-    filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.3));
+    z-index: 8;
+    filter: drop-shadow(0 0 40px rgba(59, 130, 246, 0.6));
+    transform-origin: center center;
 }
 
 /* Card Top Section */
@@ -458,7 +459,8 @@
 .contactless-icon {
     width: 32px;
     height: 32px;
-    opacity: 0.8;
+    opacity: 0; /* Hidden - replaced by AI orb */
+    display: none;
     filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3));
     animation: pulse 3s ease-in-out infinite;
 }
@@ -477,7 +479,7 @@
     letter-spacing: 3px;
     font-family: 'Courier New', monospace;
     position: relative;
-    z-index: 10;
+    z-index: 9;
     margin: auto 0;
     text-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
 }
@@ -558,7 +560,7 @@
     font-weight: 700;
     letter-spacing: 2px;
     opacity: 0.25;
-    z-index: 5;
+    z-index: 7;
     text-transform: uppercase;
     text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
@@ -1274,6 +1276,14 @@
         padding: 24px 28px;
     }
 
+    /* AI Orb adjustment for mobile - keep in top right */
+    .card-ai-background {
+        right: 35px;
+        top: 35px;
+        transform: scale(0.16);
+        opacity: 0.8;
+    }
+
     .brand-name {
         font-size: 26px;
     }
@@ -1350,6 +1360,14 @@
     .virtual-card {
         height: 220px;
         padding: 20px 24px;
+    }
+
+    /* AI Orb adjustment for small mobile - keep in top right */
+    .card-ai-background {
+        right: 25px;
+        top: 25px;
+        transform: scale(0.14);
+        opacity: 0.75;
     }
 
     .brand-name {
