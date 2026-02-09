@@ -170,14 +170,45 @@ const Profile = () => {
         },
     };
 
-    // Predefined wallpapers
+    // Predefined wallpapers - Mix of gradients and image patterns
     const predefinedWallpapers = [
-        { id: 'gradient-1', name: 'Midnight Ocean', gradient: 'linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%)' },
-        { id: 'gradient-2', name: 'Purple Dream', gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' },
-        { id: 'gradient-3', name: 'Sunset Bliss', gradient: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)' },
-        { id: 'gradient-4', name: 'Emerald City', gradient: 'linear-gradient(135deg, #0ba360 0%, #3cba92 100%)' },
-        { id: 'gradient-5', name: 'Royal Blue', gradient: 'linear-gradient(135deg, #1e3c72 0%, #2a5298 100%)' },
-        { id: 'gradient-6', name: 'Cosmic Fusion', gradient: 'linear-gradient(135deg, #ff00cc 0%, #333399 100%)' },
+        // Gradient options
+        { id: 'gradient-1', name: 'Midnight Ocean', gradient: 'linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%)', type: 'gradient' },
+        { id: 'gradient-2', name: 'Purple Dream', gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', type: 'gradient' },
+        { id: 'gradient-3', name: 'Sunset Bliss', gradient: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)', type: 'gradient' },
+        { id: 'gradient-4', name: 'Emerald City', gradient: 'linear-gradient(135deg, #0ba360 0%, #3cba92 100%)', type: 'gradient' },
+        { id: 'gradient-5', name: 'Royal Blue', gradient: 'linear-gradient(135deg, #1e3c72 0%, #2a5298 100%)', type: 'gradient' },
+        { id: 'gradient-6', name: 'Cosmic Fusion', gradient: 'linear-gradient(135deg, #ff00cc 0%, #333399 100%)', type: 'gradient' },
+
+        // Abstract Pattern Backgrounds
+        { id: 'pattern-1', name: 'Geometric Waves', gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%), repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(255,255,255,.05) 35px, rgba(255,255,255,.05) 70px)', type: 'pattern' },
+        { id: 'pattern-2', name: 'Tech Grid', gradient: 'linear-gradient(135deg, #0f2027 0%, #2c5364 100%), repeating-linear-gradient(0deg, transparent, transparent 50px, rgba(59, 130, 246, 0.1) 50px, rgba(59, 130, 246, 0.1) 51px), repeating-linear-gradient(90deg, transparent, transparent 50px, rgba(59, 130, 246, 0.1) 50px, rgba(59, 130, 246, 0.1) 51px)', type: 'pattern' },
+
+        // Beautiful Image Backgrounds
+        { id: 'image-1', name: 'Mountain Peak', image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=80', type: 'image' },
+        { id: 'image-2', name: 'Ocean Waves', image: 'https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=1920&q=80', type: 'image' },
+        { id: 'image-3', name: 'Northern Lights', image: 'https://images.unsplash.com/photo-1531366936337-7c912a4589a7?w=1920&q=80', type: 'image' },
+        { id: 'image-4', name: 'City Skyline', image: 'https://images.unsplash.com/photo-1514565131-fce0801e5785?w=1920&q=80', type: 'image' },
+        { id: 'image-5', name: 'Starry Night', image: 'https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=1920&q=80', type: 'image' },
+        { id: 'image-6', name: 'Desert Dunes', image: 'https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=1920&q=80', type: 'image' },
+        { id: 'image-7', name: 'Forest Path', image: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1920&q=80', type: 'image' },
+        { id: 'image-8', name: 'Neon City', image: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?w=1920&q=80', type: 'image' },
+        { id: 'image-9', name: 'Cherry Blossoms', image: 'https://images.unsplash.com/photo-1522383225653-ed111181a951?w=1920&q=80', type: 'image' },
+        { id: 'image-10', name: 'Blue Lagoon', image: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=1920&q=80', type: 'image' },
+        { id: 'image-11', name: 'Cosmic Nebula', image: 'https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=1920&q=80', type: 'image' },
+        { id: 'image-12', name: 'Golden Hour', image: 'https://images.unsplash.com/photo-1495616811223-4d98c6e9c869?w=1920&q=80', type: 'image' },
+        { id: 'image-13', name: 'Abstract Art', image: 'https://images.unsplash.com/photo-1557672172-298e090bd0f1?w=1920&q=80', type: 'image' },
+        { id: 'image-14', name: 'Tropical Beach', image: 'https://images.unsplash.com/photo-1473496169904-658ba7c44d8a?w=1920&q=80', type: 'image' },
+        { id: 'image-15', name: 'Purple Sunset', image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1920&q=80', type: 'image' },
+        { id: 'image-16', name: 'Waterfall', image: 'https://images.unsplash.com/photo-1432405972618-c60b0225b8f9?w=1920&q=80', type: 'image' },
+        { id: 'image-17', name: 'Autumn Leaves', image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1920&q=80', type: 'image' },
+        { id: 'image-18', name: 'Pink Clouds', image: 'https://images.unsplash.com/photo-1499346030926-9a72daac6c63?w=1920&q=80', type: 'image' },
+        { id: 'image-19', name: 'Galaxy Swirl', image: 'https://images.unsplash.com/photo-1444080748397-f442aa95c3e5?w=1920&q=80', type: 'image' },
+        { id: 'image-20', name: 'Lavender Field', image: 'https://images.unsplash.com/photo-1499002238440-d264edd596ec?w=1920&q=80', type: 'image' },
+
+        // Professional Textures
+        { id: 'texture-1', name: 'Carbon Fiber', gradient: 'radial-gradient(circle at 20% 50%, transparent 0%, rgba(255,255,255,0.05) 100%), radial-gradient(circle at 80% 50%, transparent 0%, rgba(255,255,255,0.05) 100%), linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)', type: 'texture' },
+        { id: 'texture-2', name: 'Brushed Metal', gradient: 'repeating-linear-gradient(90deg, transparent, transparent 1px, rgba(255,255,255,0.03) 1px, rgba(255,255,255,0.03) 2px), linear-gradient(135deg, #bdc3c7 0%, #2c3e50 100%)', type: 'texture' },
     ];
 
     useEffect(() => {
@@ -753,16 +784,14 @@ const Profile = () => {
                                         {predefinedWallpapers.map((wallpaper) => (
                                             <button
                                                 key={wallpaper.id}
-                                                className={`wallpaper-tile ${wallpaperUrl === wallpaper.gradient ? 'active' : ''}`}
-                                                style={{ background: wallpaper.gradient }}
-                                                onClick={() => handleSetPredefinedWallpaper(wallpaper.gradient)}
+                                                className={`wallpaper-tile ${(wallpaperUrl === wallpaper.gradient || wallpaperUrl === wallpaper.image) ? 'active' : ''}`}
+                                                style={{
+                                                    background: wallpaper.gradient || 'transparent',
+                                                    backgroundImage: wallpaper.image ? `url(${wallpaper.image})` : wallpaper.gradient
+                                                }}
+                                                onClick={() => handleSetPredefinedWallpaper(wallpaper.image || wallpaper.gradient)}
                                                 title={wallpaper.name}
                                             >
-                                                {wallpaperUrl === wallpaper.gradient && (
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
-                                                        <polyline points="20 6 9 17 4 12"/>
-                                                    </svg>
-                                                )}
                                             </button>
                                         ))}
                                     </div>
