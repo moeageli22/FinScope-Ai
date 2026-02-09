@@ -46,7 +46,7 @@ const Profile = () => {
         confirm: false,
     });
 
-    // Card themes - Modern Revolut-style
+    // Card themes - Modern gradient designs with wave patterns
     const cardThemes = {
         neon: {
             name: 'Neon Purple',
@@ -66,7 +66,7 @@ const Profile = () => {
         sunset: {
             name: 'Sunset Glow',
             gradient: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
-            textColor: '#2c3e50'
+            textColor: '#fff'
         },
         ocean: {
             name: 'Deep Ocean',
@@ -86,6 +86,86 @@ const Profile = () => {
         cosmic: {
             name: 'Cosmic Night',
             gradient: 'linear-gradient(135deg, #000428 0%, #004e92 100%)',
+            textColor: '#fff'
+        },
+        magenta: {
+            name: 'Magenta Dream',
+            gradient: 'linear-gradient(135deg, #8E2DE2 0%, #4A00E0 100%)',
+            textColor: '#fff'
+        },
+        fire: {
+            name: 'Fire Blaze',
+            gradient: 'linear-gradient(135deg, #f12711 0%, #f5af19 100%)',
+            textColor: '#fff'
+        },
+        teal: {
+            name: 'Teal Wave',
+            gradient: 'linear-gradient(135deg, #0cebeb 0%, #20e3b2 100%)',
+            textColor: '#2c3e50'
+        },
+        violet: {
+            name: 'Violet Storm',
+            gradient: 'linear-gradient(135deg, #7F00FF 0%, #E100FF 100%)',
+            textColor: '#fff'
+        },
+        coral: {
+            name: 'Coral Reef',
+            gradient: 'linear-gradient(135deg, #ff6b6b 0%, #ffa07a 100%)',
+            textColor: '#fff'
+        },
+        lime: {
+            name: 'Lime Fusion',
+            gradient: 'linear-gradient(135deg, #56ab2f 0%, #a8e063 100%)',
+            textColor: '#2c3e50'
+        },
+        amber: {
+            name: 'Amber Glow',
+            gradient: 'linear-gradient(135deg, #f79d00 0%, #64f38c 100%)',
+            textColor: '#2c3e50'
+        },
+        sapphire: {
+            name: 'Sapphire Sky',
+            gradient: 'linear-gradient(135deg, #0575e6 0%, #021b79 100%)',
+            textColor: '#fff'
+        },
+        cherry: {
+            name: 'Cherry Blossom',
+            gradient: 'linear-gradient(135deg, #eb3349 0%, #f45c43 100%)',
+            textColor: '#fff'
+        },
+        mint: {
+            name: 'Mint Fresh',
+            gradient: 'linear-gradient(135deg, #00b09b 0%, #96c93d 100%)',
+            textColor: '#2c3e50'
+        },
+        navy: {
+            name: 'Navy Deep',
+            gradient: 'linear-gradient(135deg, #2c3e50 0%, #3498db 100%)',
+            textColor: '#fff'
+        },
+        gold: {
+            name: 'Golden Luxury',
+            gradient: 'linear-gradient(135deg, #d4af37 0%, #f9d423 100%)',
+            textColor: '#2c3e50'
+        },
+        royal: {
+            name: 'Royal Purple',
+            gradient: 'linear-gradient(135deg, #4a148c 0%, #7b1fa2 100%)',
+            textColor: '#fff'
+        },
+        silver: {
+            name: 'Silver Mist',
+            gradient: 'linear-gradient(135deg, #bdc3c7 0%, #2c3e50 100%)',
+            textColor: '#fff'
+        },
+        crimson: {
+            name: 'Crimson Wave',
+            gradient: 'linear-gradient(135deg, #8e0e00 0%, #1f1c18 100%)',
+            textColor: '#fff'
+        },
+        aqua: {
+            name: 'Aqua Marine',
+            gradient: 'linear-gradient(135deg, #00d2ff 0%, #3a7bd5 100%)',
             textColor: '#fff'
         },
     };
@@ -466,19 +546,16 @@ const Profile = () => {
                                             </svg>
                                         )}
                                         {selectedCardType === 'visa' && (
-                                            <svg viewBox="0 0 141.732 141.732" fill="currentColor">
-                                                <path d="M62.935,89.571h-9.733l6.083-37.384h9.734L62.935,89.571z"/>
-                                                <path d="M95.014,52.887c-1.811-0.715-4.675-1.516-8.243-1.516c-9.096,0-15.504,4.777-15.558,11.614c-0.052,5.048,4.564,7.861,8.049,9.541c3.566,1.719,4.767,2.813,4.767,4.346c-0.016,2.346-2.84,3.42-5.473,3.42c-3.653,0-5.594-0.555-8.587-1.912l-1.193-0.555l-1.295,7.908c2.146,0.984,6.113,1.838,10.236,1.885c9.689,0,15.963-4.736,16.042-12.07c0.036-3.996-2.406-7.038-7.691-9.542c-3.206-1.626-5.169-2.709-5.169-4.36c0.018-1.498,1.67-3.016,5.31-3.016c2.99-0.052,5.178,0.643,6.86,1.357l0.824,0.398L95.014,52.887z"/>
-                                                <path d="M104.495,73.049c0.822-2.182,3.964-10.637,3.964-10.637c-0.055,0.094,0.816-2.209,1.32-3.643l0.668,3.287c0,0,1.896,9.099,2.295,11.002h-8.247V73.049z M116.857,52.187h-7.535c-2.328,0-4.078,0.668-5.103,3.111L89.942,89.571h9.672c0,0,1.582-4.346,1.936-5.299c1.055,0,10.428,0.014,11.773,0.014c0.277,1.25,1.123,5.299,1.123,5.299h8.553L116.857,52.187z"/>
-                                                <path d="M45.828,52.187L36.342,77.27l-1.004-5.049c-1.736-5.826-7.149-12.145-13.196-15.306l8.733,32.609h9.764l14.529-37.337H45.828z"/>
-                                                <path d="M28.58,52.187h-14.95l-0.145,0.877c11.554,2.922,19.195,9.987,22.369,18.494l-3.222-16.355C32.2,52.961,30.515,52.279,28.58,52.187z"/>
+                                            <svg viewBox="0 0 750 471" fill="none">
+                                                <rect width="750" height="471" fill="none"/>
+                                                <path fill="currentColor" d="M278.2 334.2l33.4-195.7h53.4l-33.4 195.7h-53.4zm246.8-191.9c-10.6-4-27.1-8.4-47.8-8.4-52.7 0-89.8 26.3-90.1 64-0.3 27.9 26.5 43.5 46.8 52.8 20.8 9.6 27.8 15.7 27.7 24.2-0.2 13.1-16.7 19.1-32.2 19.1-21.5 0-32.9-2.9-50.5-10.1l-7-3.1-7.6 44.3c12.5 5.4 35.8 10.2 59.9 10.4 56 0 92.4-26 92.7-66.2 0.2-22.1-14-38.9-44.7-52.8-18.6-9-30-15-29.9-24.1 0-8.1 9.6-16.7 30.4-16.7 17.4-0.3 30 3.5 39.8 7.5l4.8 2.2 7.3-42.1zm91.5-3.8h-41.3c-12.8 0-22.4 3.5-28 16.2l-79.4 179.5h56l11.1-29.1h68.5l6.5 29.1h49.4l-43.1-195.7zm-66.8 126.2c0.3-0.8 22.4-57.4 22.4-57.4-0.3 0.5 4.6-11.9 7.5-19.6l3.8 17.9s10.8 49.1 13 59.1h-46.7zm-233.5-126.2l-52.5 133.5-5.6-27.1c-9.7-30.8-40-64.2-73.9-80.9l47.8 169.9h56.5l84.1-195.4h-56.4z"/>
                                             </svg>
                                         )}
                                         {selectedCardType === 'amex' && (
-                                            <svg viewBox="0 0 152.407 108" fill="currentColor">
-                                                <path d="M48.5,21.9h-6.9l-4.4,10L32.8,21.9h-7v14.8l-7.1-14.8h-6.2L5.2,40.1h4.7l1.2-2.8h8.4l1.2,2.8H32V26.5l7.6,13.6h4.5l7.6-13.6v13.6h4.7V21.9H48.5z M13.3,33.5l2.8-6.4l2.8,6.4H13.3z"/>
-                                                <path d="M79.1,21.9H61.3v18.2h17.8v-4h-13V33h12.7v-3.9H66.1v-3.3h13V21.9z"/>
-                                                <path d="M105.2,21.9h-6.9l-4.4,10l-4.4-10h-7v14.8L75.4,21.9h-6.2l-7.3,18.2h4.7l1.2-2.8h8.4l1.2,2.8h11.6V26.5l7.6,13.6h4.5l7.6-13.6v13.6h4.7V21.9H105.2z M70,33.5l2.8-6.4l2.8,6.4H70z"/>
+                                            <svg viewBox="0 0 300 200" fill="none">
+                                                <rect width="300" height="200" fill="none"/>
+                                                <path fill="currentColor" d="M55.9 65.2h-8.5l-5.4 12.3-5.7-12.3h-8.6v18.2l-8.8-18.2h-7.6l-9 18.2h5.8l1.5-3.5h10.4l1.5 3.5h12.2V72.9l9.3 13.3h5.6l9.4-13.3v13.3h5.8V65.2h-7.9zm-38.1 12l3.4-7.9 3.4 7.9h-6.8zm98.8-12h-17.5v18.2h17.5v-4.9h-11.7v-2.5h11.4v-4.8h-11.4v-2.1h11.7v-3zm51.8 0h-6.8l-5.4 12.3-5.7-12.3h-8.6v18.2l-8.8-18.2h-7.6l-9 18.2h5.8l1.5-3.5h10.4l1.5 3.5h12.2V72.9l9.3 13.3h5.6l9.4-13.3v13.3h5.8V65.2h-9.6zm-38.1 12l3.4-7.9 3.4 7.9h-6.8zm74.5 6.2v-18.4h-14.7v4.2h4.4v14.2h-4.4v4.2h14.1v-4.2h-4.3z"/>
+                                                <path fill="currentColor" d="M48.7 105.6l-9-18.2h-7.6l-9 18.2h5.8l1.5-3.5h10.4l1.5 3.5h6.4zm-13.4-6.4l3.4-7.9 3.4 7.9h-6.8zm75.9-4.5c0-4.5-2.9-7.3-7.8-7.3h-12v18.2h5.8v-5.5h4.5l3.8 5.5h6.8l-4.5-6.4c2.3-0.9 3.4-3 3.4-4.5zm-14 1.6v-5.1h5.6c1.7 0 2.6 0.9 2.6 2.5s-0.9 2.6-2.6 2.6h-5.6zm58.5-8.9h-17.5v18.2h17.5v-4.9h-11.7v-2.5h11.4v-4.8h-11.4v-2.1h11.7v-3zm18.6 0h-5.8v18.2h5.8v-18.2zm32.8 13.3c-1.4 0-2.5-1.1-2.5-2.5v-3.1c0-1.4 1.1-2.5 2.5-2.5 1.1 0 2.1 0.7 2.4 1.7h6.1c-0.7-4.3-4.3-7.5-8.5-7.5-4.8 0-8.7 3.9-8.7 8.7v2.6c0 4.8 3.9 8.7 8.7 8.7 4.2 0 7.8-3.2 8.5-7.5h-6.1c-0.3 1-1.3 1.7-2.4 1.7zm39-13.3h-8.5l-5.4 12.3-5.7-12.3h-8.6v18.2l-8.8-18.2h-7.6l-9 18.2h5.8l1.5-3.5h10.4l1.5 3.5h12.2V92.6l9.3 13.3h5.6l9.4-13.3v13.3h5.8V87.4h-7.9zm-38.1 12l3.4-7.9 3.4 7.9h-6.8zm92 6.2v-18.4h-7.2l-9 11.4-9-11.4H267v18.4h5.8v-10.8l8.2 10.8 8.2-10.8v10.8h5.8z"/>
                                             </svg>
                                         )}
                                     </div>
