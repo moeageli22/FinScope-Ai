@@ -416,7 +416,7 @@
 .card-ai-background {
     position: absolute;
     right: 40px;
-    top: 40px;
+    top: 30px;
     width: 80px;
     height: 80px;
     transform: scale(1);
@@ -565,13 +565,16 @@
     position: absolute;
     bottom: 88px;
     left: 36px;
-    font-size: 14px;
-    font-weight: 700;
-    letter-spacing: 2px;
-    opacity: 0.25;
+    font-size: 15px;
+    font-weight: 900;
+    letter-spacing: 2.5px;
+    opacity: 0.75;
     z-index: 7;
     text-transform: uppercase;
-    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+    filter: none;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -1288,7 +1291,7 @@
     /* AI Orb adjustment for mobile - keep in top right */
     .card-ai-background {
         right: 30px;
-        top: 30px;
+        top: 25px;
         width: 60px;
         height: 60px;
     }
@@ -1378,7 +1381,7 @@
     /* AI Orb adjustment for small mobile - keep in top right */
     .card-ai-background {
         right: 20px;
-        top: 20px;
+        top: 18px;
         width: 50px;
         height: 50px;
     }
