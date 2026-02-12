@@ -13,7 +13,8 @@ import VerifyEmail from "./pages/VerifyEmail";
 import Dashboard from "./pages/Dashboard.jsx";
 import Profile from "./pages/Profile.jsx";
 import Settings from "./pages/Settings.jsx";
-import "./App.css";
+import PracticeMode from './pages/PracticeMode';
+
 
 function App() {
     return (
@@ -33,6 +34,7 @@ function App() {
                             <Route path="/profile" element={<Profile />} />
                             <Route path="/settings" element={<Settings />} />
                             <Route path="/terms" element={<Terms />} />
+                            <Route path="/practice" element={<PracticeMode />} />
                         </Routes>
                     </div>
                 </Router>
