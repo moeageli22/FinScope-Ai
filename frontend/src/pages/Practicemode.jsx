@@ -11,18 +11,51 @@ import spotifyLogo from '../assets/logos/spotify.png';
 import netflixLogo from '../assets/logos/netflix.png';
 import coffeeLogo from '../assets/logos/coffee.png';
 import electronicsLogo from '../assets/logos/electronics.png';
+import amazonLogo from '../assets/logos/amazon.png';
+import disneyLogo from '../assets/logos/disneylogo.webp';
+import starbucksLogo from '../assets/logos/starbucks.png';
+import appleLogo from '../assets/logos/apple.jpg';
+import uberLogo from '../assets/logos/uber.webp';
+import ubereatsLogo from '../assets/logos/uberr.webp';
+import youtubeLogo from '../assets/logos/youtube.jpg';
+import nikeLogo from '../assets/logos/nike.webp';
 
 /* ═══════════════════════════════════════════
    EXPENSE ITEMS WITH BRAND LOGOS
+   Add logo: importedLogo once you have the image
+   Until then, fallbackEmoji is shown
    ═══════════════════════════════════════════ */
 const EXPENSE_ITEMS = [
-    { id: 'spotify', name: 'Spotify', logo: spotifyLogo, category: 'Subscriptions', placeholder: '9.99' },
-    { id: 'netflix', name: 'Netflix', logo: netflixLogo, category: 'Subscriptions', placeholder: '15.99' },
-    { id: 'coffee', name: 'Coffee', logo: coffeeLogo, category: 'Dining', placeholder: '5.50' },
-    { id: 'electronics', name: 'Electronics', logo: electronicsLogo, category: 'Shopping', placeholder: '99.99' },
+    // Subscriptions
+    { id: 'spotify', name: 'Spotify', logo: spotifyLogo, fallbackEmoji: '🎵', category: 'Subscriptions', placeholder: '9.99' },
+    { id: 'netflix', name: 'Netflix', logo: netflixLogo, fallbackEmoji: '🎬', category: 'Subscriptions', placeholder: '15.99' },
+    { id: 'disneyplus', name: 'Disney+', logo: disneyLogo, fallbackEmoji: '🏰', category: 'Subscriptions', placeholder: '13.99' },
+    { id: 'youtube', name: 'YouTube Premium', logo: youtubeLogo, fallbackEmoji: '▶️', category: 'Subscriptions', placeholder: '13.99' },
+    { id: 'apple', name: 'Apple Music / iCloud', logo: appleLogo, fallbackEmoji: '🍎', category: 'Subscriptions', placeholder: '10.99' },
+    { id: 'gym', name: 'Gym Membership', logo: null, fallbackEmoji: '💪', category: 'Subscriptions', placeholder: '40.00' },
+    // Shopping
+    { id: 'amazon', name: 'Amazon', logo: amazonLogo, fallbackEmoji: '📦', category: 'Shopping', placeholder: '29.99' },
+    { id: 'electronics', name: 'Electronics', logo: electronicsLogo, fallbackEmoji: '🖥️', category: 'Shopping', placeholder: '99.99' },
+    { id: 'nike', name: 'Nike / Clothing', logo: nikeLogo, fallbackEmoji: '👟', category: 'Shopping', placeholder: '75.00' },
+    // Dining
+    { id: 'coffee', name: 'Coffee Shop', logo: coffeeLogo, fallbackEmoji: '☕', category: 'Dining', placeholder: '5.50' },
+    { id: 'starbucks', name: 'Starbucks', logo: starbucksLogo, fallbackEmoji: '☕', category: 'Dining', placeholder: '6.50' },
+    { id: 'ubereats', name: 'Uber Eats', logo: ubereatsLogo, fallbackEmoji: '🍔', category: 'Dining', placeholder: '25.00' },
+    // Transport
+    { id: 'uber', name: 'Uber / Lyft', logo: uberLogo, fallbackEmoji: '🚗', category: 'Transport', placeholder: '18.00' },
+    { id: 'gas', name: 'Gas / Petrol', logo: null, fallbackEmoji: '⛽', category: 'Transport', placeholder: '55.00' },
+    // Bills
+    { id: 'electricity', name: 'Electricity', logo: null, fallbackEmoji: '⚡', category: 'Bills', placeholder: '95.00' },
+    { id: 'internet', name: 'Internet / WiFi', logo: null, fallbackEmoji: '🌐', category: 'Bills', placeholder: '60.00' },
+    { id: 'phone', name: 'Phone Bill', logo: null, fallbackEmoji: '📱', category: 'Bills', placeholder: '45.00' },
+    { id: 'rent', name: 'Rent / Mortgage', logo: null, fallbackEmoji: '🏠', category: 'Bills', placeholder: '1200.00' },
 ];
 
-const logoMap = { spotify: spotifyLogo, netflix: netflixLogo, coffee: coffeeLogo, electronics: electronicsLogo };
+const logoMap = {
+    spotify: spotifyLogo, netflix: netflixLogo, coffee: coffeeLogo, electronics: electronicsLogo,
+    amazon: amazonLogo, disneyplus: disneyLogo, starbucks: starbucksLogo, apple: appleLogo,
+    uber: uberLogo, ubereats: ubereatsLogo, youtube: youtubeLogo, nike: nikeLogo,
+};
 
 /* ═══════════════════════════════════════════
    CUSTOM EXPENSE CATEGORIES
@@ -118,13 +151,17 @@ const BrandExpenseSection = ({ balance, onAddExpense }) => {
     const [amounts, setAmounts] = useState({});
     const [addingId, setAddingId] = useState(null);
     const [successId, setSuccessId] = useState(null);
+    const [activeTab, setActiveTab] = useState('All');
+
+    const categories = ['All', ...new Set(EXPENSE_ITEMS.map(i => i.category))];
+    const filteredItems = activeTab === 'All' ? EXPENSE_ITEMS : EXPENSE_ITEMS.filter(i => i.category === activeTab);
 
     const handleAdd = (item) => {
         const numAmount = parseFloat(amounts[item.id]);
         if (!numAmount || numAmount <= 0 || numAmount > balance) return;
         setAddingId(item.id);
         setTimeout(() => {
-            onAddExpense({ name: item.name, amount: numAmount, emoji: '💳', category: item.category, logo: item.id });
+            onAddExpense({ name: item.name, amount: numAmount, emoji: item.fallbackEmoji || '💳', category: item.category, logo: item.logo ? item.id : null });
             setAddingId(null);
             setSuccessId(item.id);
             setAmounts(prev => ({ ...prev, [item.id]: '' }));
@@ -143,8 +180,15 @@ const BrandExpenseSection = ({ balance, onAddExpense }) => {
                     <p className="pm-brand-sub">Enter what you spent on each service</p>
                 </div>
             </div>
+
+            <div className="pm-brand-tabs">
+                {categories.map(tab => (
+                    <button key={tab} className={`pm-brand-tab ${activeTab === tab ? 'active' : ''}`} onClick={() => setActiveTab(tab)}>{tab}</button>
+                ))}
+            </div>
+
             <div className="pm-brand-grid">
-                {EXPENSE_ITEMS.map(item => {
+                {filteredItems.map(item => {
                     const numAmount = parseFloat(amounts[item.id]) || 0;
                     const isOverBudget = numAmount > balance;
                     const isValid = numAmount > 0 && !isOverBudget;
@@ -153,9 +197,15 @@ const BrandExpenseSection = ({ balance, onAddExpense }) => {
                     return (
                         <div key={item.id} className={`pm-brand-card ${isAdding ? 'adding' : ''} ${isSuccess ? 'success' : ''}`}>
                             <div className="pm-brand-card-top">
-                                <div className="pm-brand-logo-wrap">
-                                    <img src={item.logo} alt={item.name} className="pm-brand-logo" />
-                                </div>
+                                {item.logo ? (
+                                    <div className="pm-brand-logo-wrap">
+                                        <img src={item.logo} alt={item.name} className="pm-brand-logo" />
+                                    </div>
+                                ) : (
+                                    <div className="pm-brand-emoji-wrap">
+                                        <span className="pm-brand-emoji">{item.fallbackEmoji}</span>
+                                    </div>
+                                )}
                                 <div className="pm-brand-info">
                                     <span className="pm-brand-name">{item.name}</span>
                                     <span className="pm-brand-cat">{item.category}</span>
@@ -351,7 +401,7 @@ const RecentTransactions = ({ transactions }) => (
                 <div className="pm-txns-empty"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5"><line x1="12" y1="1" x2="12" y2="23" /><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" /></svg><span>No transactions yet</span><span className="pm-txns-sub">Add expenses above to start tracking</span></div>
             ) : transactions.slice(-8).reverse().map((t, i) => (
                 <div key={i} className="pm-txn-row">
-                    {t.logo && logoMap[t.logo] ? (<img src={logoMap[t.logo]} alt={t.name} className="pm-txn-logo" />) : (<span className="pm-txn-emoji">{t.emoji}</span>)}
+                    {t.logo && logoMap[t.logo] ? (<img src={logoMap[t.logo]} alt={t.name} className="pm-txn-logo" />) : (<span className="pm-txn-emoji">{t.emoji || '💳'}</span>)}
                     <div className="pm-txn-info"><span className="pm-txn-name">{t.name}</span><span className="pm-txn-cat">{t.category}</span></div>
                     <span className="pm-txn-amt">-${t.amount.toFixed(2)}</span>
                 </div>
