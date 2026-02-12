@@ -51,6 +51,35 @@ const EXPENSE_SCENARIOS = {
 EXPENSE_SCENARIOS.All = Object.keys(EXPENSE_SCENARIOS).filter(k => k !== 'All').flatMap(k => EXPENSE_SCENARIOS[k]);
 
 /* ═══════════════════════════════════════════
+   CUSTOM EXPENSE CATEGORIES & EMOJIS
+   ═══════════════════════════════════════════ */
+const CUSTOM_CATEGORIES = [
+    { value: 'Groceries', label: 'Groceries', emoji: '🛒' },
+    { value: 'Shopping', label: 'Shopping', emoji: '🛍️' },
+    { value: 'Dining', label: 'Dining', emoji: '🍽️' },
+    { value: 'Transport', label: 'Transport', emoji: '🚗' },
+    { value: 'Bills', label: 'Bills', emoji: '⚡' },
+    { value: 'Subscriptions', label: 'Subscriptions', emoji: '🎬' },
+    { value: 'Health', label: 'Health', emoji: '🏥' },
+    { value: 'Entertainment', label: 'Entertainment', emoji: '🎮' },
+    { value: 'Education', label: 'Education', emoji: '📚' },
+    { value: 'Other', label: 'Other', emoji: '📝' },
+];
+
+/* ═══════════════════════════════════════════
+   WELCOME ORB (lightweight, properly sized)
+   ═══════════════════════════════════════════ */
+const WelcomeOrb = ({ size = 100 }) => (
+    <div className="pm-welcome-orb" style={{ width: size, height: size }}>
+        <div className="pm-welcome-orb-inner">
+            <div className="pm-welcome-orb-eye" />
+            <div className="pm-welcome-orb-eye" />
+        </div>
+        <div className="pm-welcome-orb-shine" />
+    </div>
+);
+
+/* ═══════════════════════════════════════════
    WELCOME SCREEN
    ═══════════════════════════════════════════ */
 const PracticeModeWelcome = ({ onStart }) => {
@@ -68,7 +97,7 @@ const PracticeModeWelcome = ({ onStart }) => {
         <div className={`pm-welcome ${animateIn ? 'visible' : ''}`}>
             <div className="pm-welcome-bg" />
             <div className="pm-welcome-content">
-                <div className="pm-orb-wrap"><FinScopeAI /></div>
+                <div className="pm-orb-wrap"><WelcomeOrb size={100} /></div>
                 <h1 className="pm-welcome-title">Welcome to Practice Mode</h1>
                 <p className="pm-welcome-sub">Learn to manage money safely with virtual funds. No real money at risk!</p>
 
@@ -109,6 +138,140 @@ const PracticeModeWelcome = ({ onStart }) => {
 };
 
 /* ═══════════════════════════════════════════
+   CUSTOM EXPENSE FORM
+   ═══════════════════════════════════════════ */
+const CustomExpenseForm = ({ balance, onAddExpense }) => {
+    const [name, setName] = useState('');
+    const [amount, setAmount] = useState('');
+    const [category, setCategory] = useState('Other');
+    const [isAdding, setIsAdding] = useState(false);
+    const [showSuccess, setShowSuccess] = useState(false);
+
+    const selectedCat = CUSTOM_CATEGORIES.find(c => c.value === category);
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        const numAmount = parseFloat(amount);
+        if (!name.trim() || !numAmount || numAmount <= 0 || numAmount > balance) return;
+
+        setIsAdding(true);
+        setTimeout(() => {
+            onAddExpense({
+                name: name.trim(),
+                amount: numAmount,
+                emoji: selectedCat?.emoji || '📝',
+                category: category,
+            });
+            setIsAdding(false);
+            setShowSuccess(true);
+            setName('');
+            setAmount('');
+            setTimeout(() => setShowSuccess(false), 2000);
+        }, 300);
+    };
+
+    const numAmount = parseFloat(amount) || 0;
+    const isOverBudget = numAmount > balance;
+    const isValid = name.trim() && numAmount > 0 && !isOverBudget;
+
+    return (
+        <div className="pm-custom-expense">
+            <div className="pm-custom-header">
+                <div className="pm-custom-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" strokeWidth="2">
+                        <path d="M12 5v14M5 12h14" />
+                    </svg>
+                </div>
+                <div>
+                    <h3 className="pm-custom-title">Add Custom Expense</h3>
+                    <p className="pm-custom-sub">Track what you actually bought</p>
+                </div>
+            </div>
+
+            <form className="pm-custom-form" onSubmit={handleSubmit}>
+                <div className="pm-custom-row">
+                    <div className="pm-custom-field pm-custom-field-name">
+                        <label className="pm-field-label">What did you buy?</label>
+                        <div className="pm-input-wrap">
+                            <span className="pm-input-emoji">{selectedCat?.emoji || '📝'}</span>
+                            <input
+                                type="text"
+                                className="pm-custom-input"
+                                placeholder="e.g. Coffee at Starbucks"
+                                value={name}
+                                onChange={e => setName(e.target.value)}
+                                maxLength={50}
+                            />
+                        </div>
+                    </div>
+                    <div className="pm-custom-field pm-custom-field-amount">
+                        <label className="pm-field-label">Amount</label>
+                        <div className="pm-input-wrap pm-input-amount-wrap">
+                            <span className="pm-input-currency">$</span>
+                            <input
+                                type="number"
+                                className="pm-custom-input pm-amount-input"
+                                placeholder="0.00"
+                                value={amount}
+                                onChange={e => setAmount(e.target.value)}
+                                min="0.01"
+                                step="0.01"
+                                max={balance}
+                            />
+                        </div>
+                        {isOverBudget && <span className="pm-field-error">Exceeds balance</span>}
+                    </div>
+                </div>
+
+                <div className="pm-custom-field">
+                    <label className="pm-field-label">Category</label>
+                    <div className="pm-category-pills">
+                        {CUSTOM_CATEGORIES.map(cat => (
+                            <button
+                                key={cat.value}
+                                type="button"
+                                className={`pm-cat-pill ${category === cat.value ? 'active' : ''}`}
+                                onClick={() => setCategory(cat.value)}
+                            >
+                                <span>{cat.emoji}</span>
+                                <span>{cat.label}</span>
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
+                <div className="pm-custom-footer">
+                    {numAmount > 0 && !isOverBudget && (
+                        <div className="pm-custom-preview">
+                            Remaining after: <strong>${(balance - numAmount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
+                        </div>
+                    )}
+                    <button
+                        type="submit"
+                        className={`pm-custom-submit ${isAdding ? 'adding' : ''} ${showSuccess ? 'success' : ''}`}
+                        disabled={!isValid || isAdding}
+                    >
+                        {showSuccess ? (
+                            <>
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M20 6L9 17l-5-5" /></svg>
+                                Added!
+                            </>
+                        ) : isAdding ? (
+                            'Adding...'
+                        ) : (
+                            <>
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 5v14M5 12h14" /></svg>
+                                Add Expense
+                            </>
+                        )}
+                    </button>
+                </div>
+            </form>
+        </div>
+    );
+};
+
+/* ═══════════════════════════════════════════
    MINI AI CHAT
    ═══════════════════════════════════════════ */
 const MiniAIChat = ({ transactions, balance, totalSpent, startingBalance }) => {
@@ -133,7 +296,7 @@ const MiniAIChat = ({ transactions, balance, totalSpent, startingBalance }) => {
         const sorted = Object.entries(catTotals).sort((a, b) => b[1] - a[1]);
 
         if (lower.includes('how much') || lower.includes('total') || lower.includes('spent')) {
-            if (transactions.length === 0) return "You haven't made any purchases yet! Try adding some expenses from the scenarios above.";
+            if (transactions.length === 0) return "You haven't made any purchases yet! Try adding some expenses from the scenarios above or add your own custom expense.";
             return `You've spent $${totalSpent.toLocaleString()} so far. Remaining balance: $${balance.toLocaleString()}. ${sorted.length > 0 ? `Top category: ${sorted[0][0]} at $${sorted[0][1]}.` : ''}`;
         }
         if (lower.includes('biggest') || lower.includes('most') || lower.includes('expensive')) {
@@ -250,7 +413,7 @@ const SpendingTrendChart = ({ transactions }) => {
 };
 
 const SpendingByCategoryChart = ({ transactions }) => {
-    const colors = { Groceries: '#3b82f6', Subscriptions: '#8b5cf6', Shopping: '#a78bfa', Transport: '#06b6d4', Dining: '#f59e0b', Bills: '#ef4444' };
+    const colors = { Groceries: '#3b82f6', Subscriptions: '#8b5cf6', Shopping: '#a78bfa', Transport: '#06b6d4', Dining: '#f59e0b', Bills: '#ef4444', Health: '#10b981', Entertainment: '#ec4899', Education: '#f97316', Other: '#6b7280' };
     if (transactions.length === 0) return (
         <div className="pm-chart-card">
             <div className="pm-chart-hdr"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" strokeWidth="2"><circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" /></svg><span>Spending by Category</span></div>
@@ -349,6 +512,13 @@ const PracticeMode = () => {
         }, 300);
     };
 
+    const handleAddCustomExpense = (exp) => {
+        if (balance < exp.amount) return;
+        setBalance(p => p - exp.amount);
+        setTotalSpent(p => p + exp.amount);
+        setTransactions(p => [...p, { ...exp, timestamp: new Date().toISOString() }]);
+    };
+
     const handleReset = () => { setBalance(startingBalance); setTotalSpent(0); setTransactions([]); };
     const handleExit = () => { sessionStorage.removeItem('finscope_practice'); navigate('/dashboard'); };
 
@@ -421,9 +591,12 @@ const PracticeMode = () => {
                             <div className="pm-budget-bar"><div className="pm-budget-fill" style={{ width: `${Math.min(budgetPct, 100)}%`, background: budgetPct > 80 ? '#ef4444' : budgetPct > 50 ? '#f59e0b' : '#10b981' }} /></div>
                         </div>
 
-                        {/* Expenses */}
+                        {/* Custom Expense */}
+                        <CustomExpenseForm balance={balance} onAddExpense={handleAddCustomExpense} />
+
+                        {/* Scenario Expenses */}
                         <div className="pm-expense-section">
-                            <h2 className="pm-expense-title">Add Expense</h2>
+                            <h2 className="pm-expense-title">Quick Add Expense</h2>
                             <div className="pm-expense-tabs">
                                 {Object.keys(EXPENSE_SCENARIOS).map(t => (
                                     <button key={t} className={`pm-exp-tab ${activeTab === t ? 'active' : ''}`} onClick={() => setActiveTab(t)}>{t}</button>
