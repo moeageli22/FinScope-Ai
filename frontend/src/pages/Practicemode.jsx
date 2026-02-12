@@ -323,9 +323,73 @@ const CustomExpenseForm = ({ balance, onAddExpense }) => {
 };
 
 /* ═══════════════════════════════════════════
+   SESSION SUMMARY BANNER
+   ═══════════════════════════════════════════ */
+const SessionSummaryBanner = ({ transactions, totalSpent, startingBalance, balance, onViewTrends, onAskAI }) => {
+    const [visible, setVisible] = useState(false);
+    useEffect(() => { setTimeout(() => setVisible(true), 80); }, []);
+
+    const budgetPct = startingBalance > 0 ? ((totalSpent / startingBalance) * 100) : 0;
+    const topCat = (() => {
+        const totals = {};
+        transactions.forEach(t => { totals[t.category] = (totals[t.category] || 0) + t.amount; });
+        return Object.entries(totals).sort((a, b) => b[1] - a[1])[0];
+    })();
+    const statusColor = budgetPct > 80 ? '#ef4444' : budgetPct > 50 ? '#f59e0b' : '#10b981';
+    const statusLabel = budgetPct > 80 ? 'High spend' : budgetPct > 50 ? 'Mid-range' : 'On track';
+    const statusIcon = budgetPct > 80
+        ? <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+        : budgetPct > 50
+            ? <><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></>
+            : <><polyline points="20 6 9 17 4 12" /></>;
+
+    return (
+        <div className={`pm-summary-banner ${visible ? 'visible' : ''}`}>
+            <div className="pm-summary-glow" style={{ background: `radial-gradient(ellipse at 50% 0%, ${statusColor}18, transparent 70%)` }} />
+
+            <div className="pm-summary-left">
+                <div className="pm-summary-icon" style={{ borderColor: `${statusColor}40`, background: `${statusColor}12` }}>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={statusColor} strokeWidth="2">
+                        {statusIcon}
+                    </svg>
+                </div>
+                <div className="pm-summary-text">
+                    <div className="pm-summary-title">
+                        Session snapshot
+                        <span className="pm-summary-status-pill" style={{ background: `${statusColor}18`, border: `1px solid ${statusColor}40`, color: statusColor }}>
+                            {statusLabel}
+                        </span>
+                    </div>
+                    <div className="pm-summary-meta">
+                        <span><strong>${totalSpent.toFixed(2)}</strong> spent across <strong>{transactions.length}</strong> transactions</span>
+                        {topCat && <span className="pm-summary-sep">·</span>}
+                        {topCat && <span>Top: <strong>{topCat[0]}</strong> (${topCat[1].toFixed(2)})</span>}
+                    </div>
+                </div>
+            </div>
+
+            <div className="pm-summary-actions">
+                <button className="pm-summary-btn pm-summary-btn--outline" onClick={onViewTrends}>
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+                    </svg>
+                    View Trends
+                </button>
+                <button className="pm-summary-btn pm-summary-btn--primary" onClick={onAskAI}>
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                    </svg>
+                    Ask AI for Insights
+                </button>
+            </div>
+        </div>
+    );
+};
+
+/* ═══════════════════════════════════════════
    MINI AI CHAT
    ═══════════════════════════════════════════ */
-const MiniAIChat = ({ transactions, balance, totalSpent, startingBalance }) => {
+const MiniAIChat = ({ transactions, balance, totalSpent, startingBalance, externalPrompt, onExternalPromptHandled }) => {
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState('');
     const [isTyping, setIsTyping] = useState(false);
@@ -336,6 +400,18 @@ const MiniAIChat = ({ transactions, balance, totalSpent, startingBalance }) => {
     }, [startingBalance]);
 
     useEffect(() => { if (chatRef.current) chatRef.current.scrollTop = chatRef.current.scrollHeight; }, [messages, isTyping]);
+
+    useEffect(() => {
+        if (!externalPrompt) return;
+        const userMsg = { id: Date.now(), role: 'user', text: externalPrompt };
+        setMessages(p => [...p, userMsg]);
+        setIsTyping(true);
+        onExternalPromptHandled?.();
+        setTimeout(() => {
+            setMessages(p => [...p, { id: Date.now() + 1, role: 'ai', text: generateResponse(externalPrompt) }]);
+            setIsTyping(false);
+        }, 900 + Math.random() * 500);
+    }, [externalPrompt]);
 
     const generateResponse = (userMsg) => {
         const lower = userMsg.toLowerCase();
@@ -685,6 +761,8 @@ const PracticeMode = () => {
     const [balance, setBalance] = useState(5000);
     const [totalSpent, setTotalSpent] = useState(0);
     const [transactions, setTransactions] = useState([]);
+    const [aiPromptTrigger, setAiPromptTrigger] = useState(null);
+    const chartsRef = useRef(null);
 
     useEffect(() => { (async () => { const { data: { user } } = await supabase.auth.getUser(); if (!user) { navigate('/login'); return; } setUser(user); setLoading(false); })(); }, [navigate]);
 
@@ -696,6 +774,9 @@ const PracticeMode = () => {
     const handleAddExpense = (exp) => { if (balance < exp.amount) return; setBalance(p => p - exp.amount); setTotalSpent(p => p + exp.amount); setTransactions(p => [...p, { ...exp, timestamp: new Date().toISOString() }]); };
     const handleReset = () => { setBalance(startingBalance); setTotalSpent(0); setTransactions([]); };
     const handleExit = () => { sessionStorage.removeItem('finscope_practice'); navigate('/dashboard'); };
+
+    const handleViewTrends = () => { chartsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
+    const handleAskAI = () => { setAiPromptTrigger(`Give me a full breakdown and insights on my spending. I started with $${startingBalance} and spent $${totalSpent.toFixed(2)} across ${transactions.length} transactions.`); };
 
     const budgetPct = startingBalance > 0 ? ((totalSpent / startingBalance) * 100).toFixed(0) : 0;
 
@@ -740,18 +821,49 @@ const PracticeMode = () => {
                         <BrandExpenseSection balance={balance} onAddExpense={handleAddExpense} />
                         <CustomExpenseForm balance={balance} onAddExpense={handleAddExpense} />
 
-                        <div className="pm-charts-row">
+                        <div className="pm-charts-row" ref={chartsRef}>
                             <SpendingTrendChart transactions={transactions} />
                             <SpendingByCategoryChart transactions={transactions} />
                         </div>
                     </div>
 
                     <div className="pm-sidebar">
-                        <MiniAIChat transactions={transactions} balance={balance} totalSpent={totalSpent} startingBalance={startingBalance} />
+                        <MiniAIChat transactions={transactions} balance={balance} totalSpent={totalSpent} startingBalance={startingBalance} externalPrompt={aiPromptTrigger} onExternalPromptHandled={() => setAiPromptTrigger(null)} />
                         <RecentTransactions transactions={transactions} />
                     </div>
                 </div>
             </main>
+
+            {/* Sticky bottom action bar — always visible */}
+            <div className="pm-sticky-bar">
+                <div className="pm-sticky-bar-inner">
+                    <div className="pm-sticky-info">
+                        {transactions.length > 0 ? (
+                            <>
+                                <span className="pm-sticky-spent">${totalSpent.toFixed(2)} spent</span>
+                                <span className="pm-sticky-sep">·</span>
+                                <span className="pm-sticky-txns">{transactions.length} transaction{transactions.length !== 1 ? 's' : ''}</span>
+                            </>
+                        ) : (
+                            <span className="pm-sticky-hint">Add expenses above to get started</span>
+                        )}
+                    </div>
+                    <div className="pm-sticky-actions">
+                        <button className="pm-sticky-btn pm-sticky-btn--outline" onClick={handleViewTrends}>
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+                            </svg>
+                            View Trends
+                        </button>
+                        <button className="pm-sticky-btn pm-sticky-btn--primary" onClick={handleAskAI}>
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                            </svg>
+                            Ask AI for Insights
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
     );
 };
