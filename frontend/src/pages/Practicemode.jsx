@@ -15,8 +15,8 @@ import amazonLogo from '../assets/logos/amazon.png';
 import disneyLogo from '../assets/logos/disneylogo.webp';
 import starbucksLogo from '../assets/logos/starbucks.png';
 import appleLogo from '../assets/logos/apple.jpg';
-import uberLogo from '../assets/logos/uber.webp';
-import ubereatsLogo from '../assets/logos/uberr.webp';
+import ubereatsLogo from '../assets/logos/uber.webp';
+import uberLogo from '../assets/logos/uberr.webp';
 import youtubeLogo from '../assets/logos/youtube.jpg';
 import nikeLogo from '../assets/logos/nike.webp';
 
@@ -414,24 +414,263 @@ const RecentTransactions = ({ transactions }) => (
    SPENDING CHARTS
    ═══════════════════════════════════════════ */
 const SpendingTrendChart = ({ transactions }) => {
-    if (transactions.length === 0) return (<div className="pm-chart-card"><div className="pm-chart-hdr"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12" /></svg><span>Spending Trend</span></div><div className="pm-chart-empty"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth="1.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12" /></svg><span>No spending data yet</span><span className="sub">Your spending trend will appear here</span></div></div>);
+    const [tooltip, setTooltip] = useState(null);
+
+    if (transactions.length === 0) return (
+        <div className="pm-chart-card">
+            <div className="pm-chart-hdr">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12" /></svg>
+                <span>Spending Trend</span>
+            </div>
+            <div className="pm-chart-empty">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth="1.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12" /></svg>
+                <span>No spending data yet</span>
+                <span className="sub">Add expenses to see your trend</span>
+            </div>
+        </div>
+    );
+
     let running = 0;
-    const data = transactions.map(t => (running += t.amount, running));
-    const max = Math.max(...data, 1), w = 100, h = 60;
-    const pts = data.map((v, i) => `${data.length === 1 ? w / 2 : (i / (data.length - 1)) * w},${h - (v / max) * (h - 5)}`);
-    return (<div className="pm-chart-card"><div className="pm-chart-hdr"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12" /></svg><span>Spending Trend</span></div><div className="pm-chart-area"><svg viewBox={`-2 -2 ${w + 4} ${h + 4}`} preserveAspectRatio="none" className="pm-trend-svg"><defs><linearGradient id="pmFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#3b82f6" stopOpacity="0.3" /><stop offset="100%" stopColor="#3b82f6" stopOpacity="0" /></linearGradient></defs><polygon points={`0,${h} ${pts.join(' ')} ${w},${h}`} fill="url(#pmFill)" /><polyline points={pts.join(' ')} fill="none" stroke="#3b82f6" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg></div></div>);
+    const points = transactions.map((t, i) => {
+        running += t.amount;
+        return { index: i, amount: t.amount, cumulative: running, name: t.name, category: t.category };
+    });
+
+    const W = 320, H = 140, PAD = { top: 16, right: 16, bottom: 28, left: 48 };
+    const chartW = W - PAD.left - PAD.right;
+    const chartH = H - PAD.top - PAD.bottom;
+    const maxVal = Math.max(...points.map(p => p.cumulative), 1);
+    const n = points.length;
+
+    const xOf = i => PAD.left + (n === 1 ? chartW / 2 : (i / (n - 1)) * chartW);
+    const yOf = v => PAD.top + chartH - (v / maxVal) * chartH;
+
+    const linePts = points.map((p, i) => `${xOf(i)},${yOf(p.cumulative)}`).join(' ');
+    const areaPath = `M${xOf(0)},${yOf(points[0].cumulative)} ` +
+        points.slice(1).map((p, i) => `L${xOf(i + 1)},${yOf(p.cumulative)}`).join(' ') +
+        ` L${xOf(n - 1)},${PAD.top + chartH} L${xOf(0)},${PAD.top + chartH} Z`;
+
+    const yTicks = [0, 0.25, 0.5, 0.75, 1].map(f => ({ val: maxVal * f, y: yOf(maxVal * f) }));
+    const latestPt = points[points.length - 1];
+    const avgPerTxn = running / n;
+    const biggestSingle = Math.max(...transactions.map(t => t.amount));
+
+    return (
+        <div className="pm-chart-card pm-chart-card--trend">
+            <div className="pm-chart-hdr">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12" /></svg>
+                <span>Spending Trend</span>
+                <span className="pm-chart-badge">{n} transaction{n !== 1 ? 's' : ''}</span>
+            </div>
+
+            <div className="pm-trend-stats-row">
+                <div className="pm-trend-stat">
+                    <span className="pm-trend-stat-label">Total Spent</span>
+                    <span className="pm-trend-stat-val">${running.toFixed(2)}</span>
+                </div>
+                <div className="pm-trend-stat">
+                    <span className="pm-trend-stat-label">Avg / Transaction</span>
+                    <span className="pm-trend-stat-val">${avgPerTxn.toFixed(2)}</span>
+                </div>
+                <div className="pm-trend-stat">
+                    <span className="pm-trend-stat-label">Largest Single</span>
+                    <span className="pm-trend-stat-val pm-trend-stat-val--red">${biggestSingle.toFixed(2)}</span>
+                </div>
+            </div>
+
+            <div className="pm-trend-svg-wrap">
+                <svg viewBox={`0 0 ${W} ${H}`} className="pm-trend-svg" style={{ display: 'block', width: '100%' }}>
+                    <defs>
+                        <linearGradient id="pmFill2" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.35" />
+                            <stop offset="100%" stopColor="#3b82f6" stopOpacity="0" />
+                        </linearGradient>
+                        <filter id="pmGlow">
+                            <feGaussianBlur stdDeviation="2" result="blur" />
+                            <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+                        </filter>
+                    </defs>
+                    {yTicks.map(({ val, y }, i) => (
+                        <g key={i}>
+                            <line x1={PAD.left} y1={y} x2={W - PAD.right} y2={y}
+                                  stroke="rgba(255,255,255,0.05)" strokeWidth="1" strokeDasharray={i === 0 ? '0' : '3,4'} />
+                            <text x={PAD.left - 6} y={y + 4} textAnchor="end" fill="rgba(255,255,255,0.3)"
+                                  fontSize="9" fontFamily="system-ui,sans-serif">
+                                {val >= 1000 ? `$${(val / 1000).toFixed(1)}k` : `$${val.toFixed(0)}`}
+                            </text>
+                        </g>
+                    ))}
+                    {points.map((p, i) => (
+                        <text key={i} x={xOf(i)} y={H - 6} textAnchor="middle"
+                              fill="rgba(255,255,255,0.2)" fontSize="8" fontFamily="system-ui,sans-serif">
+                            {i + 1}
+                        </text>
+                    ))}
+                    <path d={areaPath} fill="url(#pmFill2)" />
+                    <polyline points={linePts} fill="none" stroke="#3b82f6" strokeWidth="2"
+                              strokeLinecap="round" strokeLinejoin="round" filter="url(#pmGlow)" />
+                    {points.map((p, i) => (
+                        <g key={i}
+                           onMouseEnter={() => setTooltip({ i, x: xOf(i), y: yOf(p.cumulative), ...p })}
+                           onMouseLeave={() => setTooltip(null)}
+                           style={{ cursor: 'pointer' }}>
+                            <circle cx={xOf(i)} cy={yOf(p.cumulative)} r="10" fill="transparent" />
+                            <circle cx={xOf(i)} cy={yOf(p.cumulative)} r={tooltip?.i === i ? 5 : 3.5}
+                                    fill={tooltip?.i === i ? '#fff' : '#3b82f6'}
+                                    stroke={tooltip?.i === i ? '#3b82f6' : '#1e3a8a'}
+                                    strokeWidth="2"
+                                    style={{ transition: 'r 0.15s, fill 0.15s' }} />
+                        </g>
+                    ))}
+                    {n >= 1 && (
+                        <text x={Math.min(xOf(n - 1), W - PAD.right - 2)} y={yOf(latestPt.cumulative) - 8}
+                              textAnchor={n === 1 ? 'middle' : 'end'}
+                              fill="#60a5fa" fontSize="10" fontWeight="700" fontFamily="system-ui,sans-serif">
+                            ${latestPt.cumulative.toFixed(2)}
+                        </text>
+                    )}
+                </svg>
+                {tooltip && (
+                    <div className="pm-trend-tooltip" style={{
+                        left: `${(tooltip.x / W) * 100}%`,
+                        top: `${(tooltip.y / H) * 100}%`,
+                    }}>
+                        <div className="pm-tt-name">{tooltip.name}</div>
+                        <div className="pm-tt-row"><span>This txn</span><span className="pm-tt-red">-${tooltip.amount.toFixed(2)}</span></div>
+                        <div className="pm-tt-row"><span>Running total</span><span>${tooltip.cumulative.toFixed(2)}</span></div>
+                        <div className="pm-tt-cat">{tooltip.category}</div>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
 };
 
 const SpendingByCategoryChart = ({ transactions }) => {
+    const [hovered, setHovered] = useState(null);
     const colors = { Groceries: '#3b82f6', Subscriptions: '#8b5cf6', Shopping: '#a78bfa', Transport: '#06b6d4', Dining: '#f59e0b', Bills: '#ef4444', Health: '#10b981', Entertainment: '#ec4899', Education: '#f97316', Other: '#6b7280' };
-    if (transactions.length === 0) return (<div className="pm-chart-card"><div className="pm-chart-hdr"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" strokeWidth="2"><circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" /></svg><span>Spending by Category</span></div><div className="pm-chart-empty"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth="1.5"><circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" /></svg><span>No data yet</span><span className="sub">Add expenses to see the breakdown</span></div></div>);
+
+    if (transactions.length === 0) return (
+        <div className="pm-chart-card">
+            <div className="pm-chart-hdr">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" strokeWidth="2"><circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" /></svg>
+                <span>Spending by Category</span>
+            </div>
+            <div className="pm-chart-empty">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth="1.5"><circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" /></svg>
+                <span>No data yet</span>
+                <span className="sub">Add expenses to see the breakdown</span>
+            </div>
+        </div>
+    );
+
     const totals = {};
     transactions.forEach(t => { totals[t.category] = (totals[t.category] || 0) + t.amount; });
     const total = Object.values(totals).reduce((a, b) => a + b, 0);
     const segs = Object.entries(totals).sort((a, b) => b[1] - a[1]);
-    const r = 36, circ = 2 * Math.PI * r;
-    let off = 0;
-    return (<div className="pm-chart-card"><div className="pm-chart-hdr"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" strokeWidth="2"><circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" /></svg><span>Spending by Category</span></div><div className="pm-donut-area"><svg viewBox="0 0 100 100" className="pm-donut">{segs.map(([cat, amt]) => { const pct = amt / total, dash = pct * circ, gap = circ - dash, cur = off; off += pct * circ; return <circle key={cat} cx="50" cy="50" r={r} fill="none" stroke={colors[cat] || '#666'} strokeWidth="8" strokeDasharray={`${dash} ${gap}`} strokeDashoffset={-cur} transform="rotate(-90 50 50)" strokeLinecap="round" className="pm-donut-seg" />; })}</svg><div className="pm-donut-legend">{segs.map(([cat, amt]) => (<div key={cat} className="pm-legend-item"><span className="pm-legend-dot" style={{ background: colors[cat] || '#666' }} /><span>{cat}</span><span className="pm-legend-amt">${amt.toFixed(2)}</span></div>))}</div></div></div>);
+
+    const r = 34, innerR = 22, circ = 2 * Math.PI * r;
+    let off = -circ * 0.25; // start at top
+
+    const topCat = segs[0];
+    const topPct = total > 0 ? ((topCat[1] / total) * 100).toFixed(0) : 0;
+
+    return (
+        <div className="pm-chart-card pm-chart-card--cat">
+            <div className="pm-chart-hdr">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" strokeWidth="2"><circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" /></svg>
+                <span>Spending by Category</span>
+                <span className="pm-chart-badge">{segs.length} categor{segs.length !== 1 ? 'ies' : 'y'}</span>
+            </div>
+
+            <div className="pm-donut-area">
+                <div className="pm-donut-wrap">
+                    <svg viewBox="0 0 100 100" className="pm-donut">
+                        {segs.map(([cat, amt]) => {
+                            const pct = amt / total;
+                            const dash = pct * circ;
+                            const gap = circ - dash;
+                            const cur = off;
+                            off += pct * circ;
+                            const isHov = hovered === cat;
+                            return (
+                                <circle key={cat} cx="50" cy="50" r={r}
+                                        fill="none"
+                                        stroke={colors[cat] || '#666'}
+                                        strokeWidth={isHov ? 10 : 7}
+                                        strokeDasharray={`${dash} ${gap}`}
+                                        strokeDashoffset={-cur}
+                                        strokeLinecap="round"
+                                        className="pm-donut-seg"
+                                        style={{ filter: isHov ? `drop-shadow(0 0 6px ${colors[cat] || '#666'})` : 'none', transition: 'stroke-width 0.2s, filter 0.2s' }}
+                                        onMouseEnter={() => setHovered(cat)}
+                                        onMouseLeave={() => setHovered(null)}
+                                />
+                            );
+                        })}
+                    </svg>
+                    <div className="pm-donut-center">
+                        {hovered ? (
+                            <>
+                                <span className="pm-donut-center-pct" style={{ color: colors[hovered] || '#fff' }}>
+                                    {((totals[hovered] / total) * 100).toFixed(0)}%
+                                </span>
+                                <span className="pm-donut-center-label">{hovered}</span>
+                            </>
+                        ) : (
+                            <>
+                                <span className="pm-donut-center-total">${total >= 1000 ? `${(total / 1000).toFixed(1)}k` : total.toFixed(0)}</span>
+                                <span className="pm-donut-center-label">total</span>
+                            </>
+                        )}
+                    </div>
+                </div>
+
+                <div className="pm-donut-legend">
+                    {segs.map(([cat, amt]) => {
+                        const pct = ((amt / total) * 100).toFixed(1);
+                        const isHov = hovered === cat;
+                        return (
+                            <div key={cat} className={`pm-legend-item ${isHov ? 'hovered' : ''}`}
+                                 onMouseEnter={() => setHovered(cat)}
+                                 onMouseLeave={() => setHovered(null)}
+                                 style={{ cursor: 'pointer' }}>
+                                <span className="pm-legend-dot" style={{ background: colors[cat] || '#666' }} />
+                                <span className="pm-legend-name">{cat}</span>
+                                <div className="pm-legend-right">
+                                    <span className="pm-legend-pct">{pct}%</span>
+                                    <span className="pm-legend-amt">${amt.toFixed(2)}</span>
+                                </div>
+                            </div>
+                        );
+                    })}
+                    <div className="pm-legend-total-row">
+                        <span>Total</span>
+                        <span className="pm-legend-total-val">${total.toFixed(2)}</span>
+                    </div>
+                </div>
+            </div>
+
+            {/* Mini bar chart below */}
+            <div className="pm-cat-bars">
+                {segs.slice(0, 4).map(([cat, amt]) => (
+                    <div key={cat} className="pm-cat-bar-row"
+                         onMouseEnter={() => setHovered(cat)}
+                         onMouseLeave={() => setHovered(null)}>
+                        <span className="pm-cat-bar-label">{cat}</span>
+                        <div className="pm-cat-bar-track">
+                            <div className="pm-cat-bar-fill" style={{
+                                width: `${(amt / segs[0][1]) * 100}%`,
+                                background: colors[cat] || '#666',
+                                opacity: hovered && hovered !== cat ? 0.35 : 1,
+                            }} />
+                        </div>
+                        <span className="pm-cat-bar-val">${amt.toFixed(0)}</span>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
 };
 
 /* ═══════════════════════════════════════════
