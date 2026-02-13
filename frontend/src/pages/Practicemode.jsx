@@ -118,8 +118,9 @@ const PracticeModeWelcome = ({ onStart }) => {
                     </div>
                 </div>
                 <button className="pm-start-btn" onClick={() => onStart(selectedBalance)}>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
                     Start Practicing
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                 </button>
                 <p className="pm-disclaimer">All data is session-only and will be cleared when you leave</p>
             </div>
@@ -191,8 +192,14 @@ const BrandExpenseSection = ({ balance, onAddExpense }) => {
                                     <span className="pm-brand-currency">$</span>
                                     <input type="number" className="pm-brand-input" placeholder={item.placeholder} value={amounts[item.id] || ''} onChange={e => setAmounts(prev => ({ ...prev, [item.id]: e.target.value }))} onKeyDown={e => e.key === 'Enter' && isValid && handleAdd(item)} min="0.01" step="0.01" />
                                 </div>
-                                <button className={`pm-brand-add-btn ${isSuccess ? 'success' : ''}`} onClick={() => handleAdd(item)} disabled={!isValid || isAdding}>
-                                    {isSuccess ? (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M20 6L9 17l-5-5" /></svg>) : (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 5v14M5 12h14" /></svg>)}
+                                <button className={`pm-brand-add-btn ${isSuccess ? 'success' : ''} ${isAdding ? 'loading' : ''}`} onClick={() => handleAdd(item)} disabled={!isValid || isAdding}>
+                                    {isSuccess ? (
+                                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                                    ) : isAdding ? (
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{animation:'pmSpin 0.7s linear infinite'}}><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4"/></svg>
+                                    ) : (
+                                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                    )}
                                 </button>
                             </div>
                             {isOverBudget && <span className="pm-brand-error">Exceeds balance</span>}
@@ -273,7 +280,13 @@ const CustomExpenseForm = ({ balance, onAddExpense }) => {
                         <div className="pm-custom-preview">Remaining after: <strong>${(balance - numAmount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong></div>
                     )}
                     <button type="submit" className={`pm-custom-submit ${isAdding ? 'adding' : ''} ${showSuccess ? 'success' : ''}`} disabled={!isValid || isAdding}>
-                        {showSuccess ? (<><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M20 6L9 17l-5-5" /></svg>Added!</>) : isAdding ? ('Adding...') : (<><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 5v14M5 12h14" /></svg>Add Expense</>)}
+                        {showSuccess ? (
+                            <><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Added!</>
+                        ) : isAdding ? (
+                            <><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{animation:'pmSpin 0.7s linear infinite'}}><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4"/></svg> Adding...</>
+                        ) : (
+                            <><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add Expense</>
+                        )}
                     </button>
                 </div>
             </form>
@@ -463,10 +476,9 @@ const MiniAIChat = ({ transactions, balance, totalSpent, startingBalance, extern
 
             {/* Quick action buttons */}
             {transactions.length >= 1 && messages.length <= 3 && (
-                <div style={{ display: 'flex', gap: '6px', padding: '0 12px 8px', flexWrap: 'wrap' }}>
+                <div className="pm-quick-actions">
                     {quickActions.map((qa, i) => (
-                        <button key={i} onClick={() => handleUserMessage(qa.prompt)} disabled={isTyping}
-                                style={{ padding: '6px 12px', fontSize: '11px', fontWeight: 600, background: 'rgba(139,92,246,0.08)', border: '1px solid rgba(139,92,246,0.2)', borderRadius: '8px', color: 'rgba(255,255,255,0.7)', cursor: 'pointer', transition: 'all 0.2s', whiteSpace: 'nowrap' }}>
+                        <button key={i} className="pm-quick-btn" onClick={() => handleUserMessage(qa.prompt)} disabled={isTyping}>
                             {qa.label}
                         </button>
                     ))}
@@ -476,7 +488,7 @@ const MiniAIChat = ({ transactions, balance, totalSpent, startingBalance, extern
             <div className="pm-chat-input">
                 <input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSend()} placeholder={apiAvailable ? "Ask me anything about your finances..." : "Ask about your spending..."} disabled={isTyping} />
                 <button className="pm-send" onClick={handleSend} disabled={!input.trim() || isTyping}>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="22" y1="2" x2="11" y2="13" /><polygon points="22 2 15 22 11 13 2 9 22 2" /></svg>
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" stroke="currentColor"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2" fill="currentColor" stroke="none"/></svg>
                 </button>
             </div>
         </div>
@@ -661,11 +673,11 @@ const PracticeMode = () => {
                     <div className="dashboard-header-right">
                         {/* Desktop-only buttons */}
                         <button className="pm-fab-chat desktop-only" onClick={() => setShowFullChat(true)}>
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
+                            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
                             Chat with AI
                         </button>
                         <button className="btn-leave desktop-only" onClick={handleExit}>
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
                             <span>Exit Practice</span>
                         </button>
                         <div className="desktop-only"><UserMenu /></div>
@@ -756,7 +768,10 @@ const PracticeMode = () => {
                                     <div className="pm-balance-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" strokeWidth="2"><rect x="2" y="7" width="20" height="14" rx="2" /><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" /></svg></div>
                                     <div><span className="pm-balance-label">Virtual Balance</span><span className="pm-balance-value">${balance.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span></div>
                                 </div>
-                                <button className="pm-reset-btn" onClick={handleReset}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 4v6h6" /><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" /></svg>Reset</button>
+                                <button className="pm-reset-btn" onClick={handleReset}>
+                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+                                    Reset
+                                </button>
                             </div>
                             <div className="pm-balance-stats">
                                 <div className="pm-bstat"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6" /></svg><span className="pm-bstat-label">Total Spent</span><span className="pm-bstat-val red">-${totalSpent.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span></div>
@@ -793,10 +808,12 @@ const PracticeMode = () => {
                     </div>
                     <div className="pm-sticky-actions">
                         <button className="pm-sticky-btn pm-sticky-btn--outline" onClick={handleViewTrends}>
-                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12" /></svg>View Trends
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                            View Trends
                         </button>
                         <button className="pm-sticky-btn pm-sticky-btn--primary" onClick={() => setShowFullChat(true)}>
-                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>Chat with AI
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                            Chat with AI
                         </button>
                     </div>
                 </div>
