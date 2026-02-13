@@ -450,7 +450,7 @@ const MiniAIChat = ({ transactions, balance, totalSpent, startingBalance, extern
                 {messages.map(m => (
                     <div key={m.id} className={`pm-msg ${m.role}`}>
                         {m.role === 'ai' && <div className="pm-msg-orb"><div className="pm-mini-orb sm"><div className="pm-mini-orb-eyes"><div className="pm-eye" /><div className="pm-eye" /></div></div></div>}
-                        <div className={`pm-msg-bubble ${m.role}`}>{m.text.split('\n').map((l, i) => <span key={i}>{l}<br /></span>)}</div>
+                        <div className={`pm-msg-bubble ${m.role}`}>{m.text.split('\n').map((l, i) => <span key={i}>{l.split(/(\*\*.*?\*\*)/).map((p, j) => p.startsWith('**') && p.endsWith('**') ? <strong key={j} style={{ fontWeight: 700, color: '#fff' }}>{p.slice(2, -2)}</strong> : p)}<br /></span>)}</div>
                     </div>
                 ))}
                 {isTyping && (
