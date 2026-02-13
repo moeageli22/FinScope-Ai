@@ -610,7 +610,26 @@ const PracticeMode = () => {
     const [transactions, setTransactions] = useState([]);
     const [aiPromptTrigger, setAiPromptTrigger] = useState(null);
     const [showFullChat, setShowFullChat] = useState(false);
+    const [activeMobilePanel, setActiveMobilePanel] = useState(null); // 'insights' | 'chat' | 'txns'
+    const [menuOpen, setMenuOpen] = useState(false);
+    const menuRef = useRef(null);
     const chartsRef = useRef(null);
+
+    // Close menu when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (menuRef.current && !menuRef.current.contains(e.target)) {
+                setMenuOpen(false);
+            }
+        };
+        if (menuOpen) document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [menuOpen]);
+
+    const toggleMobilePanel = (panel) => {
+        setActiveMobilePanel(prev => prev === panel ? null : panel);
+    };
+    const closeMobilePanel = () => setActiveMobilePanel(null);
 
     useEffect(() => { (async () => { const { data: { user } } = await supabase.auth.getUser(); if (!user) { navigate('/login'); return; } setUser(user); setLoading(false); })(); }, [navigate]);
 
@@ -639,13 +658,83 @@ const PracticeMode = () => {
                         <h1 className="pm-header-title">FinScope <span className="username">AI</span></h1>
                         <div className="pm-badge"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="7" width="20" height="14" rx="2" /><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" /></svg>Practice Mode</div>
                     </div>
-                    <div className="dashboard-header-right desktop-only">
-                        <button className="pm-fab-chat" onClick={() => setShowFullChat(true)}>
+                    <div className="dashboard-header-right">
+                        {/* Desktop-only buttons */}
+                        <button className="pm-fab-chat desktop-only" onClick={() => setShowFullChat(true)}>
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
                             Chat with AI
                         </button>
-                        <button className="btn-leave" onClick={handleExit}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg><span>Exit Practice</span></button>
-                        <UserMenu />
+                        <button className="btn-leave desktop-only" onClick={handleExit}>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>
+                            <span>Exit Practice</span>
+                        </button>
+                        <div className="desktop-only"><UserMenu /></div>
+
+                        {/* ── Hamburger menu — always visible ── */}
+                        <div className="pm-hamburger-wrap" ref={menuRef}>
+                            <button
+                                className={`pm-hamburger-btn ${menuOpen ? 'open' : ''}`}
+                                onClick={() => setMenuOpen(o => !o)}
+                                aria-label="Navigation menu"
+                            >
+                                <span className="pm-ham-line" />
+                                <span className="pm-ham-line" />
+                                <span className="pm-ham-line" />
+                            </button>
+
+                            {menuOpen && (
+                                <div className="pm-ham-dropdown">
+                                    <div className="pm-ham-dropdown-header">
+                                        <span className="pm-ham-greet">Navigation</span>
+                                    </div>
+
+                                    <button className="pm-ham-item" onClick={() => { navigate('/dashboard'); setMenuOpen(false); }}>
+                                        <span className="pm-ham-icon pm-ham-icon--blue">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+                                        </span>
+                                        <div className="pm-ham-item-text">
+                                            <span className="pm-ham-item-label">Dashboard</span>
+                                            <span className="pm-ham-item-sub">Your main overview</span>
+                                        </div>
+                                        <svg className="pm-ham-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                                    </button>
+
+                                    <button className="pm-ham-item" onClick={() => { navigate('/'); setMenuOpen(false); }}>
+                                        <span className="pm-ham-icon pm-ham-icon--cyan">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                                        </span>
+                                        <div className="pm-ham-item-text">
+                                            <span className="pm-ham-item-label">Home Page</span>
+                                            <span className="pm-ham-item-sub">Back to landing</span>
+                                        </div>
+                                        <svg className="pm-ham-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                                    </button>
+
+                                    <button className="pm-ham-item" onClick={() => { setShowFullChat(true); setMenuOpen(false); }}>
+                                        <span className="pm-ham-icon pm-ham-icon--purple">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                                        </span>
+                                        <div className="pm-ham-item-text">
+                                            <span className="pm-ham-item-label">AI Chat</span>
+                                            <span className="pm-ham-item-sub">Full screen assistant</span>
+                                        </div>
+                                        <svg className="pm-ham-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                                    </button>
+
+                                    <div className="pm-ham-divider" />
+
+                                    <button className="pm-ham-item pm-ham-item--danger" onClick={() => { handleExit(); setMenuOpen(false); }}>
+                                        <span className="pm-ham-icon pm-ham-icon--red">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                                        </span>
+                                        <div className="pm-ham-item-text">
+                                            <span className="pm-ham-item-label">Exit Practice</span>
+                                            <span className="pm-ham-item-sub">End this session</span>
+                                        </div>
+                                    </button>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
             </header>
@@ -704,6 +793,111 @@ const PracticeMode = () => {
                     </div>
                 </div>
             </div>
+
+            {/* ── Mobile panel backdrop ── */}
+            <div
+                className={`pm-panel-backdrop ${activeMobilePanel ? 'open' : ''}`}
+                onClick={closeMobilePanel}
+            />
+
+            {/* ── Mobile slide-up panel ── */}
+            <div className={`pm-mobile-panel ${activeMobilePanel ? 'open' : ''}`}>
+                {activeMobilePanel === 'insights' && (
+                    <AIInsightsDashboard
+                        transactions={transactions}
+                        balance={balance}
+                        totalSpent={totalSpent}
+                        startingBalance={startingBalance}
+                        onOpenChat={() => { closeMobilePanel(); setShowFullChat(true); }}
+                    />
+                )}
+                {activeMobilePanel === 'chat' && (
+                    <MiniAIChat
+                        transactions={transactions}
+                        balance={balance}
+                        totalSpent={totalSpent}
+                        startingBalance={startingBalance}
+                        externalPrompt={aiPromptTrigger}
+                        onExternalPromptHandled={() => setAiPromptTrigger(null)}
+                    />
+                )}
+                {activeMobilePanel === 'txns' && (
+                    <RecentTransactions transactions={transactions} />
+                )}
+            </div>
+
+            {/* ── Mobile bottom navigation ── */}
+            <nav className="pm-mobile-nav">
+                <div className="pm-mobile-nav-inner">
+                    {/* Home / Expenses */}
+                    <button
+                        className={`pm-nav-btn ${!activeMobilePanel ? 'active' : ''}`}
+                        onClick={closeMobilePanel}
+                    >
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                            <polyline points="9 22 9 12 15 12 15 22" />
+                        </svg>
+                        Home
+                    </button>
+
+                    {/* Transactions */}
+                    <button
+                        className={`pm-nav-btn ${activeMobilePanel === 'txns' ? 'active' : ''}`}
+                        onClick={() => toggleMobilePanel('txns')}
+                    >
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <line x1="12" y1="1" x2="12" y2="23" />
+                            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                        </svg>
+                        Txns
+                        {transactions.length > 0 && (
+                            <span style={{
+                                position: 'absolute', top: 5, right: '18%',
+                                background: '#8b5cf6', color: '#fff',
+                                fontSize: 9, fontWeight: 800,
+                                borderRadius: 10, padding: '1px 5px',
+                                lineHeight: '14px'
+                            }}>{transactions.length}</span>
+                        )}
+                    </button>
+
+                    {/* AI Insights */}
+                    <button
+                        className={`pm-nav-btn ${activeMobilePanel === 'insights' ? 'active' : ''}`}
+                        onClick={() => toggleMobilePanel('insights')}
+                    >
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <circle cx="12" cy="12" r="10" />
+                            <path d="M12 8v4l3 3" />
+                        </svg>
+                        Insights
+                    </button>
+
+                    {/* AI Chat */}
+                    <button
+                        className={`pm-nav-btn nav-ai ${activeMobilePanel === 'chat' ? 'active' : ''}`}
+                        onClick={() => toggleMobilePanel('chat')}
+                    >
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                        </svg>
+                        AI Chat
+                    </button>
+
+                    {/* Full AI Chat */}
+                    <button
+                        className="pm-nav-btn"
+                        onClick={() => { closeMobilePanel(); setShowFullChat(true); }}
+                        style={{ color: 'rgba(139,92,246,0.8)' }}
+                    >
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+                        </svg>
+                        Full AI
+                    </button>
+                </div>
+            </nav>
 
             {/* Fullscreen AI Chat Modal */}
             <FullscreenAIChat
