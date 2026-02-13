@@ -297,10 +297,8 @@
 
 .pm-hamburger-btn {
     display: flex;
-    flex-direction: column;
-    justify-content: center;
     align-items: center;
-    gap: 5px;
+    justify-content: center;
     width: 40px;
     height: 40px;
     background: rgba(255,255,255,0.05);
@@ -318,27 +316,6 @@
 .pm-hamburger-btn.open {
     background: rgba(139,92,246,0.15);
     border-color: rgba(139,92,246,0.4);
-}
-
-.pm-ham-line {
-    display: block;
-    width: 18px;
-    height: 2px;
-    background: rgba(255,255,255,0.75);
-    border-radius: 2px;
-    transition: all 0.28s cubic-bezier(0.22,1,0.36,1);
-    transform-origin: center;
-}
-/* Animate to X when open */
-.pm-hamburger-btn.open .pm-ham-line:nth-child(1) {
-    transform: translateY(7px) rotate(45deg);
-}
-.pm-hamburger-btn.open .pm-ham-line:nth-child(2) {
-    opacity: 0;
-    transform: scaleX(0);
-}
-.pm-hamburger-btn.open .pm-ham-line:nth-child(3) {
-    transform: translateY(-7px) rotate(-45deg);
 }
 
 /* Dropdown */

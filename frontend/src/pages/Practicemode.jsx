@@ -677,9 +677,17 @@ const PracticeMode = () => {
                                 onClick={() => setMenuOpen(o => !o)}
                                 aria-label="Navigation menu"
                             >
-                                <span className="pm-ham-line" />
-                                <span className="pm-ham-line" />
-                                <span className="pm-ham-line" />
+                                {menuOpen ? (
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.85)" strokeWidth="2.5" strokeLinecap="round">
+                                        <path d="M18 6L6 18M6 6l12 12"/>
+                                    </svg>
+                                ) : (
+                                    <svg width="20" height="16" viewBox="0 0 20 16" fill="none">
+                                        <rect x="0" y="0"  width="20" height="2" rx="1" fill="rgba(255,255,255,0.85)"/>
+                                        <rect x="0" y="7"  width="20" height="2" rx="1" fill="rgba(255,255,255,0.85)"/>
+                                        <rect x="0" y="14" width="20" height="2" rx="1" fill="rgba(255,255,255,0.85)"/>
+                                    </svg>
+                                )}
                             </button>
 
                             {menuOpen && (

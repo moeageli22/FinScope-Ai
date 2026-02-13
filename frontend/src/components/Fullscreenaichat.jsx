@@ -3,6 +3,7 @@
 // Now uses the real FinScopeAI orb component
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { sendMessage } from '../services/claudeAI';
 import FinScopeAI from './FinScopeAI';
 
@@ -187,11 +188,23 @@ const detectChartType = (msg) => {
    Now uses the real FinScopeAI orb
    ═══════════════════════════════════════════ */
 const FullscreenAIChat = ({ open, onClose, transactions, balance, totalSpent, startingBalance }) => {
+    const navigate = useNavigate();
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState('');
     const [isTyping, setIsTyping] = useState(false);
+    const [menuOpen, setMenuOpen] = useState(false);
     const chatRef = useRef(null);
     const inputRef = useRef(null);
+    const menuRef = useRef(null);
+
+    // Close hamburger when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (menuRef.current && !menuRef.current.contains(e.target)) setMenuOpen(false);
+        };
+        if (menuOpen) document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [menuOpen]);
 
     const categoryData = useMemo(() => {
         const totals = {};
@@ -281,9 +294,88 @@ const FullscreenAIChat = ({ open, onClose, transactions, balance, totalSpent, st
                         <div><h2 className="fsc-title">FinScope AI</h2><span className="fsc-subtitle">Your personal finance assistant</span></div>
                         <span className="fsc-live-badge"><span className="fsc-live-dot" />LIVE AI</span>
                     </div>
-                    <button className="fsc-close" onClick={onClose}>
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12" /></svg>
-                    </button>
+                    <div className="fsc-header-actions">
+                        {/* ── Hamburger menu ── */}
+                        <div className="fsc-ham-wrap" ref={menuRef}>
+                            <button
+                                className={`fsc-ham-btn ${menuOpen ? 'open' : ''}`}
+                                onClick={() => setMenuOpen(o => !o)}
+                                aria-label="Navigation menu"
+                            >
+                                {menuOpen ? (
+                                    /* X icon when open */
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.85)" strokeWidth="2.5" strokeLinecap="round">
+                                        <path d="M18 6L6 18M6 6l12 12"/>
+                                    </svg>
+                                ) : (
+                                    /* Three lines when closed */
+                                    <svg width="20" height="16" viewBox="0 0 20 16" fill="none">
+                                        <rect x="0" y="0"  width="20" height="2" rx="1" fill="rgba(255,255,255,0.85)"/>
+                                        <rect x="0" y="7"  width="20" height="2" rx="1" fill="rgba(255,255,255,0.85)"/>
+                                        <rect x="0" y="14" width="20" height="2" rx="1" fill="rgba(255,255,255,0.85)"/>
+                                    </svg>
+                                )}
+                            </button>
+
+                            {menuOpen && (
+                                <div className="fsc-ham-dropdown">
+                                    <div className="fsc-ham-dropdown-header">
+                                        <span className="fsc-ham-label">Navigation</span>
+                                    </div>
+
+                                    <button className="fsc-ham-item" onClick={() => { navigate('/dashboard'); onClose(); setMenuOpen(false); }}>
+                                        <span className="fsc-ham-icon fsc-ham-icon--blue">
+                                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+                                        </span>
+                                        <div className="fsc-ham-item-text">
+                                            <span className="fsc-ham-item-label">Dashboard</span>
+                                            <span className="fsc-ham-item-sub">Your main overview</span>
+                                        </div>
+                                        <svg className="fsc-ham-arrow" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                                    </button>
+
+                                    <button className="fsc-ham-item" onClick={() => { navigate('/'); onClose(); setMenuOpen(false); }}>
+                                        <span className="fsc-ham-icon fsc-ham-icon--cyan">
+                                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                                        </span>
+                                        <div className="fsc-ham-item-text">
+                                            <span className="fsc-ham-item-label">Home Page</span>
+                                            <span className="fsc-ham-item-sub">Back to landing</span>
+                                        </div>
+                                        <svg className="fsc-ham-arrow" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                                    </button>
+
+                                    <button className="fsc-ham-item" onClick={() => { navigate(-1); onClose(); setMenuOpen(false); }}>
+                                        <span className="fsc-ham-icon fsc-ham-icon--purple">
+                                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                                        </span>
+                                        <div className="fsc-ham-item-text">
+                                            <span className="fsc-ham-item-label">Go Back</span>
+                                            <span className="fsc-ham-item-sub">Previous page</span>
+                                        </div>
+                                        <svg className="fsc-ham-arrow" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                                    </button>
+
+                                    <div className="fsc-ham-divider" />
+
+                                    <button className="fsc-ham-item fsc-ham-item--danger" onClick={() => { onClose(); setMenuOpen(false); }}>
+                                        <span className="fsc-ham-icon fsc-ham-icon--red">
+                                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                                        </span>
+                                        <div className="fsc-ham-item-text">
+                                            <span className="fsc-ham-item-label">Close Chat</span>
+                                            <span className="fsc-ham-item-sub">Return to Practice Mode</span>
+                                        </div>
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* ── Close button ── */}
+                        <button className="fsc-close" onClick={onClose}>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12" /></svg>
+                        </button>
+                    </div>
                 </div>
 
                 {/* ── Stats bar ── */}
