@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../config/supabase.js';
 import './Usermenu.css';
 
-const UserMenu = () => {
+const UserMenu = ({ onEraseData }) => {
     const navigate = useNavigate();
     const [isOpen, setIsOpen] = useState(false);
     const [user, setUser] = useState(null);
@@ -163,6 +163,26 @@ const UserMenu = () => {
                                 <line x1="12" y1="17" x2="12.01" y2="17" />
                             </svg>
                             <span>Help & Support</span>
+                        </button>
+                    </div>
+
+                    <div className="user-menu-divider"></div>
+
+                    <div className="user-menu-items">
+                        <button
+                            className="user-menu-item erase-data"
+                            onClick={() => {
+                                setIsOpen(false);
+                                if (onEraseData) onEraseData();
+                            }}
+                        >
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <polyline points="3 6 5 6 21 6"/>
+                                <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                                <path d="M10 11v6M14 11v6"/>
+                                <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+                            </svg>
+                            <span>Erase All Data</span>
                         </button>
                     </div>
 

@@ -196,6 +196,22 @@
     flex: 1;
 }
 
+/* Erase All Data Button */
+.user-menu-item.erase-data {
+    color: #ef4444;
+}
+.user-menu-item.erase-data:hover {
+    background: rgba(239, 68, 68, 0.1);
+    color: #f87171;
+    transform: translateX(4px);
+}
+.user-menu-item.erase-data svg {
+    color: #ef4444;
+}
+.user-menu-item.erase-data:hover svg {
+    color: #f87171;
+}
+
 /* Sign Out Button */
 .user-menu-item.sign-out {
     color: #ef4444;
