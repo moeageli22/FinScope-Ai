@@ -68,42 +68,89 @@ const CUSTOM_CATEGORIES = [
 ];
 
 /* ═══ DEPOSIT / WITHDRAW MODAL ═══ */
-const MoneyModal = ({ type, onClose, onConfirm, balance }) => {
-    const [amount, setAmount] = useState('');
-    const [source, setSource] = useState('');
-    const isDeposit = type === 'deposit';
-    const numAmount = parseFloat(amount) || 0;
-    const isValid = numAmount > 0 && (isDeposit || numAmount <= balance);
-    const presets = isDeposit ? [500, 1000, 2000, 5000] : [50, 100, 500, 1000];
+/* ═══ FINSCOPE AI TOAST ═══ */
+const FinScopeToast = ({ visible, onDone }) => {
+    useEffect(() => {
+        if (visible) { const t = setTimeout(onDone, 3800); return () => clearTimeout(t); }
+    }, [visible, onDone]);
+    if (!visible) return null;
     return (
-        <div className="dr-modal-overlay" onClick={onClose}>
-            <div className="dr-modal" onClick={e => e.stopPropagation()}>
-                <div className="dr-modal-header">
-                    <div className={`dr-modal-icon ${isDeposit ? 'green' : 'orange'}`}>
-                        {isDeposit ? <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 5v14M5 12l7-7 7 7" /></svg>
-                            : <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 19V5M5 12l7 7 7-7" /></svg>}
+        <div className="fst-overlay">
+            <div className="fst-card">
+                <div className="fst-orb-wrap">
+                    <div className="fst-orb">
+                        <div className="fst-eyes">
+                            <div className="fst-eye" />
+                            <div className="fst-eye" />
+                        </div>
+                        <div className="fst-orb-shine" />
                     </div>
-                    <div><h3 className="dr-modal-title">{isDeposit ? 'Deposit Money' : 'Withdraw Money'}</h3><p className="dr-modal-sub">{isDeposit ? 'Add funds' : 'Take money out'}</p></div>
-                    <button className="dr-modal-close" onClick={onClose}><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12" /></svg></button>
+                    <div className="fst-orb-glow" />
                 </div>
-                <div className="dr-modal-body">
-                    <div className="dr-modal-field">
-                        <label className="dr-field-label">Amount</label>
-                        <div className="dr-amount-input-wrap"><span className="dr-currency-symbol">$</span><input type="number" className="dr-amount-input" placeholder="0.00" value={amount} onChange={e => setAmount(e.target.value)} min="0.01" step="0.01" autoFocus /></div>
-                        {!isDeposit && numAmount > balance && <span className="dr-field-error">Exceeds balance (${balance.toFixed(2)})</span>}
-                    </div>
-                    <div className="dr-presets">{presets.map(p => (<button key={p} className={`dr-preset-btn ${numAmount === p ? 'active' : ''}`} onClick={() => setAmount(String(p))}>${p.toLocaleString()}</button>))}</div>
-                    <div className="dr-modal-field">
-                        <label className="dr-field-label">{isDeposit ? 'Source (optional)' : 'Reason (optional)'}</label>
-                        <input type="text" className="dr-text-input" placeholder={isDeposit ? 'e.g. Salary, Freelance...' : 'e.g. ATM, Transfer...'} value={source} onChange={e => setSource(e.target.value)} />
-                    </div>
-                </div>
-                <div className="dr-modal-footer">
-                    <button className="dr-modal-cancel" onClick={onClose}>Cancel</button>
-                    <button className={`dr-modal-confirm ${isDeposit ? 'green' : 'orange'}`} disabled={!isValid} onClick={() => onConfirm(numAmount, source)}>{isDeposit ? 'Deposit' : 'Withdraw'} ${numAmount > 0 ? numAmount.toLocaleString(undefined, { minimumFractionDigits: 2 }) : '0.00'}</button>
+                <div className="fst-bubble">
+                    <div className="fst-bubble-tail" />
+                    <p className="fst-msg">You're not Elon Musk, buddy 😅</p>
+                    <span className="fst-sub">Max deposit is $15,000,000</span>
                 </div>
             </div>
         </div>
+    );
+};
+
+const DEPOSIT_LIMIT = 15_000_000;
+
+const MoneyModal = ({ type, onClose, onConfirm, balance }) => {
+    const [amount, setAmount] = useState('');
+    const [source, setSource] = useState('');
+    const [showToast, setShowToast] = useState(false);
+    const isDeposit = type === 'deposit';
+    const numAmount = parseFloat(amount) || 0;
+    const overLimit = isDeposit && numAmount > DEPOSIT_LIMIT;
+    const isValid = numAmount > 0 && (isDeposit ? !overLimit : numAmount <= balance);
+    const presets = isDeposit ? [500, 1000, 2000, 5000] : [50, 100, 500, 1000];
+
+    const handleAmountChange = (val) => {
+        setAmount(val);
+        const n = parseFloat(val) || 0;
+        if (isDeposit && n > DEPOSIT_LIMIT) setShowToast(true);
+    };
+
+    return (
+        <>
+            <FinScopeToast visible={showToast} onDone={() => setShowToast(false)} />
+            <div className="dr-modal-overlay" onClick={onClose}>
+                <div className="dr-modal" onClick={e => e.stopPropagation()}>
+                    <div className="dr-modal-header">
+                        <div className={`dr-modal-icon ${isDeposit ? 'green' : 'orange'}`}>
+                            {isDeposit ? <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 5v14M5 12l7-7 7 7" /></svg>
+                                : <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 19V5M5 12l7 7 7-7" /></svg>}
+                        </div>
+                        <div><h3 className="dr-modal-title">{isDeposit ? 'Deposit Money' : 'Withdraw Money'}</h3><p className="dr-modal-sub">{isDeposit ? `Max $${DEPOSIT_LIMIT.toLocaleString()}` : 'Take money out'}</p></div>
+                        <button className="dr-modal-close" onClick={onClose}><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12" /></svg></button>
+                    </div>
+                    <div className="dr-modal-body">
+                        <div className="dr-modal-field">
+                            <label className="dr-field-label">Amount</label>
+                            <div className={`dr-amount-input-wrap ${overLimit ? 'dr-input-over-limit' : ''}`}>
+                                <span className="dr-currency-symbol">$</span>
+                                <input type="number" className="dr-amount-input" placeholder="0.00" value={amount} onChange={e => handleAmountChange(e.target.value)} min="0.01" step="0.01" autoFocus />
+                            </div>
+                            {overLimit && <span className="dr-field-error">🚫 Max deposit is $15,000,000 — you're not Elon Musk!</span>}
+                            {!isDeposit && numAmount > balance && <span className="dr-field-error">Exceeds balance (${balance.toFixed(2)})</span>}
+                        </div>
+                        <div className="dr-presets">{presets.map(p => (<button key={p} className={`dr-preset-btn ${numAmount === p ? 'active' : ''}`} onClick={() => setAmount(String(p))}>${p.toLocaleString()}</button>))}</div>
+                        <div className="dr-modal-field">
+                            <label className="dr-field-label">{isDeposit ? 'Source (optional)' : 'Reason (optional)'}</label>
+                            <input type="text" className="dr-text-input" placeholder={isDeposit ? 'e.g. Salary, Freelance...' : 'e.g. ATM, Transfer...'} value={source} onChange={e => setSource(e.target.value)} />
+                        </div>
+                    </div>
+                    <div className="dr-modal-footer">
+                        <button className="dr-modal-cancel" onClick={onClose}>Cancel</button>
+                        <button className={`dr-modal-confirm ${isDeposit ? 'green' : 'orange'}`} disabled={!isValid} onClick={() => onConfirm(numAmount, source)}>{isDeposit ? 'Deposit' : 'Withdraw'} ${numAmount > 0 ? numAmount.toLocaleString(undefined, { minimumFractionDigits: 2 }) : '0.00'}</button>
+                    </div>
+                </div>
+            </div>
+        </>
     );
 };
 
