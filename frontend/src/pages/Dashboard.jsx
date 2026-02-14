@@ -398,7 +398,7 @@ const StatementsTab = ({ transactions, balance, totalIncome, totalExpenses }) =>
     const [downloading, setDownloading] = useState(null);
 
     const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-    const years = Array.from({ length: 3 }, (_, i) => now.getFullYear() - i);
+    const years = Array.from({ length: 3 }, (_, i) => now.getFullYear() + i);
 
     // Filter transactions for selected month
     const monthTxns = transactions.filter(t => {
