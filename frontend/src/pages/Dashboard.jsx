@@ -387,6 +387,224 @@ const EraseDataModal = ({ onClose, onConfirmed }) => {
     );
 };
 
+
+/* ═══════════════════════════════════════════════════════════
+   STATEMENTS TAB
+   ═══════════════════════════════════════════════════════════ */
+const StatementsTab = ({ transactions, balance, totalIncome, totalExpenses }) => {
+    const now = new Date();
+    const [selectedYear, setSelectedYear] = useState(now.getFullYear());
+    const [selectedMonth, setSelectedMonth] = useState(now.getMonth());
+    const [downloading, setDownloading] = useState(null);
+
+    const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    const years = Array.from({ length: 3 }, (_, i) => now.getFullYear() - i);
+
+    // Filter transactions for selected month
+    const monthTxns = transactions.filter(t => {
+        const d = new Date(t.created_at);
+        return d.getFullYear() === selectedYear && d.getMonth() === selectedMonth;
+    });
+
+    const monthExpenses = monthTxns.filter(t => t.type === 'expense');
+    const monthDeposits = monthTxns.filter(t => t.type === 'deposit');
+    const totalSpent = monthExpenses.reduce((s, t) => s + t.amount, 0);
+    const totalIn = monthDeposits.reduce((s, t) => s + t.amount, 0);
+    const net = totalIn - totalSpent;
+
+    // Category breakdown
+    const catTotals = {};
+    monthExpenses.forEach(t => { catTotals[t.category] = (catTotals[t.category] || 0) + t.amount; });
+    const categories = Object.entries(catTotals).sort((a, b) => b[1] - a[1]);
+    const catColors = { Groceries:'#3b82f6', Subscriptions:'#8b5cf6', Shopping:'#a78bfa', Transport:'#06b6d4', Dining:'#f59e0b', Bills:'#ef4444', Health:'#10b981', Entertainment:'#ec4899', Education:'#f97316', Other:'#6b7280' };
+
+    // CSV download
+    const downloadCSV = () => {
+        setDownloading('csv');
+        const rows = [
+            ['Date','Name','Category','Type','Amount'],
+            ...monthTxns.map(t => [
+                new Date(t.created_at).toLocaleDateString(),
+                t.name,
+                t.category,
+                t.type,
+                (t.type === 'deposit' ? '+' : '-') + t.amount.toFixed(2)
+            ])
+        ];
+        const csv = rows.map(r => r.map(v => `"${v}"`).join(',')).join('\n');
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `statement_${months[selectedMonth]}_${selectedYear}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+        setTimeout(() => setDownloading(null), 1500);
+    };
+
+    // PDF download (HTML print approach)
+    const downloadPDF = () => {
+        setDownloading('pdf');
+        const printContent = `
+            <!DOCTYPE html><html><head>
+            <title>Statement - ${months[selectedMonth]} ${selectedYear}</title>
+            <style>
+                body { font-family: Arial, sans-serif; color: #1a1a2e; padding: 40px; max-width: 800px; margin: 0 auto; }
+                h1 { color: #1e3a8a; border-bottom: 2px solid #3b82f6; padding-bottom: 10px; }
+                .summary { display: flex; gap: 20px; margin: 20px 0; }
+                .sum-card { flex: 1; padding: 15px; border-radius: 8px; text-align: center; }
+                .sum-card.income { background: #dcfce7; }
+                .sum-card.expense { background: #fee2e2; }
+                .sum-card.net { background: ${net >= 0 ? '#dcfce7' : '#fee2e2'}; }
+                .sum-label { font-size: 12px; color: #666; text-transform: uppercase; }
+                .sum-val { font-size: 22px; font-weight: 700; margin-top: 4px; }
+                table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                th { background: #1e3a8a; color: white; padding: 10px; text-align: left; font-size: 13px; }
+                td { padding: 9px 10px; border-bottom: 1px solid #e5e7eb; font-size: 13px; }
+                tr:nth-child(even) { background: #f8fafc; }
+                .dep { color: #16a34a; font-weight: 600; }
+                .exp { color: #dc2626; font-weight: 600; }
+                .footer { margin-top: 30px; text-align: center; font-size: 12px; color: #999; }
+            </style></head><body>
+            <h1>📊 Financial Statement</h1>
+            <p style="color:#666">${months[selectedMonth]} ${selectedYear} &nbsp;|&nbsp; Generated ${new Date().toLocaleDateString()}</p>
+            <div class="summary">
+                <div class="sum-card income"><div class="sum-label">Total Income</div><div class="sum-val" style="color:#16a34a">+$${totalIn.toFixed(2)}</div></div>
+                <div class="sum-card expense"><div class="sum-label">Total Spent</div><div class="sum-val" style="color:#dc2626">-$${totalSpent.toFixed(2)}</div></div>
+                <div class="sum-card net"><div class="sum-label">Net</div><div class="sum-val" style="color:${net>=0?'#16a34a':'#dc2626'}">${net>=0?'+':'-'}$${Math.abs(net).toFixed(2)}</div></div>
+            </div>
+            <table>
+                <tr><th>Date</th><th>Description</th><th>Category</th><th>Amount</th></tr>
+                ${monthTxns.map(t => `<tr><td>${new Date(t.created_at).toLocaleDateString()}</td><td>${t.name}</td><td>${t.category}</td><td class="${t.type==='deposit'?'dep':'exp'}">${t.type==='deposit'?'+':'-'}$${t.amount.toFixed(2)}</td></tr>`).join('')}
+            </table>
+            <div class="footer">FinScope AI &mdash; Financial Statement &mdash; ${months[selectedMonth]} ${selectedYear}</div>
+            </body></html>`;
+        const win = window.open('', '_blank');
+        win.document.write(printContent);
+        win.document.close();
+        win.focus();
+        setTimeout(() => { win.print(); setTimeout(() => setDownloading(null), 1000); }, 500);
+    };
+
+    const hasData = monthTxns.length > 0;
+
+    return (
+        <div className="st-wrap">
+            {/* Header */}
+            <div className="st-header">
+                <div className="st-header-left">
+                    <div className="st-header-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></div>
+                    <div><h2 className="st-title">Statements</h2><p className="st-sub">View & download your monthly reports</p></div>
+                </div>
+                <div className="st-downloads">
+                    <button className="st-dl-btn st-dl-csv" onClick={downloadCSV} disabled={!hasData || downloading === 'csv'}>
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        {downloading === 'csv' ? 'Downloading…' : 'CSV'}
+                    </button>
+                    <button className="st-dl-btn st-dl-pdf" onClick={downloadPDF} disabled={!hasData || downloading === 'pdf'}>
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        {downloading === 'pdf' ? 'Opening…' : 'PDF'}
+                    </button>
+                </div>
+            </div>
+
+            {/* Month / Year Picker */}
+            <div className="st-picker">
+                <div className="st-picker-label">Select Period</div>
+                <div className="st-picker-row">
+                    <div className="st-months">
+                        {months.map((m, i) => (
+                            <button key={i} className={`st-month-btn ${selectedMonth === i ? 'active' : ''}`} onClick={() => setSelectedMonth(i)}>{m.slice(0,3)}</button>
+                        ))}
+                    </div>
+                    <div className="st-years">
+                        {years.map(y => (
+                            <button key={y} className={`st-year-btn ${selectedYear === y ? 'active' : ''}`} onClick={() => setSelectedYear(y)}>{y}</button>
+                        ))}
+                    </div>
+                </div>
+            </div>
+
+            {/* Summary Cards */}
+            <div className="st-summary-row">
+                <div className="st-sum-card st-sum-income">
+                    <span className="st-sum-icon">💰</span>
+                    <span className="st-sum-label">Income</span>
+                    <span className="st-sum-val green">+${totalIn.toFixed(2)}</span>
+                </div>
+                <div className="st-sum-card st-sum-expense">
+                    <span className="st-sum-icon">💸</span>
+                    <span className="st-sum-label">Spent</span>
+                    <span className="st-sum-val red">-${totalSpent.toFixed(2)}</span>
+                </div>
+                <div className="st-sum-card st-sum-net">
+                    <span className="st-sum-icon">{net >= 0 ? '📈' : '📉'}</span>
+                    <span className="st-sum-label">Net</span>
+                    <span className="st-sum-val" style={{ color: net >= 0 ? '#10b981' : '#ef4444' }}>{net >= 0 ? '+' : '-'}${Math.abs(net).toFixed(2)}</span>
+                </div>
+                <div className="st-sum-card">
+                    <span className="st-sum-icon">🔢</span>
+                    <span className="st-sum-label">Transactions</span>
+                    <span className="st-sum-val">{monthTxns.length}</span>
+                </div>
+            </div>
+
+            {!hasData ? (
+                <div className="st-empty">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                    <p>No transactions for {months[selectedMonth]} {selectedYear}</p>
+                    <span>Try selecting a different month</span>
+                </div>
+            ) : (<>
+                {/* Category Breakdown */}
+                {categories.length > 0 && (
+                    <div className="st-categories">
+                        <div className="st-section-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>Spending by Category</div>
+                        <div className="st-cat-list">
+                            {categories.map(([cat, amt]) => {
+                                const pct = totalSpent > 0 ? (amt / totalSpent) * 100 : 0;
+                                return (
+                                    <div key={cat} className="st-cat-row">
+                                        <div className="st-cat-info">
+                                            <span className="st-cat-dot" style={{ background: catColors[cat] || '#6b7280' }} />
+                                            <span className="st-cat-name">{cat}</span>
+                                        </div>
+                                        <div className="st-cat-bar-wrap">
+                                            <div className="st-cat-bar" style={{ width: `${pct}%`, background: catColors[cat] || '#6b7280' }} />
+                                        </div>
+                                        <div className="st-cat-right">
+                                            <span className="st-cat-pct">{pct.toFixed(0)}%</span>
+                                            <span className="st-cat-amt">${amt.toFixed(2)}</span>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+                )}
+
+                {/* Full Transaction List */}
+                <div className="st-txn-table">
+                    <div className="st-section-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" strokeWidth="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>All Transactions — {months[selectedMonth]} {selectedYear}</div>
+                    <div className="st-table-head">
+                        <span>Date</span><span>Description</span><span>Category</span><span>Amount</span>
+                    </div>
+                    <div className="st-table-body">
+                        {monthTxns.map((t, i) => (
+                            <div key={t.id || i} className="st-table-row">
+                                <span className="st-td-date">{new Date(t.created_at).toLocaleDateString('en-US', { month:'short', day:'numeric' })}</span>
+                                <span className="st-td-name">{t.name}</span>
+                                <span className="st-td-cat"><span className="st-cat-badge" style={{ background: (catColors[t.category] || '#6b7280') + '22', color: catColors[t.category] || '#6b7280' }}>{t.category}</span></span>
+                                <span className={`st-td-amt ${t.type === 'deposit' ? 'st-green' : 'st-red'}`}>{t.type === 'deposit' ? '+' : '-'}${t.amount.toFixed(2)}</span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </>)}
+        </div>
+    );
+};
+
 /* ═══════════════════════════════════════════════════════════
    MAIN DASHBOARD COMPONENT
    ═══════════════════════════════════════════════════════════ */
@@ -503,12 +721,14 @@ const Dashboard = () => {
         if (nav === 'home') setActiveTab('overview');
         if (nav === 'expenses') setActiveTab('expenses');
         if (nav === 'analytics') setActiveTab('analytics');
+        if (nav === 'statements') setActiveTab('statements');
     };
     const handleDesktopTab = (tab) => {
         setActiveTab(tab);
         if (tab === 'overview') setMobileNav('home');
         if (tab === 'expenses') setMobileNav('expenses');
         if (tab === 'analytics') setMobileNav('analytics');
+        if (tab === 'statements') setMobileNav('statements');
     };
 
     const savings = totalIncome - totalExpenses;
@@ -555,6 +775,7 @@ const Dashboard = () => {
                                     <button className="dr-ham-item" onClick={() => { handleDesktopTab('overview'); setMenuOpen(false); }}><span className="dr-ham-icon" style={{ background: 'rgba(59,130,246,0.12)', color: '#60a5fa' }}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></span><div className="dr-ham-text"><span className="dr-ham-label">Overview</span><span className="dr-ham-sub">Balance & summary</span></div></button>
                                     <button className="dr-ham-item" onClick={() => { handleDesktopTab('expenses'); setMenuOpen(false); }}><span className="dr-ham-icon" style={{ background: 'rgba(6,182,212,0.12)', color: '#06b6d4' }}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="7" width="20" height="14" rx="2" /><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" /></svg></span><div className="dr-ham-text"><span className="dr-ham-label">Expenses</span><span className="dr-ham-sub">Add & track spending</span></div></button>
                                     <button className="dr-ham-item" onClick={() => { handleDesktopTab('analytics'); setMenuOpen(false); }}><span className="dr-ham-icon" style={{ background: 'rgba(139,92,246,0.12)', color: '#8b5cf6' }}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12" /></svg></span><div className="dr-ham-text"><span className="dr-ham-label">Analytics</span><span className="dr-ham-sub">Charts & trends</span></div></button>
+                                    <button className="dr-ham-item" onClick={() => { handleDesktopTab('statements'); setMenuOpen(false); }}><span className="dr-ham-icon" style={{ background: 'rgba(6,182,212,0.12)', color: '#06b6d4' }}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg></span><div className="dr-ham-text"><span className="dr-ham-label">Statements</span><span className="dr-ham-sub">Download reports</span></div></button>
                                     <button className="dr-ham-item" onClick={() => { setShowFullChat(true); setMenuOpen(false); }}><span className="dr-ham-icon" style={{ background: 'rgba(16,185,129,0.12)', color: '#10b981' }}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span><div className="dr-ham-text"><span className="dr-ham-label">AI Chat</span><span className="dr-ham-sub">Financial assistant</span></div></button>
                                     <div className="dr-ham-divider" />
                                     <div className="dr-ham-section-label">Quick Actions</div>
@@ -601,6 +822,7 @@ const Dashboard = () => {
                         <button className={`dr-tab ${activeTab === 'overview' ? 'active' : ''}`} onClick={() => handleDesktopTab('overview')}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Overview</button>
                         <button className={`dr-tab ${activeTab === 'expenses' ? 'active' : ''}`} onClick={() => handleDesktopTab('expenses')}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="7" width="20" height="14" rx="2" /><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" /></svg>Add Expenses</button>
                         <button className={`dr-tab ${activeTab === 'analytics' ? 'active' : ''}`} onClick={() => handleDesktopTab('analytics')}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12" /></svg>Analytics</button>
+                        <button className={`dr-tab ${activeTab === 'statements' ? 'active' : ''}`} onClick={() => handleDesktopTab('statements')}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Statements</button>
                     </div>
 
                     {/* ═══ OVERVIEW TAB ═══ */}
@@ -628,6 +850,9 @@ const Dashboard = () => {
                     {/* ═══ EXPENSES TAB ═══ */}
                     {activeTab === 'expenses' && (<><BrandExpenseSection balance={balance} onAddExpense={handleAddExpense} /><CustomExpenseForm balance={balance} onAddExpense={handleAddExpense} /></>)}
 
+                    {/* ═══ STATEMENTS TAB ═══ */}
+                    {activeTab === 'statements' && <StatementsTab transactions={transactions} balance={balance} totalIncome={totalIncome} totalExpenses={totalExpenses} />}
+
                     {/* ═══ ANALYTICS TAB ═══ */}
                     {activeTab === 'analytics' && (<>
                         <div className="pm-charts-row"><SpendingTrendChart transactions={transactions} /><SpendingByCategoryChart transactions={transactions} /></div>
@@ -649,6 +874,7 @@ const Dashboard = () => {
                 <button className={`dr-bnav-item ${mobileNav === 'expenses' ? 'active' : ''}`} onClick={() => handleMobileNav('expenses')}><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="7" width="20" height="14" rx="2" /><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" /></svg><span>Expenses</span></button>
                 <button className={`dr-bnav-item dr-bnav-ai ${mobileNav === 'ai' ? 'active' : ''}`} onClick={() => handleMobileNav('ai')}><div className="dr-bnav-ai-orb"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><span>AI Chat</span></button>
                 <button className={`dr-bnav-item ${mobileNav === 'analytics' ? 'active' : ''}`} onClick={() => handleMobileNav('analytics')}><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12" /></svg><span>Analytics</span></button>
+                <button className={`dr-bnav-item ${mobileNav === 'statements' ? 'active' : ''}`} onClick={() => handleMobileNav('statements')}><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg><span>Statements</span></button>
             </nav>
 
             {/* ═══ MOBILE PANELS ═══ */}
