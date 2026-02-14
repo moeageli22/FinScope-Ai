@@ -422,11 +422,14 @@ const Dashboard = () => {
                         <button className="btn-leave desktop-only" onClick={() => navigate('/')}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg><span>Home</span></button>
                         <div className="desktop-only"><UserMenu /></div>
 
-                        {/* ═══ HAMBURGER (always visible) ═══ */}
+                        {/* ═══ HAMBURGER (desktop) / AVATAR (mobile) ═══ */}
                         <div className="dr-hamburger-wrap" ref={menuRef}>
-                            <button className={`dr-hamburger-btn ${menuOpen ? 'open' : ''}`} onClick={() => setMenuOpen(o => !o)} aria-label="Menu">
+                            <button className={`dr-hamburger-btn desktop-only ${menuOpen ? 'open' : ''}`} onClick={() => setMenuOpen(o => !o)} aria-label="Menu">
                                 {menuOpen ? <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.85)" strokeWidth="2.5" strokeLinecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
                                     : <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.85)" strokeWidth="2" strokeLinecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>}
+                            </button>
+                            <button className={`dr-avatar-btn mobile-only ${menuOpen ? 'open' : ''}`} onClick={() => setMenuOpen(o => !o)} aria-label="Menu">
+                                {getUserDisplayName().split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)}
                             </button>
                             {menuOpen && (
                                 <div className="dr-ham-dropdown">
