@@ -132,6 +132,43 @@
 .dr-hamburger-btn:hover { background: rgba(255,255,255,0.1); }
 .dr-hamburger-btn.open { background: rgba(59,130,246,0.12); border-color: rgba(59,130,246,0.3); }
 
+/* ═══ MOBILE AVATAR PILL ═══ */
+.dr-avatar-pill {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 12px 6px 6px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 100px;
+    cursor: pointer; transition: all 0.25s;
+    backdrop-filter: blur(12px);
+}
+.dr-avatar-pill:hover {
+    background: rgba(255,255,255,0.1);
+    border-color: rgba(255,255,255,0.18);
+}
+.dr-avatar-pill.open {
+    background: rgba(59,130,246,0.1);
+    border-color: rgba(59,130,246,0.35);
+}
+.dr-avatar-circle {
+    width: 34px; height: 34px; border-radius: 50%;
+    background: linear-gradient(135deg, #3b82f6, #06b6d4);
+    color: #fff; font-size: 13px; font-weight: 800;
+    letter-spacing: 0.3px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(59,130,246,0.4);
+}
+.dr-avatar-chevron {
+    color: rgba(255,255,255,0.6);
+    transition: transform 0.25s;
+    flex-shrink: 0;
+}
+.dr-avatar-pill.open .dr-avatar-chevron {
+    transform: rotate(180deg);
+    color: rgba(255,255,255,0.9);
+}
+
 .dr-ham-dropdown {
     position: absolute; top: calc(100% + 10px); right: 0;
     width: 280px; max-height: 80vh; overflow-y: auto;
@@ -172,7 +209,7 @@
    ═══════════════════════════════════════════ */
 .dr-mobile-bottom-nav {
     position: fixed; bottom: 0; left: 0; right: 0; z-index: 900;
-    align-items: stretch; justify-content: space-around;
+    display: flex !important; align-items: stretch; justify-content: space-around;
     height: 72px; padding: 0 8px;
     padding-bottom: env(safe-area-inset-bottom, 0px);
     background: linear-gradient(180deg, rgba(10,15,40,0.95), rgba(8,12,35,0.98));
@@ -307,6 +344,7 @@
     .dr-mstat-val { font-size: 14px; }
 
     .dr-ham-dropdown { width: calc(100vw - 32px); right: -8px; }
+    .dr-avatar-pill ~ .dr-ham-dropdown { right: 0; width: calc(100vw - 32px); }
 }
 
 @media (prefers-reduced-motion: reduce) {
