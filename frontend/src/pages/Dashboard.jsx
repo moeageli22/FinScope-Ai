@@ -300,6 +300,93 @@ const MobilePanel = ({ open, onClose, title, icon, children }) => {
     );
 };
 
+/* ═══ ERASE ALL DATA MODAL ═══ */
+const EraseDataModal = ({ onClose, onConfirmed }) => {
+    const [step, setStep] = useState(1); // 1 = confirm, 2 = type "delete"
+    const [typed, setTyped] = useState('');
+    const [shaking, setShaking] = useState(false);
+    const isMatch = typed.trim().toLowerCase() === 'delete';
+
+    const handleYes = () => setStep(2);
+
+    const handleDelete = () => {
+        if (!isMatch) {
+            setShaking(true);
+            setTimeout(() => setShaking(false), 500);
+            return;
+        }
+        onConfirmed();
+    };
+
+    return (
+        <div className="dr-modal-overlay" onClick={onClose}>
+            <div className={`dr-modal dr-erase-modal ${shaking ? 'shake' : ''}`} onClick={e => e.stopPropagation()}>
+                <div className="dr-modal-header">
+                    <div className="dr-modal-icon" style={{ background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.3)', color: '#ef4444' }}>
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+                    </div>
+                    <div>
+                        <h3 className="dr-modal-title">{step === 1 ? 'Erase All Data' : 'Final Confirmation'}</h3>
+                        <p className="dr-modal-sub">{step === 1 ? 'This will delete all your transactions' : 'This action cannot be undone'}</p>
+                    </div>
+                    <button className="dr-modal-close" onClick={onClose}><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+                </div>
+
+                <div className="dr-modal-body">
+                    {step === 1 ? (
+                        <div className="dr-erase-warning">
+                            <div className="dr-erase-warning-icon">⚠️</div>
+                            <p className="dr-erase-warning-text">
+                                This will permanently delete <strong>all transactions, balance history,</strong> and <strong>financial data</strong>. Your account will be reset to zero.
+                            </p>
+                            <p className="dr-erase-warning-sub">Are you sure you want to continue?</p>
+                        </div>
+                    ) : (
+                        <div className="dr-erase-confirm-step">
+                            <div className="dr-erase-confirm-msg">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                                <p>Type <strong className="dr-erase-keyword">"delete"</strong> below to confirm.</p>
+                            </div>
+                            <div className={`dr-amount-input-wrap dr-erase-input-wrap ${typed.length > 0 && !isMatch ? 'error' : ''} ${isMatch ? 'success' : ''}`}>
+                                <input
+                                    type="text"
+                                    className="dr-amount-input"
+                                    style={{ fontSize: '18px', letterSpacing: '0.05em' }}
+                                    placeholder="Type delete here..."
+                                    value={typed}
+                                    onChange={e => setTyped(e.target.value)}
+                                    onKeyDown={e => e.key === 'Enter' && handleDelete()}
+                                    autoFocus
+                                    autoComplete="off"
+                                    spellCheck={false}
+                                />
+                                {isMatch && <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>}
+                            </div>
+                            {typed.length > 0 && !isMatch && (
+                                <span className="dr-field-error">Please type exactly: delete</span>
+                            )}
+                        </div>
+                    )}
+                </div>
+
+                <div className="dr-modal-footer">
+                    <button className="dr-modal-cancel" onClick={onClose}>Cancel</button>
+                    {step === 1 ? (
+                        <button className="dr-modal-confirm dr-erase-yes-btn" onClick={handleYes}>
+                            Yes, Continue
+                        </button>
+                    ) : (
+                        <button className="dr-modal-confirm dr-erase-final-btn" disabled={!isMatch} onClick={handleDelete}>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+                            Delete Everything
+                        </button>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+};
+
 /* ═══════════════════════════════════════════════════════════
    MAIN DASHBOARD COMPONENT
    ═══════════════════════════════════════════════════════════ */
@@ -321,6 +408,7 @@ const Dashboard = () => {
     const [menuOpen, setMenuOpen] = useState(false);
     const [mobileNav, setMobileNav] = useState('home');
     const [mobilePanelOpen, setMobilePanelOpen] = useState(null);
+    const [showEraseModal, setShowEraseModal] = useState(false);
     const chartsRef = useRef(null);
     const menuRef = useRef(null);
 
@@ -377,6 +465,31 @@ const Dashboard = () => {
         try { const result = await addTransaction(user.id, { name: expense.name, amount: expense.amount, type: 'expense', category: expense.category, emoji: expense.emoji, logo: expense.logo }); setBalance(result.newBalance); setTotalExpenses(result.newExpenses); await loadFinancialData(); } catch (err) { alert('Failed to add expense.'); }
     };
 
+    const handleEraseAllData = async () => {
+        try {
+            // Delete all transactions
+            const { error: txnError } = await supabase
+                .from('user_transactions')
+                .delete()
+                .eq('user_id', user.id);
+            if (txnError) throw txnError;
+            // Reset finance profile
+            const { error: finError } = await supabase
+                .from('user_finances')
+                .update({ balance: 0, total_income: 0, total_expenses: 0, updated_at: new Date().toISOString() })
+                .eq('user_id', user.id);
+            if (finError) throw finError;
+            // Reset local state
+            setBalance(0); setTotalIncome(0); setTotalExpenses(0);
+            setTransactions([]); setMonthlySummaries([]);
+            setShowEraseModal(false);
+            setMenuOpen(false);
+        } catch (err) {
+            console.error('Erase error:', err);
+            alert('Something went wrong. Please try again.');
+        }
+    };
+
     const getUserDisplayName = () => {
         if (profile?.first_name && profile?.last_name) return `${profile.first_name} ${profile.last_name}`;
         if (profile?.username) return profile.username;
@@ -424,12 +537,10 @@ const Dashboard = () => {
 
                         {/* ═══ HAMBURGER (desktop) / AVATAR PILL (mobile) ═══ */}
                         <div className="dr-hamburger-wrap" ref={menuRef}>
-                            {/* Desktop: hamburger */}
                             <button className={`dr-hamburger-btn desktop-only ${menuOpen ? 'open' : ''}`} onClick={() => setMenuOpen(o => !o)} aria-label="Menu">
                                 {menuOpen ? <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.85)" strokeWidth="2.5" strokeLinecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
                                     : <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.85)" strokeWidth="2" strokeLinecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>}
                             </button>
-                            {/* Mobile: avatar pill */}
                             <button className={`dr-avatar-pill mobile-only ${menuOpen ? 'open' : ''}`} onClick={() => setMenuOpen(o => !o)} aria-label="Menu">
                                 <span className="dr-avatar-circle">
                                     {getUserDisplayName().split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)}
@@ -450,6 +561,9 @@ const Dashboard = () => {
                                     <button className="dr-ham-item" onClick={() => { navigate('/practice'); setMenuOpen(false); }}><span className="dr-ham-icon" style={{ background: 'rgba(245,158,11,0.12)', color: '#f59e0b' }}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" /></svg></span><div className="dr-ham-text"><span className="dr-ham-label">Practice Mode</span><span className="dr-ham-sub">Learn with virtual money</span></div></button>
                                     <button className="dr-ham-item" onClick={() => { setShowTutorial(true); setMenuOpen(false); }}><span className="dr-ham-icon" style={{ background: 'rgba(236,72,153,0.12)', color: '#ec4899' }}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" /><path d="M12 16v-4M12 8h.01" /></svg></span><div className="dr-ham-text"><span className="dr-ham-label">Tutorial</span><span className="dr-ham-sub">Learn the dashboard</span></div></button>
                                     <button className="dr-ham-item" onClick={() => { navigate('/'); setMenuOpen(false); }}><span className="dr-ham-icon" style={{ background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.6)' }}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg></span><div className="dr-ham-text"><span className="dr-ham-label">Home</span><span className="dr-ham-sub">Back to landing</span></div></button>
+                                    <div className="dr-ham-divider" />
+                                    <div className="dr-ham-section-label">Danger Zone</div>
+                                    <button className="dr-ham-item dr-ham-item--danger" onClick={() => { setShowEraseModal(true); setMenuOpen(false); }}><span className="dr-ham-icon" style={{ background: 'rgba(239,68,68,0.1)', color: '#ef4444' }}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></span><div className="dr-ham-text"><span className="dr-ham-label" style={{ color: '#ef4444' }}>Erase All Data</span><span className="dr-ham-sub">Delete all transactions & reset</span></div></button>
                                     <div className="dr-ham-divider" />
                                     <div className="dr-ham-user-section"><UserMenu /></div>
                                 </div>
@@ -547,6 +661,7 @@ const Dashboard = () => {
 
             {/* ═══ MODALS ═══ */}
             {moneyModal && <MoneyModal type={moneyModal} balance={balance} onClose={() => setMoneyModal(null)} onConfirm={moneyModal === 'deposit' ? handleDeposit : handleWithdraw} />}
+            {showEraseModal && <EraseDataModal onClose={() => setShowEraseModal(false)} onConfirmed={handleEraseAllData} />}
             {showAIAssistant && <AIAssistant onClose={() => setShowAIAssistant(false)} user={user} />}
 
             {/* ═══ FULLSCREEN AI CHAT (desktop + mobile) ═══ */}
