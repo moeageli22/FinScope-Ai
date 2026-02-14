@@ -172,7 +172,7 @@
    ═══════════════════════════════════════════ */
 .dr-mobile-bottom-nav {
     position: fixed; bottom: 0; left: 0; right: 0; z-index: 900;
-    display: flex !important; align-items: stretch; justify-content: space-around;
+    align-items: stretch; justify-content: space-around;
     height: 72px; padding: 0 8px;
     padding-bottom: env(safe-area-inset-bottom, 0px);
     background: linear-gradient(180deg, rgba(10,15,40,0.95), rgba(8,12,35,0.98));
