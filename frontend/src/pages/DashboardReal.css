@@ -125,30 +125,46 @@
 .dr-hamburger-wrap { position: relative; z-index: 1000; }
 .dr-hamburger-btn {
     width: 44px; height: 44px; border-radius: 12px;
-    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.25);
     display: flex; align-items: center; justify-content: center;
     cursor: pointer; transition: all 0.25s;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
 }
-.dr-hamburger-btn:hover { background: rgba(255,255,255,0.1); }
-.dr-hamburger-btn.open { background: rgba(59,130,246,0.12); border-color: rgba(59,130,246,0.3); }
+.dr-hamburger-btn svg { color: #fff; opacity: 1; }
+.dr-hamburger-btn:hover {
+    background: rgba(255,255,255,0.18);
+    border-color: rgba(255,255,255,0.4);
+    box-shadow: 0 4px 14px rgba(0,0,0,0.35);
+}
+.dr-hamburger-btn.open {
+    background: rgba(59,130,246,0.18);
+    border-color: rgba(59,130,246,0.5);
+    box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
+}
 
 /* ═══ MOBILE AVATAR PILL ═══ */
 .dr-avatar-pill {
-    display: flex; align-items: center; gap: 8px;
-    padding: 6px 12px 6px 6px;
+    display: flex; align-items: center; gap: 10px;
+    padding: 6px 14px 6px 6px;
     background: rgba(255,255,255,0.06);
-    border: 1px solid rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.12);
     border-radius: 100px;
     cursor: pointer; transition: all 0.25s;
     backdrop-filter: blur(12px);
+    white-space: nowrap;
 }
 .dr-avatar-pill:hover {
     background: rgba(255,255,255,0.1);
-    border-color: rgba(255,255,255,0.18);
+    border-color: rgba(255,255,255,0.22);
 }
 .dr-avatar-pill.open {
     background: rgba(59,130,246,0.1);
-    border-color: rgba(59,130,246,0.35);
+    border-color: rgba(59,130,246,0.4);
+}
+.dr-avatar-name {
+    font-size: 14px; font-weight: 600; color: #fff;
+    letter-spacing: -0.01em;
 }
 .dr-avatar-circle {
     width: 34px; height: 34px; border-radius: 50%;
@@ -160,7 +176,7 @@
     box-shadow: 0 2px 8px rgba(59,130,246,0.4);
 }
 .dr-avatar-chevron {
-    color: rgba(255,255,255,0.6);
+    color: #ffffff;
     transition: transform 0.25s;
     flex-shrink: 0;
 }
@@ -171,7 +187,7 @@
 
 .dr-ham-dropdown {
     position: absolute; top: calc(100% + 10px); right: 0;
-    width: 280px; max-height: 80vh; overflow-y: auto;
+    width: 300px; max-height: 80vh; overflow-y: auto;
     background: linear-gradient(170deg, #0c1130, #141938, #0f1729);
     border: 1px solid rgba(139,92,246,0.2);
     border-radius: 18px; padding: 8px;

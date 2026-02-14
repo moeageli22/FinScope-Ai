@@ -533,19 +533,19 @@ const Dashboard = () => {
                         <button className="btn-tutorial desktop-only" onClick={() => setShowTutorial(true)}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" /><path d="M12 16v-4M12 8h.01" /></svg><span>Tutorial</span></button>
                         <button className="pm-fab-chat desktop-only" onClick={() => setShowFullChat(true)}><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Chat with AI</button>
                         <button className="btn-leave desktop-only" onClick={() => navigate('/')}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg><span>Home</span></button>
-                        <div className="desktop-only"><UserMenu /></div>
+                        <div className="desktop-only"><UserMenu onEraseData={() => setShowEraseModal(true)} /></div>
 
                         {/* ═══ HAMBURGER (desktop) / AVATAR PILL (mobile) ═══ */}
-                        <div className="dr-hamburger-wrap" ref={menuRef}>
+                        <div className="dr-hamburger-wrap mobile-only" ref={menuRef}>
                             <button className={`dr-hamburger-btn desktop-only ${menuOpen ? 'open' : ''}`} onClick={() => setMenuOpen(o => !o)} aria-label="Menu">
-                                {menuOpen ? <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.85)" strokeWidth="2.5" strokeLinecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
-                                    : <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.85)" strokeWidth="2" strokeLinecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>}
+                                {menuOpen ? <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="2.5" strokeLinecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                                    : <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="2.2" strokeLinecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>}
                             </button>
                             <button className={`dr-avatar-pill mobile-only ${menuOpen ? 'open' : ''}`} onClick={() => setMenuOpen(o => !o)} aria-label="Menu">
                                 <span className="dr-avatar-circle">
                                     {getUserDisplayName().split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)}
                                 </span>
-                                <svg className="dr-avatar-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                <svg className="dr-avatar-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                                     <polyline points="6 9 12 15 18 9"/>
                                 </svg>
                             </button>
@@ -565,7 +565,7 @@ const Dashboard = () => {
                                     <div className="dr-ham-section-label">Danger Zone</div>
                                     <button className="dr-ham-item dr-ham-item--danger" onClick={() => { setShowEraseModal(true); setMenuOpen(false); }}><span className="dr-ham-icon" style={{ background: 'rgba(239,68,68,0.1)', color: '#ef4444' }}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></span><div className="dr-ham-text"><span className="dr-ham-label" style={{ color: '#ef4444' }}>Erase All Data</span><span className="dr-ham-sub">Delete all transactions & reset</span></div></button>
                                     <div className="dr-ham-divider" />
-                                    <div className="dr-ham-user-section"><UserMenu /></div>
+                                    <div className="dr-ham-user-section"><UserMenu onEraseData={() => { setMenuOpen(false); setShowEraseModal(true); }} /></div>
                                 </div>
                             )}
                         </div>
