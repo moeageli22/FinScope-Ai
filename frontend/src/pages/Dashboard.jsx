@@ -5,7 +5,7 @@ import UserMenu from '../components/UserMenu.jsx';
 import FinScopeAI from '../components/FinScopeAI';
 import AIAssistant from '../components/AIAssistant';
 import DashboardTutorial from '../components/DashboardTutorial';
-import { FullscreenAIChat, AIInsightsDashboard } from '../components/FullscreenAIChat';
+import { FullscreenAIChat, AIInsightsDashboard } from '../components/FullscreenAIchat.jsx';
 import {
     initUserFinance, getUserFinance, addTransaction,
     getTransactions, getMonthlySummaries, getCategorySummary, deleteTransaction
