@@ -5,7 +5,7 @@ import { LanguageProvider } from "./pages/LanguageContext";
 import Home from "./pages/Home.jsx";
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
-import ForgotPassword from "./pages/Forgotpassword.jsx";
+import ForgotPassword from "./pages/ForgotPassword.jsx";
 import EmailConfirmed from "./pages/EmailConfirmed.jsx";
 import Verify2FA from "./pages/Verify2FA";
 import Terms from './pages/Terms'
