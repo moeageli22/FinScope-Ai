@@ -3,39 +3,30 @@ import { useNavigate } from 'react-router-dom';
 import './Register.css';
 import FinScopeAI from '../components/FinScopeAI.jsx';
 import { supabase } from '../config/supabase';
+import { useToast } from '../components/Toast';
 
 const Register = () => {
     const navigate = useNavigate();
+    const { addToast } = useToast();
     const [currentStep, setCurrentStep] = useState(1);
-    const totalSteps = 4;
+    const totalSteps = 3; // Reduced from 4 to 3 steps
     const [loading, setLoading] = useState(false);
     const [registrationComplete, setRegistrationComplete] = useState(false);
 
     const [formData, setFormData] = useState({
         // Step 1: Personal Information
         firstName: '',
-        middleName: '',
         lastName: '',
         birthDay: '',
         birthMonth: '',
         birthYear: '',
-        gender: '',
-        nationality: '',
 
-        // Step 2: Contact Information
+        // Step 2: Contact & Location
         email: '',
-        phone: '',
         city: '',
         country: '',
 
-        // Step 3: Employment Information
-        employmentStatus: '',
-        employerName: '',
-        occupation: '',
-        annualIncome: '',
-
-        // Step 4: Account Setup
-        username: '',
+        // Step 3: Account Setup
         password: '',
         confirmPassword: '',
         agreeTerms: false,
@@ -91,8 +82,6 @@ const Register = () => {
             if (!formData.birthDay) newErrors.birthDay = 'Day is required';
             if (!formData.birthMonth) newErrors.birthMonth = 'Month is required';
             if (!formData.birthYear) newErrors.birthYear = 'Year is required';
-            if (!formData.gender) newErrors.gender = 'Gender is required';
-            if (!formData.nationality) newErrors.nationality = 'Nationality is required';
 
             // Age validation (must be 18+)
             if (formData.birthDay && formData.birthMonth && formData.birthYear) {
@@ -114,44 +103,22 @@ const Register = () => {
             } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
                 newErrors.email = 'Email is invalid';
             }
-
-            if (!formData.phone) {
-                newErrors.phone = 'Phone number is required';
-            } else if (!/^\+?[\d\s\-()]+$/.test(formData.phone)) {
-                newErrors.phone = 'Phone number is invalid';
-            }
-
             if (!formData.city) newErrors.city = 'City is required';
             if (!formData.country) newErrors.country = 'Country is required';
         }
 
         if (step === 3) {
-            if (!formData.employmentStatus) newErrors.employmentStatus = 'Employment status is required';
-
-            if (formData.employmentStatus === 'employed' || formData.employmentStatus === 'self-employed') {
-                if (!formData.employerName) newErrors.employerName = 'Employer name is required';
-                if (!formData.occupation) newErrors.occupation = 'Occupation is required';
-            }
-
-            if (!formData.annualIncome) newErrors.annualIncome = 'Annual income is required';
-        }
-
-        if (step === 4) {
-            if (!formData.username) {
-                newErrors.username = 'Username is required';
-            } else if (formData.username.length < 4) {
-                newErrors.username = 'Username must be at least 4 characters';
-            }
-
             if (!formData.password) {
                 newErrors.password = 'Password is required';
             } else if (formData.password.length < 8) {
                 newErrors.password = 'Password must be at least 8 characters';
-            } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])/.test(formData.password)) {
-                newErrors.password = 'Password must contain uppercase, lowercase, number, and special character';
+            } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(formData.password)) {
+                newErrors.password = 'Password must contain uppercase, lowercase, and number';
             }
 
-            if (formData.password !== formData.confirmPassword) {
+            if (!formData.confirmPassword) {
+                newErrors.confirmPassword = 'Please confirm your password';
+            } else if (formData.password !== formData.confirmPassword) {
                 newErrors.confirmPassword = 'Passwords do not match';
             }
 
@@ -166,86 +133,119 @@ const Register = () => {
     const handleNext = () => {
         if (validateStep(currentStep)) {
             setCurrentStep(currentStep + 1);
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else {
+            addToast('Please fix the errors before continuing', 'error');
         }
     };
 
     const handlePrevious = () => {
         setCurrentStep(currentStep - 1);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!validateStep(currentStep)) return;
+
+        if (!validateStep(currentStep)) {
+            addToast('Please fix the errors in the form', 'error');
+            return;
+        }
+
         setLoading(true);
+
         try {
+            console.log('=== Registration Started ===');
+            console.log('Email:', formData.email);
+
             // Combine date of birth
-            const dateOfBirth = `${formData.birthYear}-${formData.birthMonth}-${formData.birthDay}`;
-            // Step 1: Create auth user with email confirmation
+            const dateOfBirth = `${formData.birthYear}-${formData.birthMonth.padStart(2, '0')}-${formData.birthDay.toString().padStart(2, '0')}`;
+
+            // Create full name
+            const fullName = `${formData.firstName} ${formData.lastName}`.trim();
+
+            // Step 1: Sign up with Supabase Auth
             const { data: authData, error: authError } = await supabase.auth.signUp({
                 email: formData.email,
                 password: formData.password,
                 options: {
                     data: {
-                        username: formData.username,
                         first_name: formData.firstName,
-                        middle_name: formData.middleName,
                         last_name: formData.lastName,
+                        full_name: fullName,
+                        date_of_birth: dateOfBirth,
+                        city: formData.city,
+                        country: formData.country,
                     },
-                    emailRedirectTo: `${window.location.origin}/email-confirmed`,
-                    // IMPORTANT: This ensures email confirmation is required
-                    shouldCreateUser: true
+                    emailRedirectTo: `${window.location.origin}/auth/callback`
                 }
             });
+
             if (authError) {
-                console.error('Auth error:', authError);
-                if (authError.message.includes('already registered') || authError.message.includes('User already registered')) {
+                console.error('❌ Auth error:', authError);
+
+                if (authError.message.includes('already registered') ||
+                    authError.message.includes('User already registered') ||
+                    authError.message.includes('already been registered')) {
                     setErrors({ email: 'This email is already registered' });
+                    addToast('This email is already registered', 'error');
                 } else {
                     setErrors({ general: authError.message });
+                    addToast(authError.message, 'error');
                 }
                 setLoading(false);
                 return;
             }
-            console.log('Registration successful:', authData);
+
+            console.log('✅ Registration successful:', authData);
+
             // Step 2: Create user profile
             if (authData.user) {
-                // Create user profile with full name
-                const fullName = `${formData.firstName} ${formData.middleName ? formData.middleName + ' ' : ''}${formData.lastName}`.trim();
+                console.log('Creating user profile for ID:', authData.user.id);
 
                 const { error: profileError } = await supabase
                     .from('user_profiles')
                     .insert({
                         id: authData.user.id,
                         email: formData.email,
-                        full_name: fullName
+                        full_name: fullName,
+                        first_name: formData.firstName,
+                        last_name: formData.lastName,
+                        date_of_birth: dateOfBirth,
+                        city: formData.city,
+                        country: formData.country,
+                        marketing_consent: formData.agreeMarketing,
+                        created_at: new Date().toISOString()
                     });
 
                 if (profileError) {
-                    console.error('Profile error:', profileError);
-                    // Don't fail registration if profile creation fails
-                }
-                // After user is created, send verification email
-                const { error: emailError } = await supabase.functions.invoke('send-verification-email', {
-                    body: {
-                        email: formData.email,
-                        userId: authData.user.id,
-                        type: 'signup'
-                    }
-                });
-
-                if (emailError) {
-                    console.error('Failed to send verification email:', emailError);
+                    console.error('⚠️ Profile creation error:', profileError);
+                } else {
+                    console.log('✅ User profile created successfully');
                 }
 
-                // Show success message
-                setRegistrationComplete(true);
-                setLoading(false);
+                // Initialize user finances
+                try {
+                    await supabase.from('user_finances').insert({
+                        user_id: authData.user.id,
+                        balance: 0,
+                        total_income: 0,
+                        total_expenses: 0,
+                        created_at: new Date().toISOString()
+                    });
+                    console.log('✅ User finances initialized');
+                } catch (financeError) {
+                    console.error('⚠️ Finance init error:', financeError);
+                }
             }
+
+            console.log('✅ Registration complete - showing success screen');
+            setRegistrationComplete(true);
+            addToast('Registration successful! Check your email to verify your account.', 'success');
+
         } catch (error) {
-            console.error('Unexpected error:', error);
+            console.error('❌ Unexpected error:', error);
             setErrors({ general: 'An unexpected error occurred. Please try again.' });
+            addToast('An unexpected error occurred. Please try again.', 'error');
+        } finally {
             setLoading(false);
         }
     };
@@ -266,17 +266,17 @@ const Register = () => {
                                 <polyline points="22 4 12 14.01 9 11.01" />
                             </svg>
                         </div>
-                        <h2 className="success-title">Check Your Email!</h2>
+                        <h2 className="success-title">Check Your Email! 📧</h2>
                         <p className="success-message">
                             We've sent a verification email to<br />
                             <strong>{formData.email}</strong>
                         </p>
                         <p className="success-instructions">
-                            Please click the verification link in the email to activate your account.
-                            The link will expire in 24 hours.
+                            Please click the confirmation link in the email to activate your account.
+                            You won't be able to sign in until you verify your email.
                         </p>
                         <p className="success-note">
-                            Didn't receive the email? Check your spam folder or contact support.
+                            Didn't receive the email? Check your spam folder.
                         </p>
                         <button
                             className="btn-back-to-login"
@@ -309,7 +309,7 @@ const Register = () => {
                     <h1 className="register-title">
                         Create Your <span className="ai-gradient">FinScope AI</span> Account
                     </h1>
-                    <p className="register-tagline">Join thousands of users managing their finances smartly</p>
+                    <p className="register-tagline">Start your journey to smarter financial management</p>
                 </div>
 
                 {/* Error Message */}
@@ -327,7 +327,7 @@ const Register = () => {
                 {/* Progress Bar */}
                 <div className="progress-bar">
                     <div className="progress-steps">
-                        {[1, 2, 3, 4].map((step) => (
+                        {[1, 2, 3].map((step) => (
                             <div key={step} className={`progress-step ${currentStep >= step ? 'active' : ''} ${currentStep > step ? 'completed' : ''}`}>
                                 <div className="step-circle">
                                     {currentStep > step ? (
@@ -341,8 +341,7 @@ const Register = () => {
                                 <span className="step-label">
                                     {step === 1 && 'Personal'}
                                     {step === 2 && 'Contact'}
-                                    {step === 3 && 'Employment'}
-                                    {step === 4 && 'Account'}
+                                    {step === 3 && 'Security'}
                                 </span>
                             </div>
                         ))}
@@ -351,23 +350,20 @@ const Register = () => {
                         <div
                             className="progress-line-fill"
                             style={{ width: `${((currentStep - 1) / (totalSteps - 1)) * 100}%` }}
-                        ></div>
+                        />
                     </div>
                 </div>
 
-                {/* Registration Form */}
+                {/* Form */}
                 <form className="register-form" onSubmit={handleSubmit}>
-                    {/* Step 1: Personal Information */}
+                    {/* STEP 1: Personal Information */}
                     {currentStep === 1 && (
                         <div className="form-step">
                             <h2 className="step-title">Personal Information</h2>
 
                             <div className="form-row">
                                 <div className="form-group">
-                                    <label htmlFor="firstName">
-                                        First Name *
-                                        {errors.firstName && <span className="inline-error">{errors.firstName}</span>}
-                                    </label>
+                                    <label htmlFor="firstName">First Name *</label>
                                     <input
                                         type="text"
                                         id="firstName"
@@ -378,48 +374,27 @@ const Register = () => {
                                         className={errors.firstName ? 'error' : ''}
                                         disabled={loading}
                                     />
+                                    {errors.firstName && <span className="error-message">{errors.firstName}</span>}
                                 </div>
 
                                 <div className="form-group">
-                                    <label htmlFor="middleName">Middle Name (Optional)</label>
+                                    <label htmlFor="lastName">Last Name *</label>
                                     <input
                                         type="text"
-                                        id="middleName"
-                                        name="middleName"
-                                        value={formData.middleName}
+                                        id="lastName"
+                                        name="lastName"
+                                        value={formData.lastName}
                                         onChange={handleChange}
-                                        placeholder="Michael"
+                                        placeholder="Doe"
+                                        className={errors.lastName ? 'error' : ''}
                                         disabled={loading}
                                     />
+                                    {errors.lastName && <span className="error-message">{errors.lastName}</span>}
                                 </div>
                             </div>
 
                             <div className="form-group">
-                                <label htmlFor="lastName">
-                                    Last Name *
-                                    {errors.lastName && <span className="inline-error">{errors.lastName}</span>}
-                                </label>
-                                <input
-                                    type="text"
-                                    id="lastName"
-                                    name="lastName"
-                                    value={formData.lastName}
-                                    onChange={handleChange}
-                                    placeholder="Doe"
-                                    className={errors.lastName ? 'error' : ''}
-                                    disabled={loading}
-                                />
-                            </div>
-
-                            <div className="form-group">
-                                <label>
-                                    Date of Birth *
-                                    {(errors.birthDay || errors.birthMonth || errors.birthYear) && (
-                                        <span className="inline-error">
-                                            {errors.birthYear || errors.birthMonth || errors.birthDay}
-                                        </span>
-                                    )}
-                                </label>
+                                <label>Date of Birth *</label>
                                 <div className="date-picker-row">
                                     <select
                                         name="birthDay"
@@ -430,9 +405,7 @@ const Register = () => {
                                     >
                                         <option value="">Day</option>
                                         {days.map(day => (
-                                            <option key={day} value={day.toString().padStart(2, '0')}>
-                                                {day}
-                                            </option>
+                                            <option key={day} value={day}>{day}</option>
                                         ))}
                                     </select>
 
@@ -445,9 +418,7 @@ const Register = () => {
                                     >
                                         <option value="">Month</option>
                                         {months.map(month => (
-                                            <option key={month.value} value={month.value}>
-                                                {month.label}
-                                            </option>
+                                            <option key={month.value} value={month.value}>{month.label}</option>
                                         ))}
                                     </select>
 
@@ -460,250 +431,76 @@ const Register = () => {
                                     >
                                         <option value="">Year</option>
                                         {years.map(year => (
-                                            <option key={year} value={year}>
-                                                {year}
-                                            </option>
+                                            <option key={year} value={year}>{year}</option>
                                         ))}
                                     </select>
                                 </div>
-                            </div>
-
-                            <div className="form-row">
-                                <div className="form-group">
-                                    <label htmlFor="gender">
-                                        Gender *
-                                        {errors.gender && <span className="inline-error">{errors.gender}</span>}
-                                    </label>
-                                    <select
-                                        id="gender"
-                                        name="gender"
-                                        value={formData.gender}
-                                        onChange={handleChange}
-                                        className={errors.gender ? 'error' : ''}
-                                        disabled={loading}
-                                    >
-                                        <option value="">Select Gender</option>
-                                        <option value="male">Male</option>
-                                        <option value="female">Female</option>
-                                        <option value="non-binary">Non-Binary</option>
-                                        <option value="prefer-not-to-say">Prefer not to say</option>
-                                    </select>
-                                </div>
-
-                                <div className="form-group">
-                                    <label htmlFor="nationality">
-                                        Nationality *
-                                        {errors.nationality && <span className="inline-error">{errors.nationality}</span>}
-                                    </label>
-                                    <input
-                                        type="text"
-                                        id="nationality"
-                                        name="nationality"
-                                        value={formData.nationality}
-                                        onChange={handleChange}
-                                        placeholder="e.g., American, British"
-                                        className={errors.nationality ? 'error' : ''}
-                                        disabled={loading}
-                                    />
-                                </div>
+                                {errors.birthYear && <span className="error-message">{errors.birthYear}</span>}
                             </div>
                         </div>
                     )}
 
-                    {/* Step 2: Contact Information */}
+                    {/* STEP 2: Contact & Location */}
                     {currentStep === 2 && (
                         <div className="form-step">
-                            <h2 className="step-title">Contact Information</h2>
+                            <h2 className="step-title">Contact & Location</h2>
 
                             <div className="form-group">
-                                <label htmlFor="email">
-                                    Email Address *
-                                    {errors.email && <span className="inline-error">{errors.email}</span>}
-                                </label>
+                                <label htmlFor="email">Email Address *</label>
                                 <input
                                     type="email"
                                     id="email"
                                     name="email"
                                     value={formData.email}
                                     onChange={handleChange}
-                                    placeholder="john.doe@example.com"
+                                    placeholder="you@example.com"
                                     className={errors.email ? 'error' : ''}
                                     disabled={loading}
                                 />
-                            </div>
-
-                            <div className="form-group">
-                                <label htmlFor="phone">
-                                    Phone Number *
-                                    {errors.phone && <span className="inline-error">{errors.phone}</span>}
-                                </label>
-                                <input
-                                    type="tel"
-                                    id="phone"
-                                    name="phone"
-                                    value={formData.phone}
-                                    onChange={handleChange}
-                                    placeholder="+1 (555) 123-4567"
-                                    className={errors.phone ? 'error' : ''}
-                                    disabled={loading}
-                                />
+                                {errors.email && <span className="error-message">{errors.email}</span>}
                             </div>
 
                             <div className="form-row">
                                 <div className="form-group">
-                                    <label htmlFor="city">
-                                        City *
-                                        {errors.city && <span className="inline-error">{errors.city}</span>}
-                                    </label>
+                                    <label htmlFor="city">City *</label>
                                     <input
                                         type="text"
                                         id="city"
                                         name="city"
                                         value={formData.city}
                                         onChange={handleChange}
-                                        placeholder="New York"
+                                        placeholder="London"
                                         className={errors.city ? 'error' : ''}
                                         disabled={loading}
                                     />
+                                    {errors.city && <span className="error-message">{errors.city}</span>}
                                 </div>
 
                                 <div className="form-group">
-                                    <label htmlFor="country">
-                                        Country *
-                                        {errors.country && <span className="inline-error">{errors.country}</span>}
-                                    </label>
+                                    <label htmlFor="country">Country *</label>
                                     <input
                                         type="text"
                                         id="country"
                                         name="country"
                                         value={formData.country}
                                         onChange={handleChange}
-                                        placeholder="United States"
+                                        placeholder="United Kingdom"
                                         className={errors.country ? 'error' : ''}
                                         disabled={loading}
                                     />
+                                    {errors.country && <span className="error-message">{errors.country}</span>}
                                 </div>
                             </div>
                         </div>
                     )}
 
-                    {/* Step 3: Employment Information */}
+                    {/* STEP 3: Account Setup & Security */}
                     {currentStep === 3 && (
                         <div className="form-step">
-                            <h2 className="step-title">Employment Information</h2>
+                            <h2 className="step-title">Account Security</h2>
 
                             <div className="form-group">
-                                <label htmlFor="employmentStatus">
-                                    Employment Status *
-                                    {errors.employmentStatus && <span className="inline-error">{errors.employmentStatus}</span>}
-                                </label>
-                                <select
-                                    id="employmentStatus"
-                                    name="employmentStatus"
-                                    value={formData.employmentStatus}
-                                    onChange={handleChange}
-                                    className={errors.employmentStatus ? 'error' : ''}
-                                    disabled={loading}
-                                >
-                                    <option value="">Select Employment Status</option>
-                                    <option value="employed">Employed</option>
-                                    <option value="self-employed">Self-Employed</option>
-                                    <option value="unemployed">Unemployed</option>
-                                    <option value="student">Student</option>
-                                    <option value="retired">Retired</option>
-                                </select>
-                            </div>
-
-                            {(formData.employmentStatus === 'employed' || formData.employmentStatus === 'self-employed') && (
-                                <>
-                                    <div className="form-group">
-                                        <label htmlFor="employerName">
-                                            Employer Name *
-                                            {errors.employerName && <span className="inline-error">{errors.employerName}</span>}
-                                        </label>
-                                        <input
-                                            type="text"
-                                            id="employerName"
-                                            name="employerName"
-                                            value={formData.employerName}
-                                            onChange={handleChange}
-                                            placeholder="Company Name"
-                                            className={errors.employerName ? 'error' : ''}
-                                            disabled={loading}
-                                        />
-                                    </div>
-
-                                    <div className="form-group">
-                                        <label htmlFor="occupation">
-                                            Occupation *
-                                            {errors.occupation && <span className="inline-error">{errors.occupation}</span>}
-                                        </label>
-                                        <input
-                                            type="text"
-                                            id="occupation"
-                                            name="occupation"
-                                            value={formData.occupation}
-                                            onChange={handleChange}
-                                            placeholder="Software Engineer"
-                                            className={errors.occupation ? 'error' : ''}
-                                            disabled={loading}
-                                        />
-                                    </div>
-                                </>
-                            )}
-
-                            <div className="form-group">
-                                <label htmlFor="annualIncome">
-                                    Annual Income *
-                                    {errors.annualIncome && <span className="inline-error">{errors.annualIncome}</span>}
-                                </label>
-                                <select
-                                    id="annualIncome"
-                                    name="annualIncome"
-                                    value={formData.annualIncome}
-                                    onChange={handleChange}
-                                    className={errors.annualIncome ? 'error' : ''}
-                                    disabled={loading}
-                                >
-                                    <option value="">Select Income Range</option>
-                                    <option value="0-25000">$0 - $25,000</option>
-                                    <option value="25000-50000">$25,000 - $50,000</option>
-                                    <option value="50000-75000">$50,000 - $75,000</option>
-                                    <option value="75000-100000">$75,000 - $100,000</option>
-                                    <option value="100000-150000">$100,000 - $150,000</option>
-                                    <option value="150000+">$150,000+</option>
-                                </select>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Step 4: Account Setup */}
-                    {currentStep === 4 && (
-                        <div className="form-step">
-                            <h2 className="step-title">Account Setup</h2>
-
-                            <div className="form-group">
-                                <label htmlFor="username">
-                                    Username *
-                                    {errors.username && <span className="inline-error">{errors.username}</span>}
-                                </label>
-                                <input
-                                    type="text"
-                                    id="username"
-                                    name="username"
-                                    value={formData.username}
-                                    onChange={handleChange}
-                                    placeholder="Choose a unique username"
-                                    className={errors.username ? 'error' : ''}
-                                    disabled={loading}
-                                />
-                            </div>
-
-                            <div className="form-group">
-                                <label htmlFor="password">
-                                    Password *
-                                    {errors.password && <span className="inline-error">{errors.password}</span>}
-                                </label>
+                                <label htmlFor="password">Password *</label>
                                 <div className="password-input-wrapper">
                                     <input
                                         type={showPassword ? 'text' : 'password'}
@@ -734,14 +531,41 @@ const Register = () => {
                                         )}
                                     </button>
                                 </div>
-                                <small className="field-help">Must be at least 8 characters with uppercase, lowercase, number, and special character</small>
+                                {errors.password && <span className="error-message">{errors.password}</span>}
+
+                                <div className="password-requirements">
+                                    <h4>Password must contain:</h4>
+                                    <div className="requirement-list">
+                                        <div className={`requirement ${formData.password.length >= 8 ? 'met' : ''}`}>
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                <polyline points="20 6 9 17 4 12" />
+                                            </svg>
+                                            <span>At least 8 characters</span>
+                                        </div>
+                                        <div className={`requirement ${/[A-Z]/.test(formData.password) ? 'met' : ''}`}>
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                <polyline points="20 6 9 17 4 12" />
+                                            </svg>
+                                            <span>One uppercase letter</span>
+                                        </div>
+                                        <div className={`requirement ${/[a-z]/.test(formData.password) ? 'met' : ''}`}>
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                <polyline points="20 6 9 17 4 12" />
+                                            </svg>
+                                            <span>One lowercase letter</span>
+                                        </div>
+                                        <div className={`requirement ${/\d/.test(formData.password) ? 'met' : ''}`}>
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                <polyline points="20 6 9 17 4 12" />
+                                            </svg>
+                                            <span>One number</span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
                             <div className="form-group">
-                                <label htmlFor="confirmPassword">
-                                    Confirm Password *
-                                    {errors.confirmPassword && <span className="inline-error">{errors.confirmPassword}</span>}
-                                </label>
+                                <label htmlFor="confirmPassword">Confirm Password *</label>
                                 <div className="password-input-wrapper">
                                     <input
                                         type={showConfirmPassword ? 'text' : 'password'}
@@ -749,7 +573,7 @@ const Register = () => {
                                         name="confirmPassword"
                                         value={formData.confirmPassword}
                                         onChange={handleChange}
-                                        placeholder="Re-enter your password"
+                                        placeholder="Confirm your password"
                                         className={errors.confirmPassword ? 'error' : ''}
                                         disabled={loading}
                                     />
@@ -772,38 +596,35 @@ const Register = () => {
                                         )}
                                     </button>
                                 </div>
+                                {errors.confirmPassword && <span className="error-message">{errors.confirmPassword}</span>}
                             </div>
 
                             <div className="agreements-section">
-                                <div className="checkbox-group">
+                                <div className={`checkbox-group ${errors.agreeTerms ? 'error' : ''}`}>
                                     <input
                                         type="checkbox"
                                         id="agreeTerms"
                                         name="agreeTerms"
                                         checked={formData.agreeTerms}
                                         onChange={handleChange}
-                                        className={errors.agreeTerms ? 'error' : ''}
                                         disabled={loading}
                                     />
                                     <label htmlFor="agreeTerms">
-                                        I agree to the <a href="#terms" target="_blank">Terms of Service</a> *
-                                        {errors.agreeTerms && <span className="inline-error">{errors.agreeTerms}</span>}
+                                        I agree to the <a href="/terms" target="_blank" rel="noopener noreferrer">Terms of Service</a>
                                     </label>
                                 </div>
 
-                                <div className="checkbox-group">
+                                <div className={`checkbox-group ${errors.agreePrivacy ? 'error' : ''}`}>
                                     <input
                                         type="checkbox"
                                         id="agreePrivacy"
                                         name="agreePrivacy"
                                         checked={formData.agreePrivacy}
                                         onChange={handleChange}
-                                        className={errors.agreePrivacy ? 'error' : ''}
                                         disabled={loading}
                                     />
                                     <label htmlFor="agreePrivacy">
-                                        I agree to the <a href="#privacy" target="_blank">Privacy Policy</a> *
-                                        {errors.agreePrivacy && <span className="inline-error">{errors.agreePrivacy}</span>}
+                                        I agree to the <a href="/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>
                                     </label>
                                 </div>
 
@@ -817,7 +638,7 @@ const Register = () => {
                                         disabled={loading}
                                     />
                                     <label htmlFor="agreeMarketing">
-                                        I agree to receive marketing communications (Optional)
+                                        I want to receive updates and tips (Optional)
                                     </label>
                                 </div>
                             </div>
@@ -865,21 +686,22 @@ const Register = () => {
                                     </>
                                 ) : (
                                     <>
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                            <polyline points="20 6 9 17 4 12" />
-                                        </svg>
                                         Create Account
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                                            <polyline points="22 4 12 14.01 9 11.01" />
+                                        </svg>
                                     </>
                                 )}
                             </button>
                         )}
                     </div>
-                </form>
 
-                {/* Already Have Accountss */}
-                <p className="login-link">
-                    Already have an account? <button onClick={handleBackToLogin} disabled={loading}>Sign in</button>
-                </p>
+                    {/* Login Link */}
+                    <p className="login-link">
+                        Already have an account? <button type="button" onClick={handleBackToLogin} disabled={loading}>Sign in</button>
+                    </p>
+                </form>
             </div>
         </div>
     );

@@ -14,6 +14,7 @@ import Dashboard from "./pages/Dashboard.jsx";
 import Profile from "./pages/Profile.jsx";
 import Settings from "./pages/Settings.jsx";
 import PracticeMode from './pages/PracticeMode.jsx';
+import AuthCallback from './pages/AuthCallback';
 
 
 function App() {
@@ -35,6 +36,7 @@ function App() {
                             <Route path="/settings" element={<Settings />} />
                             <Route path="/terms" element={<Terms />} />
                             <Route path="/practice" element={<PracticeMode />} />
+                            <Route path="/auth/callback" element={<AuthCallback />} />
                         </Routes>
                     </div>
                 </Router>
