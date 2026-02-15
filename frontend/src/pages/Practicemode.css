@@ -791,19 +791,20 @@
     .pm-balance-stats { flex-direction: column; gap: 8px; }
     .pm-balance-icon { width: 38px; height: 38px; border-radius: 10px; }
 
-    /* ── Brand cards: 2 columns on phone ── */
-    .pm-brand-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
-    .pm-brand-section { padding: 18px 14px; border-radius: 16px; }
-    .pm-brand-card { padding: 14px 12px; gap: 10px; border-radius: 12px; }
-    .pm-brand-logo-wrap, .pm-brand-emoji-wrap { width: 38px; height: 38px; min-width: 38px; }
-    .pm-brand-emoji { font-size: 20px; }
-    .pm-brand-name { font-size: 13px; }
+    /* ═══ FIXED: Brand cards - single column on phone for better UX ═══ */
+    .pm-brand-grid { grid-template-columns: 1fr !important; gap: 12px; }
+    .pm-brand-section { padding: 20px 16px; border-radius: 16px; }
+    .pm-brand-card { padding: 16px 14px; gap: 12px; border-radius: 12px; }
+    .pm-brand-logo-wrap, .pm-brand-emoji-wrap { width: 42px; height: 42px; min-width: 42px; }
+    .pm-brand-emoji { font-size: 22px; }
+    .pm-brand-name { font-size: 14px; }
+    .pm-brand-cat { font-size: 11px; }
 
     /* ── Custom expense ── */
     .pm-custom-row { grid-template-columns: 1fr; }
     .pm-custom-footer { flex-direction: column; align-items: stretch; }
     .pm-custom-submit { width: 100%; }
-    .pm-custom-expense { padding: 18px 14px; border-radius: 16px; }
+    .pm-custom-expense { padding: 20px 16px; border-radius: 16px; }
 
     /* ── Charts: stack ── */
     .pm-charts-row { grid-template-columns: 1fr; gap: 14px; }
@@ -823,7 +824,8 @@
 }
 
 @media (max-width: 480px) {
-    .pm-brand-grid { grid-template-columns: 1fr 1fr; }
+    /* Ensure single column layout on very small phones */
+    .pm-brand-grid { grid-template-columns: 1fr !important; }
     .pm-cat-pill { padding: 6px 10px; font-size: 12px; }
     .pm-trend-stats-row { grid-template-columns: 1fr; }
     .pm-welcome-title { font-size: 22px; }

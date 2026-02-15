@@ -350,6 +350,19 @@
 
     /* Hide AI insights and transactions on mobile overview (use panels instead) */
     .dr-bottom-left, .dr-bottom-right { display: none; }
+
+    /* ═══ FIXED: Brand expense cards - single column on mobile for better UX ═══ */
+    .pm-brand-grid { grid-template-columns: 1fr !important; gap: 12px; }
+    .pm-brand-section { padding: 20px 16px; border-radius: 16px; }
+    .pm-brand-card { padding: 16px 14px; gap: 12px; border-radius: 12px; }
+    .pm-brand-logo-wrap, .pm-brand-emoji-wrap { width: 42px; height: 42px; min-width: 42px; }
+    .pm-brand-emoji { font-size: 22px; }
+    .pm-brand-name { font-size: 14px; }
+    .pm-brand-cat { font-size: 11px; }
+
+    /* Custom expense form */
+    .pm-custom-row { grid-template-columns: 1fr; }
+    .pm-custom-expense { padding: 20px 16px; border-radius: 16px; }
 }
 
 @media (max-width: 480px) {
@@ -361,6 +374,9 @@
 
     .dr-ham-dropdown { width: calc(100vw - 32px); right: -8px; }
     .dr-avatar-pill ~ .dr-ham-dropdown { right: 0; width: calc(100vw - 32px); }
+
+    /* Ensure single column layout on very small phones */
+    .pm-brand-grid { grid-template-columns: 1fr !important; }
 }
 
 @media (prefers-reduced-motion: reduce) {
