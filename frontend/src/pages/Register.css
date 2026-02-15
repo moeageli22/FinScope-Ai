@@ -1,6 +1,7 @@
 /* Register Page */
 .register-page {
     min-height: 100vh;
+    min-height: -webkit-fill-available;
     background: linear-gradient(180deg, #0a0e27 0%, #1a1535 50%, #0a0e27 100%);
     display: flex;
     align-items: center;
@@ -8,6 +9,8 @@
     padding: 60px 20px;
     position: relative;
     overflow: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 /* Animated background */
@@ -330,7 +333,7 @@
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 12px;
     color: #ffffff;
-    font-size: 15px;
+    font-size: 16px; /* Prevents iOS zoom */
     transition: all 0.3s ease;
 }
 
@@ -379,7 +382,7 @@
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 12px;
     color: #ffffff;
-    font-size: 15px;
+    font-size: 16px; /* Prevents iOS zoom */
     font-weight: 500;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -411,42 +414,12 @@
     cursor: not-allowed;
 }
 
-.date-select option {
-    background: #0f172a;
-    color: #ffffff;
-    padding: 12px;
-}
-
-.field-help {
-    font-size: 12px;
-    color: rgba(255, 255, 255, 0.5);
-    font-style: italic;
-}
-
 .error-message {
-    font-size: 11px;
-    color: #fca5a5;
-    margin-top: 6px;
-    display: block;
-    margin-left: 4px;
-}
-
-.inline-error {
-    font-size: 11px;
-    color: #fca5a5;
-    font-weight: 400;
-    margin-left: 8px;
-}
-
-/* Remove error box backgrounds */
-.checkbox-group + .error-message {
-    margin-left: 32px;
+    font-size: 13px;
+    color: #ef4444;
     margin-top: 4px;
-    font-size: 11px;
-    color: #fca5a5;
 }
 
-/* Password Input Wrapper */
 .password-input-wrapper {
     position: relative;
 }
@@ -485,20 +458,63 @@
     height: 20px;
 }
 
-/* Agreements Section */
+.password-requirements {
+    background: rgba(30, 32, 60, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-top: 12px;
+}
+
+.password-requirements h4 {
+    font-size: 13px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.8);
+    margin: 0 0 10px 0;
+}
+
+.requirement-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.requirement {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.5);
+    transition: color 0.3s ease;
+}
+
+.requirement.met {
+    color: #6ee7b7;
+}
+
+.requirement svg {
+    min-width: 16px;
+    width: 16px;
+    height: 16px;
+    transition: all 0.3s ease;
+}
+
+.requirement.met svg {
+    color: #10b981;
+}
+
 .agreements-section {
-    margin-top: 24px;
-    padding: 20px;
-    background: rgba(30, 41, 59, 0.4);
+    background: rgba(30, 32, 60, 0.5);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 12px;
+    padding: 20px;
 }
 
 .checkbox-group {
     display: flex;
     align-items: flex-start;
     gap: 12px;
-    margin-bottom: 16px;
+    margin-bottom: 14px;
 }
 
 .checkbox-group:last-child {
@@ -509,21 +525,17 @@
     width: 20px;
     height: 20px;
     min-width: 20px;
-    margin-top: 2px;
     cursor: pointer;
-    accent-color: #3b82f6;
-}
-
-.checkbox-group input[type="checkbox"]:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
+    accent-color: #06b6d4;
+    margin-top: 2px;
 }
 
 .checkbox-group label {
     font-size: 14px;
-    color: rgba(255, 255, 255, 0.8);
-    line-height: 1.6;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.7);
     cursor: pointer;
+    user-select: none;
 }
 
 .checkbox-group label a {
@@ -536,45 +548,48 @@
     color: #93c5fd;
 }
 
-/* Form Navigation */
+.checkbox-group.error label {
+    color: #ef4444;
+}
+
 .form-navigation {
     display: flex;
-    gap: 16px;
-    justify-content: flex-end;
-    margin-top: 32px;
+    gap: 12px;
+    margin-top: 8px;
 }
 
 .btn-previous,
 .btn-next,
 .btn-submit {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    padding: 14px 28px;
+    flex: 1;
+    padding: 14px 24px;
     border: none;
     border-radius: 12px;
     font-size: 16px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 44px; /* Touch-friendly */
 }
 
 .btn-previous {
-    background: rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.1);
     color: #ffffff;
     border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .btn-previous:hover:not(:disabled) {
-    background: rgba(255, 255, 255, 0.12);
-    transform: translateX(-4px);
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
 }
 
 .btn-previous:disabled {
-    opacity: 0.6;
+    opacity: 0.5;
     cursor: not-allowed;
-    transform: none !important;
 }
 
 .btn-previous svg {
@@ -609,7 +624,6 @@
     height: 18px;
 }
 
-/* Loading Spinner */
 .spinner {
     width: 18px;
     height: 18px;
@@ -623,7 +637,6 @@
     to { transform: rotate(360deg); }
 }
 
-/* Login Link */
 .login-link {
     text-align: center;
     font-size: 14px;
@@ -754,6 +767,7 @@
     transition: all 0.3s ease;
     box-shadow: 0 4px 16px rgba(6, 182, 212, 0.3);
     animation: fadeInUpDelay 0.6s ease 0.6s both;
+    min-height: 44px;
 }
 
 .btn-back-to-login:hover {
@@ -766,78 +780,382 @@
     transform: translateY(0);
 }
 
-/* Responsive Design */
-@media (max-width: 1024px) {
-    .register-page {
-        padding: 50px 20px;
-    }
-}
+/* ==================== RESPONSIVE DESIGN - MOBILE FIRST ==================== */
 
-@media (max-width: 768px) {
+/* iPhone SE / Small Mobile (320px - 375px) */
+@media (max-width: 375px) {
     .register-page {
-        padding: 40px 16px;
+        padding: 10px;
+        align-items: flex-start;
     }
 
     .register-page .back-button {
-        top: 20px;
-        left: 20px;
-        padding: 8px 16px;
-        font-size: 13px;
+        top: 8px;
+        left: 8px;
+        padding: 6px 10px;
+        font-size: 11px;
+        gap: 4px;
+    }
+
+    .register-page .back-button svg {
+        width: 14px;
+        height: 14px;
     }
 
     .register-container {
-        padding: 40px 28px;
-        border-radius: 24px;
-    }
-
-    .register-logo-wrapper {
-        width: 80px;
-        height: 80px;
-    }
-
-    .register-logo-wrapper > div {
-        transform: scale(0.2);
-    }
-
-    .register-title {
-        font-size: 24px;
-    }
-
-    .register-tagline {
-        font-size: 14px;
+        padding: 18px 12px;
+        border-radius: 18px;
+        margin-top: 40px;
     }
 
     .register-header {
-        margin-bottom: 32px;
+        margin-bottom: 18px;
     }
 
-    .progress-bar {
-        margin-bottom: 32px;
+    .register-logo-wrapper {
+        width: 50px;
+        height: 50px;
+        margin-bottom: 10px;
     }
 
-    .step-circle {
-        width: 38px;
-        height: 38px;
-        font-size: 14px;
+    .register-logo-wrapper > div {
+        transform: scale(0.125);
     }
 
-    .step-label {
+    .register-title {
+        font-size: 16px;
+        margin-bottom: 4px;
+    }
+
+    .register-tagline {
+        font-size: 10px;
+    }
+
+    .error-alert {
+        padding: 10px 12px;
+        gap: 8px;
+        margin-bottom: 14px;
+    }
+
+    .error-alert p {
         font-size: 11px;
     }
 
+    .error-alert svg {
+        min-width: 16px;
+        width: 16px;
+        height: 16px;
+    }
+
+    .progress-bar {
+        margin-bottom: 18px;
+    }
+
+    .step-circle {
+        width: 32px;
+        height: 32px;
+        font-size: 11px;
+    }
+
+    .step-circle svg {
+        width: 14px;
+        height: 14px;
+    }
+
+    .step-label {
+        font-size: 8px;
+        letter-spacing: 0.3px;
+    }
+
     .progress-line {
-        left: 30px;
-        right: 30px;
-        top: 19px;
+        left: 20px;
+        right: 20px;
+        top: 16px;
+        height: 2px;
+    }
+
+    .register-form {
+        gap: 18px;
     }
 
     .step-title {
-        font-size: 20px;
+        font-size: 15px;
+        margin-bottom: 14px;
+        padding-bottom: 8px;
     }
 
     .form-row {
         grid-template-columns: 1fr;
-        gap: 16px;
+        gap: 12px;
+    }
+
+    .form-group {
+        gap: 6px;
+    }
+
+    .form-group label {
+        font-size: 12px;
+    }
+
+    .form-group input,
+    .form-group select {
+        padding: 10px 12px;
+        font-size: 16px; /* Prevents iOS zoom */
+        border-radius: 10px;
+    }
+
+    .date-picker-row {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .date-select {
+        padding: 11px 12px;
+        font-size: 16px; /* Prevents iOS zoom */
+    }
+
+    .error-message {
+        font-size: 10px;
+    }
+
+    .password-input-wrapper input {
+        padding-right: 44px;
+    }
+
+    .toggle-password {
+        right: 10px;
+    }
+
+    .toggle-password svg {
+        width: 16px;
+        height: 16px;
+    }
+
+    .password-requirements {
+        padding: 10px 12px;
+        margin-top: 8px;
+    }
+
+    .password-requirements h4 {
+        font-size: 11px;
+        margin-bottom: 7px;
+    }
+
+    .requirement-list {
+        gap: 6px;
+    }
+
+    .requirement {
+        font-size: 10px;
+        gap: 7px;
+    }
+
+    .requirement svg {
+        min-width: 12px;
+        width: 12px;
+        height: 12px;
+    }
+
+    .agreements-section {
+        padding: 12px;
+    }
+
+    .checkbox-group {
+        gap: 8px;
+        margin-bottom: 10px;
+    }
+
+    .checkbox-group input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        min-width: 16px;
+    }
+
+    .checkbox-group label {
+        font-size: 11px;
+        line-height: 1.4;
+    }
+
+    .form-navigation {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .btn-previous,
+    .btn-next,
+    .btn-submit {
+        width: 100%;
+        padding: 11px 16px;
+        font-size: 13px;
+        min-height: 44px;
+    }
+
+    .btn-previous svg,
+    .btn-next svg,
+    .btn-submit svg {
+        width: 14px;
+        height: 14px;
+    }
+
+    .spinner {
+        width: 14px;
+        height: 14px;
+        border-width: 2px;
+    }
+
+    .login-link {
+        font-size: 11px;
+        margin-top: 14px;
+    }
+
+    .login-link button {
+        font-size: 11px;
+    }
+
+    .success-screen {
+        padding: 20px 12px;
+    }
+
+    .success-icon-large {
+        width: 60px;
+        height: 60px;
+        margin-bottom: 18px;
+    }
+
+    .success-icon-large svg {
+        width: 30px;
+        height: 30px;
+    }
+
+    .success-title {
+        font-size: 18px;
+        margin-bottom: 12px;
+    }
+
+    .success-message {
+        font-size: 12px;
+        margin-bottom: 10px;
+    }
+
+    .success-instructions {
+        font-size: 11px;
+        margin-bottom: 8px;
+    }
+
+    .success-note {
+        font-size: 10px;
+        margin-bottom: 20px;
+    }
+
+    .btn-back-to-login {
+        width: 100%;
+        padding: 11px 20px;
+        font-size: 13px;
+    }
+}
+
+/* Standard Mobile (376px - 480px) */
+@media (min-width: 376px) and (max-width: 480px) {
+    .register-page {
+        padding: 12px;
+        align-items: flex-start;
+    }
+
+    .register-page .back-button {
+        top: 10px;
+        left: 10px;
+        padding: 7px 12px;
+        font-size: 12px;
+    }
+
+    .register-page .back-button svg {
+        width: 15px;
+        height: 15px;
+    }
+
+    .register-container {
+        padding: 22px 16px;
+        border-radius: 20px;
+        margin-top: 44px;
+    }
+
+    .register-header {
+        margin-bottom: 22px;
+    }
+
+    .register-logo-wrapper {
+        width: 60px;
+        height: 60px;
+        margin-bottom: 12px;
+    }
+
+    .register-logo-wrapper > div {
+        transform: scale(0.15);
+    }
+
+    .register-title {
+        font-size: 18px;
+    }
+
+    .register-tagline {
+        font-size: 11px;
+    }
+
+    .error-alert {
+        padding: 12px 14px;
+    }
+
+    .error-alert p {
+        font-size: 12px;
+    }
+
+    .progress-bar {
+        margin-bottom: 22px;
+    }
+
+    .step-circle {
+        width: 36px;
+        height: 36px;
+        font-size: 12px;
+    }
+
+    .step-circle svg {
+        width: 16px;
+        height: 16px;
+    }
+
+    .step-label {
+        font-size: 9px;
+    }
+
+    .progress-line {
+        left: 22px;
+        right: 22px;
+        top: 18px;
+    }
+
+    .register-form {
+        gap: 22px;
+    }
+
+    .step-title {
+        font-size: 17px;
+        margin-bottom: 16px;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+
+    .form-group label {
+        font-size: 13px;
+    }
+
+    .form-group input,
+    .form-group select {
+        padding: 11px 13px;
+        font-size: 16px; /* Prevents iOS zoom */
     }
 
     .date-picker-row {
@@ -845,118 +1163,31 @@
         gap: 12px;
     }
 
-    .date-select {
-        width: 100%;
+    .password-requirements h4 {
+        font-size: 12px;
     }
 
-    .form-group input,
-    .form-group select {
-        padding: 12px 14px;
-        font-size: 14px;
-    }
-
-    .btn-previous,
-    .btn-next,
-    .btn-submit {
-        padding: 12px 24px;
-        font-size: 15px;
-    }
-
-    .form-navigation {
-        flex-direction: column;
-    }
-
-    .btn-previous,
-    .btn-next,
-    .btn-submit {
-        width: 100%;
-        justify-content: center;
-    }
-
-    .agreements-section {
-        padding: 16px;
-    }
-
-    .checkbox-group {
-        gap: 10px;
-    }
-
-    .checkbox-group input[type="checkbox"] {
-        width: 18px;
-        height: 18px;
-        min-width: 18px;
+    .requirement {
+        font-size: 11px;
     }
 
     .checkbox-group label {
-        font-size: 13px;
+        font-size: 12px;
     }
 
-    .success-icon-large {
-        width: 80px;
-        height: 80px;
-    }
-
-    .success-icon-large svg {
-        width: 40px;
-        height: 40px;
-    }
-
-    .success-title {
-        font-size: 28px;
-    }
-
-    .success-message {
-        font-size: 16px;
-    }
-
-    .success-instructions {
+    .btn-previous,
+    .btn-next,
+    .btn-submit {
+        padding: 12px 18px;
         font-size: 14px;
     }
 
-    .btn-back-to-login {
-        padding: 14px 32px;
-        font-size: 15px;
-    }
-}
-
-@media (max-width: 480px) {
-    .register-container {
-        padding: 32px 20px;
+    .login-link {
+        font-size: 12px;
     }
 
-    .register-logo-wrapper {
-        width: 70px;
-        height: 70px;
-        margin-bottom: 16px;
-    }
-
-    .register-logo-wrapper > div {
-        transform: scale(0.18);
-    }
-
-    .register-title {
-        font-size: 20px;
-    }
-
-    .step-circle {
-        width: 34px;
-        height: 34px;
-        font-size: 13px;
-    }
-
-    .step-label {
-        font-size: 10px;
-    }
-
-    .progress-line {
-        left: 25px;
-        right: 25px;
-        top: 17px;
-    }
-
-    .step-title {
-        font-size: 18px;
-        margin-bottom: 20px;
+    .login-link button {
+        font-size: 12px;
     }
 
     .success-icon-large {
@@ -970,16 +1201,205 @@
     }
 
     .success-title {
-        font-size: 24px;
+        font-size: 20px;
     }
 
     .success-message {
-        font-size: 15px;
+        font-size: 13px;
+    }
+
+    .success-instructions {
+        font-size: 12px;
     }
 
     .btn-back-to-login {
-        width: 100%;
         padding: 12px 24px;
         font-size: 14px;
     }
+}
+
+/* Large Mobile (481px - 767px) */
+@media (min-width: 481px) and (max-width: 767px) {
+    .register-page {
+        padding: 16px;
+    }
+
+    .register-page .back-button {
+        top: 14px;
+        left: 14px;
+    }
+
+    .register-container {
+        padding: 28px 20px;
+        border-radius: 22px;
+    }
+
+    .register-logo-wrapper {
+        width: 70px;
+        height: 70px;
+    }
+
+    .register-logo-wrapper > div {
+        transform: scale(0.175);
+    }
+
+    .register-title {
+        font-size: 20px;
+    }
+
+    .register-tagline {
+        font-size: 12px;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .date-picker-row {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Tablet (768px - 1023px) */
+@media (min-width: 768px) and (max-width: 1023px) {
+    .register-page {
+        padding: 30px 20px;
+    }
+
+    .register-page .back-button {
+        top: 20px;
+        left: 20px;
+    }
+
+    .register-container {
+        padding: 35px 28px;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .date-picker-row {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* iPhone Notch Support (Safe Area Insets) */
+@supports (padding: max(0px)) {
+    .register-page {
+        padding-top: max(10px, env(safe-area-inset-top));
+        padding-left: max(10px, env(safe-area-inset-left));
+        padding-right: max(10px, env(safe-area-inset-right));
+        padding-bottom: max(10px, env(safe-area-inset-bottom));
+    }
+
+    .register-page .back-button {
+        top: max(8px, env(safe-area-inset-top, 8px));
+        left: max(8px, env(safe-area-inset-left, 8px));
+    }
+}
+
+/* Landscape Mode on Small Screens */
+@media (max-height: 500px) and (orientation: landscape) {
+    .register-page {
+        padding: 8px;
+        align-items: flex-start;
+    }
+
+    .register-page .back-button {
+        top: 6px;
+        left: 6px;
+        padding: 5px 8px;
+        font-size: 10px;
+    }
+
+    .register-container {
+        padding: 14px 16px;
+        margin-top: 36px;
+        max-height: calc(100vh - 50px);
+        overflow-y: auto;
+    }
+
+    .register-header {
+        margin-bottom: 12px;
+    }
+
+    .register-logo-wrapper {
+        width: 40px;
+        height: 40px;
+        margin-bottom: 8px;
+    }
+
+    .register-logo-wrapper > div {
+        transform: scale(0.1);
+    }
+
+    .register-title {
+        font-size: 14px;
+        margin-bottom: 3px;
+    }
+
+    .register-tagline {
+        font-size: 9px;
+    }
+
+    .progress-bar {
+        margin-bottom: 12px;
+    }
+
+    .step-circle {
+        width: 28px;
+        height: 28px;
+        font-size: 10px;
+    }
+
+    .step-label {
+        font-size: 7px;
+    }
+
+    .progress-line {
+        top: 14px;
+    }
+
+    .register-form {
+        gap: 12px;
+    }
+
+    .step-title {
+        font-size: 13px;
+        margin-bottom: 10px;
+        padding-bottom: 6px;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+    .form-group input,
+    .form-group select {
+        padding: 8px 10px;
+        font-size: 13px;
+    }
+
+    .btn-previous,
+    .btn-next,
+    .btn-submit {
+        padding: 8px 12px;
+        font-size: 12px;
+    }
+}
+
+/* Prevent iOS bounce scroll */
+html {
+    overscroll-behavior-y: none;
+}
+
+body {
+    overflow-x: hidden;
+    -webkit-tap-highlight-color: transparent;
+}
+
+* {
+    -webkit-tap-highlight-color: transparent;
 }
