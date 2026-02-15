@@ -26,7 +26,7 @@ const ForgotPassword = () => {
         // Here you would typically make an API call to send reset email
         console.log('Password reset requested for:', email);
 
-        // Show success message
+        // Show success messagee
         setStep(2);
     };
 
