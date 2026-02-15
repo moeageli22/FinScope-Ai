@@ -4,7 +4,7 @@ import { supabase } from '../config/supabase';
 import { useLanguage } from '../pages/LanguageContext';
 import UserMenu from '../components/UserMenu.jsx';
 import FinScopeAI from '../components/FinScopeAI';
-import AnimatedWallpaper from '../components/AnimatedWallpaper';
+import AnimatedWallpaper from '../components/AnimatedWallpaper.jsx';
 import './Profile.css';
 
 const Profile = () => {
