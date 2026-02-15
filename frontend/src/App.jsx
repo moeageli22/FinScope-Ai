@@ -9,11 +9,11 @@ import ForgotPassword from "./pages/Forgotpassword.jsx";
 import EmailConfirmed from "./pages/EmailConfirmed.jsx";
 import Verify2FA from "./pages/Verify2FA";
 import Terms from './pages/Terms'
-import VerifyEmail from "./pages/VerifyEmail";
+import VerifyEmail from "./pages/EmailVerified.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import Profile from "./pages/Profile.jsx";
 import Settings from "./pages/Settings.jsx";
-import PracticeMode from './pages/PracticeMode';
+import PracticeMode from './pages/PracticeMode.jsx';
 
 
 function App() {
