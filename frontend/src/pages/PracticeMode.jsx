@@ -7,7 +7,7 @@ import { sendMessage, generateSessionAnalysis } from '../services/claudeAI';
 import { FullscreenAIChat, AIInsightsDashboard } from '../components/FullscreenAIchat.jsx';
 import './Dashboard-Enhanced.css';
 import './PracticeMode.css';
-import '../components/FullscreenAIchat.css';
+import '../components/Fullscreenaichat.css';
 
 // Import brand logos
 import spotifyLogo from '../assets/logos/spotify.png';
