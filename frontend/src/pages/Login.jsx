@@ -33,8 +33,8 @@ const Login = () => {
         const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
             console.log('Auth event:', event);
 
-            if (event === 'SIGNED_OUT') {
-                // Clear any messages
+            if (event === 'SIGNED_IN') {
+                navigate('/dashboard');
             }
         });
 
@@ -99,10 +99,10 @@ const Login = () => {
         setLoading(true);
 
         try {
-            console.log('=== Login Flow Started (WITH 2FA) ===');
+            console.log('=== Login Flow Started (NO 2FA) ===');
             console.log('Attempting to sign in with email:', formData.email);
 
-            // Step 1: Verify credentials by signing in
+            // Sign in directly without 2FA
             const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
                 email: formData.email,
                 password: formData.password,
@@ -134,7 +134,7 @@ const Login = () => {
                 return;
             }
 
-            console.log('✅ Credentials verified successfully');
+            console.log('✅ Sign in successful');
             console.log('User ID:', signInData.user.id);
             console.log('Email confirmed:', signInData.user.email_confirmed_at);
 
@@ -146,88 +146,23 @@ const Login = () => {
                 return;
             }
 
-            // Step 2: Sign out immediately (we'll re-authenticate after 2FA)
-            await supabase.auth.signOut();
-            console.log('✅ Signed out (temporary for 2FA flow)');
-
-            // Step 3: Clean up any existing unused 2FA codes for this user
-            console.log('Cleaning up old 2FA codes...');
-            const { error: cleanupError } = await supabase
-                .from('two_factor_codes')
-                .delete()
-                .eq('user_id', signInData.user.id)
-                .eq('verified', false); // FIXED: Changed from 'used' to 'verified'
-
-            if (cleanupError) {
-                console.warn('Failed to cleanup old codes:', cleanupError);
-                // Don't fail the login, just log the warning
-            } else {
-                console.log('✅ Cleaned up old 2FA codes');
-            }
-
-            // Step 4: Get IP address for security logging
-            const ipAddress = await getIPAddress();
-            console.log('IP Address:', ipAddress);
-
-            // Step 5: Prepare 2FA request
-            const requestBody = {
-                email: formData.email,
-                userId: signInData.user.id,
-                ipAddress: ipAddress,
-                userAgent: navigator.userAgent
-            };
-
-            console.log('Sending 2FA request...');
-
-            // Step 6: Invoke 2FA function
-            const { data: functionData, error: functionError } = await supabase.functions.invoke('send-2fa-code', {
-                body: requestBody
-            });
-
-            console.log('2FA Function Response:', functionData);
-
-            if (functionError) {
-                console.error('❌ 2FA Function Error:', functionError);
-                console.error('Error details:', JSON.stringify(functionError, null, 2));
-
-                addToast('Failed to send verification code. Please try again.', 'error');
-                setLoading(false);
-                return;
-            }
-
-            // Check if function returned success
-            if (functionData && !functionData.success) {
-                console.error('❌ Function returned unsuccessful:', functionData);
-                addToast(functionData.error || 'Failed to send verification code', 'error');
-                setLoading(false);
-                return;
-            }
-
-            console.log('✅ 2FA code sent successfully');
-
-            // Show success message
-            addToast('Verification code sent to your email', 'success');
-
-            // Show warning if email wasn't sent (no API key configured)
-            if (functionData?.warning) {
-                console.warn('⚠️', functionData.warning);
-                addToast('Email service not configured - Check console for code', 'warning', 10000);
-                // For testing: show the code
-                if (functionData.code) {
-                    console.log('🔑 TEST CODE:', functionData.code);
-                }
-            }
-
-            console.log('✅ Navigating to 2FA verification page');
-
-            // Step 7: Navigate to 2FA verification page
-            navigate('/verify-2fa', {
-                state: {
+            // Log successful login
+            try {
+                await supabase.from('login_attempts').insert({
                     email: formData.email,
-                    userId: signInData.user.id,
-                    password: formData.password
-                }
-            });
+                    success: true,
+                    ip_address: await getIPAddress(),
+                });
+            } catch (logError) {
+                console.error('Failed to log attempt:', logError);
+            }
+
+            console.log('✅ Redirecting to dashboard');
+            addToast('Welcome back!', 'success');
+
+            // Navigate to dashboard (useEffect will handle this via auth state change)
+            // But we can also navigate directly for faster UX
+            navigate('/dashboard');
 
         } catch (error) {
             console.error('❌ Unexpected error in login flow:', error);
