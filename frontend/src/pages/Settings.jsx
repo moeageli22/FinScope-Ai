@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../config/supabase';
 import { useLanguage } from '../pages/LanguageContext';
-import UserMenu from '../components/UserMenu';
+import UserMenu from '../components/UserMenu.jsx';
 import './Settings.css';
 
 const Settings = () => {

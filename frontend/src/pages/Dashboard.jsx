@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../config/supabase';
-import UserMenu from '../components/UserMenu';
+import UserMenu from '../components/UserMenu.jsx';
 import FinScopeAI from '../components/FinScopeAI';
 import AIAssistant from '../components/AIAssistant';
 import DashboardTutorial from '../components/DashboardTutorial';

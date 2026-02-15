@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../config/supabase';
 import FinScopeAI from '../components/FinScopeAI';
-import UserMenu from '../components/UserMenu';
+import UserMenu from '../components/UserMenu.jsx';
 import { sendMessage, generateSessionAnalysis } from '../services/claudeAI';
 import { FullscreenAIChat, AIInsightsDashboard } from '../components/FullscreenAIChat';
 import './Dashboard-Enhanced.css';

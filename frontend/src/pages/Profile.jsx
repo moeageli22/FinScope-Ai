@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../config/supabase';
 import { useLanguage } from '../pages/LanguageContext';
-import UserMenu from '../components/UserMenu';
+import UserMenu from '../components/UserMenu.jsx';
 import FinScopeAI from '../components/FinScopeAI';
 import AnimatedWallpaper from '../components/AnimatedWallpaper';
 import './Profile.css';
