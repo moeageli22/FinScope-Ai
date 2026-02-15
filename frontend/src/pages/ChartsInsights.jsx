@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import './ChartsInsights.css';
+import './Chartsinsights.css';
 
 const ChartsInsights = () => {
     const [isVisible, setIsVisible] = useState(false);
