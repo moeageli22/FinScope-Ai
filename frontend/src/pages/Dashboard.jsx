@@ -555,6 +555,15 @@ const StatementsTab = ({ transactions, balance, totalIncome, totalExpenses }) =>
                 </div>
             </div>
 
+            {/* Info Banner */}
+            <div className="st-info-banner">
+                <div className="st-info-icon">💡</div>
+                <div className="st-info-text">
+                    <span className="st-info-title">Download Your Statement</span>
+                    <span className="st-info-desc">Export as CSV for spreadsheets or PDF for printing. Works on all devices!</span>
+                </div>
+            </div>
+
             {/* Month / Year Picker */}
             <div className="st-picker">
                 <div className="st-picker-label">Select Period</div>

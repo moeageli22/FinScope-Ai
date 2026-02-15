@@ -507,6 +507,27 @@
 }
 .st-dl-pdf:hover:not(:disabled) { background: rgba(59,130,246,0.18); transform: translateY(-1px); }
 
+/* Info Banner */
+.st-info-banner {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 18px; margin-bottom: 20px;
+    background: linear-gradient(135deg, rgba(6,182,212,0.08), rgba(139,92,246,0.06));
+    border: 1px solid rgba(6,182,212,0.2);
+    border-radius: 14px;
+}
+.st-info-icon {
+    font-size: 24px; line-height: 1; flex-shrink: 0;
+}
+.st-info-text {
+    display: flex; flex-direction: column; gap: 3px;
+}
+.st-info-title {
+    font-size: 13px; font-weight: 700; color: #fff;
+}
+.st-info-desc {
+    font-size: 12px; color: rgba(255,255,255,0.5); line-height: 1.4;
+}
+
 /* Period Picker */
 .st-picker {
     background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.07);
@@ -631,6 +652,10 @@
     .st-header { flex-direction: column; align-items: flex-start; }
     .st-downloads { width: 100%; }
     .st-dl-btn { flex: 1; justify-content: center; }
+    .st-info-banner { padding: 12px 16px; }
+    .st-info-icon { font-size: 20px; }
+    .st-info-title { font-size: 12px; }
+    .st-info-desc { font-size: 11px; }
 }
 @media (max-width: 480px) {
     .st-summary-row { grid-template-columns: 1fr 1fr; gap: 10px; }
