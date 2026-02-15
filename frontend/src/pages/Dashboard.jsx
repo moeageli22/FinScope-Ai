@@ -489,48 +489,38 @@ const StatementsTab = ({ transactions, balance, totalIncome, totalExpenses }) =>
         setTimeout(() => setDownloading(null), 1500);
     };
 
-    // PDF download (HTML print approach)
+    // PDF download (Choice Bank Style Statement)
     const downloadPDF = () => {
         setDownloading('pdf');
-        const printContent = `
-            <!DOCTYPE html><html><head>
-            <title>Statement - ${months[selectedMonth]} ${selectedYear}</title>
-            <style>
-                body { font-family: Arial, sans-serif; color: #1a1a2e; padding: 40px; max-width: 800px; margin: 0 auto; }
-                h1 { color: #1e3a8a; border-bottom: 2px solid #3b82f6; padding-bottom: 10px; }
-                .summary { display: flex; gap: 20px; margin: 20px 0; }
-                .sum-card { flex: 1; padding: 15px; border-radius: 8px; text-align: center; }
-                .sum-card.income { background: #dcfce7; }
-                .sum-card.expense { background: #fee2e2; }
-                .sum-card.net { background: ${net >= 0 ? '#dcfce7' : '#fee2e2'}; }
-                .sum-label { font-size: 12px; color: #666; text-transform: uppercase; }
-                .sum-val { font-size: 22px; font-weight: 700; margin-top: 4px; }
-                table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-                th { background: #1e3a8a; color: white; padding: 10px; text-align: left; font-size: 13px; }
-                td { padding: 9px 10px; border-bottom: 1px solid #e5e7eb; font-size: 13px; }
-                tr:nth-child(even) { background: #f8fafc; }
-                .dep { color: #16a34a; font-weight: 600; }
-                .exp { color: #dc2626; font-weight: 600; }
-                .footer { margin-top: 30px; text-align: center; font-size: 12px; color: #999; }
-            </style></head><body>
-            <h1>📊 Financial Statement</h1>
-            <p style="color:#666">${months[selectedMonth]} ${selectedYear} &nbsp;|&nbsp; Generated ${new Date().toLocaleDateString()}</p>
-            <div class="summary">
-                <div class="sum-card income"><div class="sum-label">Total Income</div><div class="sum-val" style="color:#16a34a">+$${totalIn.toFixed(2)}</div></div>
-                <div class="sum-card expense"><div class="sum-label">Total Spent</div><div class="sum-val" style="color:#dc2626">-$${totalSpent.toFixed(2)}</div></div>
-                <div class="sum-card net"><div class="sum-label">Net</div><div class="sum-val" style="color:${net>=0?'#16a34a':'#dc2626'}">${net>=0?'+':'-'}$${Math.abs(net).toFixed(2)}</div></div>
-            </div>
-            <table>
-                <tr><th>Date</th><th>Description</th><th>Category</th><th>Amount</th></tr>
-                ${monthTxns.map(t => `<tr><td>${new Date(t.created_at).toLocaleDateString()}</td><td>${t.name}</td><td>${t.category}</td><td class="${t.type==='deposit'?'dep':'exp'}">${t.type==='deposit'?'+':'-'}$${t.amount.toFixed(2)}</td></tr>`).join('')}
-            </table>
-            <div class="footer">FinScope AI &mdash; Financial Statement &mdash; ${months[selectedMonth]} ${selectedYear}</div>
-            </body></html>`;
-        const win = window.open('', '_blank');
-        win.document.write(printContent);
-        win.document.close();
-        win.focus();
-        setTimeout(() => { win.print(); setTimeout(() => setDownloading(null), 1000); }, 500);
+        const logo = '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';
+
+        // Calculate opening balance for the month (balance at start of selected month)
+        const monthStart = new Date(selectedYear, selectedMonth, 1);
+        const prevTxns = transactions.filter(t => new Date(t.created_at) < monthStart);
+        let openingBal = 0;
+        prevTxns.forEach(t => {
+            if(t.type==='deposit') openingBal += t.amount;
+            else openingBal -= t.amount;
+        });
+
+        // Build transaction rows with running balance
+        let rb = openingBal;
+        const rows = monthTxns.map(t => {
+            const w = t.type==='expense'?t.amount.toFixed(2):'';
+            const d = t.type==='deposit'?t.amount.toFixed(2):'';
+            if(t.type==='deposit') rb += t.amount;
+            else rb -= t.amount;
+            const dt = new Date(t.created_at);
+            return '<tr><td>'+months[dt.getMonth()].substring(0,3)+' '+ dt.getDate()+'</td><td>'+t.name+'</td><td class="amt">'+w+'</td><td class="amt">'+d+'</td><td class="amt">'+rb.toFixed(2)+'</td></tr>';
+        }).join('');
+
+        const html='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>FinScope AI Statement</title><style>@page{margin:0.5in}*{margin:0;padding:0;box-sizing:border-box}body{font-family:Arial,sans-serif;font-size:10px;color:#000;padding:40px;line-height:1.3}.hdr{display:flex;justify-content:space-between;margin-bottom:25px}.logo-area{display:flex;gap:12px}.logo{width:50px;height:50px}.co h1{font-size:14px;font-weight:700;margin-bottom:5px}.co p{font-size:8px;margin:1px 0}.acct{text-align:right;font-size:9px}.acct .num{font-size:10px;font-weight:700;margin-top:4px}.svc{background:#f5f5f5;border:1px solid #000;padding:10px;margin:15px 0}.svc h3{font-size:9px;font-weight:700;text-transform:uppercase;border-bottom:1px solid #000;margin-bottom:6px;padding-bottom:3px}.svc-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px 10px;font-size:8px}.svc-item{display:flex;justify-content:space-between}.div{border-top:2px solid #000;margin:15px 0}.sum h2{font-size:11px;font-weight:700;margin-bottom:10px}.sum-grid{display:grid;grid-template-columns:180px 1fr;gap:6px 20px;font-size:9px}.sum-grid div:nth-child(even){text-align:right}.close{margin-top:10px;padding-top:8px;border-top:2px solid #000;font-weight:700}.txn{margin-top:20px}.txn h2{font-size:11px;font-weight:700;margin-bottom:12px}table{width:100%;border-collapse:collapse;font-size:9px}thead{border-top:2px solid #000;border-bottom:2px solid #000}th{padding:6px 4px;text-align:left;font-weight:700}td{padding:5px 4px;border-bottom:1px solid #ddd}.amt{text-align:right;font-family:"Courier New",monospace}.tot{border-top:2px solid #000;font-weight:700}.tot td{padding-top:8px}@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style></head><body><div class="hdr"><div class="logo-area"><img src="data:image/png;base64,'+logo+'" class="logo"><div class="co"><h1>FinScope AI</h1><p>Smart Financial Management</p><p>P.O. Box 000000</p><p>Virtual Banking, WA 00000-0000</p></div></div><div class="acct"><p>'+new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})+'</p><p>Primary Account <span class="num">Practice Mode</span></p></div></div><div class="svc"><h3>CUSTOMER SERVICE INFORMATION</h3><div class="svc-grid"><div class="svc-item"><span>Website:</span><span>www.finscope-ai.com</span></div><div class="svc-item"><span>Service Number:</span><span>1-800-FINSCOPE</span></div><div class="svc-item"><span>Practice Mode:</span><span>Educational Use Only</span></div><div class="svc-item"><span>Contact:</span><span>Available 24/7</span></div></div></div><div class="div"></div><div class="sum"><h2>Account Summary</h2><div class="sum-grid"><div>Opening Balance</div><div>$'+openingBal.toFixed(2)+'</div><div>Withdrawals</div><div>$'+totalSpent.toFixed(2)+'</div><div>Deposits</div><div>$'+totalIn.toFixed(2)+'</div></div><div class="close"><div class="sum-grid"><div>Closing Balance on '+months[selectedMonth]+' '+new Date(selectedYear,selectedMonth+1,0).getDate()+', '+selectedYear+'</div><div>$'+rb.toFixed(2)+'</div></div></div></div><div class="div"></div><div class="txn"><h2>Your Transaction Details</h2><table><thead><tr><th style="width:60px">Date</th><th>Details</th><th style="width:80px;text-align:right">Withdrawals</th><th style="width:80px;text-align:right">Deposits</th><th style="width:80px;text-align:right">Balance</th></tr></thead><tbody>'+rows+(rows?'<tr class="tot"><td colspan="2">Closing Balance</td><td class="amt"></td><td class="amt"></td><td class="amt">$'+rb.toFixed(2)+'</td></tr>':'<tr><td colspan="5" style="text-align:center;padding:20px">No transactions</td></tr>')+'</tbody></table></div></body></html>';
+
+        const w=window.open('','_blank');
+        w.document.write(html);
+        w.document.close();
+        w.focus();
+        setTimeout(()=>{w.print();setTimeout(()=>setDownloading(null),1000)},500);
     };
 
     const hasData = monthTxns.length > 0;
@@ -552,15 +542,6 @@ const StatementsTab = ({ transactions, balance, totalIncome, totalExpenses }) =>
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                         {downloading === 'pdf' ? 'Opening…' : 'PDF'}
                     </button>
-                </div>
-            </div>
-
-            {/* Info Banner */}
-            <div className="st-info-banner">
-                <div className="st-info-icon">💡</div>
-                <div className="st-info-text">
-                    <span className="st-info-title">Download Your Statement</span>
-                    <span className="st-info-desc">Export as CSV for spreadsheets or PDF for printing. Works on all devices!</span>
                 </div>
             </div>
 
