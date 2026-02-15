@@ -5,7 +5,7 @@ import FinScopeAI from '../components/FinScopeAI.jsx';
 import AIChatDemo from './AIChatDemo.jsx';
 import AboutSection from './AboutSection.jsx';
 import DashboardPreview from './DashboardPreview.jsx';
-import ChartsInsights from './ChartsInsights.jsx';
+import ChartsInsights from "./ChartsInsights.jsx";
 import ContactSection from './ContactSection.jsx';
 import Footer from './Footer.jsx';
 import CookieBanner from './CookieBanner.jsx';
