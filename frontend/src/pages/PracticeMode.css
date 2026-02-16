@@ -1,3 +1,30 @@
+/* ═══════════════════════════════════════════
+   MOBILE SCROLL & TOUCH FIXES - CRITICAL
+   ═══════════════════════════════════════════ */
+
+/* CRITICAL: Allow page scrolling on mobile */
+@media (max-width: 768px) {
+    html, body {
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+        height: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        touch-action: pan-y !important;
+    }
+
+    .dashboard {
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        touch-action: pan-y !important;
+    }
+
+    .dashboard-main {
+        overflow: visible !important;
+        touch-action: pan-y !important;
+    }
+}
+
 /* ═══ PRACTICE MODE CTA BANNER ═══ */
 .practice-cta-banner { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 24px 28px; background: linear-gradient(135deg, rgba(15,23,42,0.8), rgba(30,35,70,0.6)); border: 1px solid rgba(6,182,212,0.2); border-radius: 20px; cursor: pointer; transition: all 0.35s; position: relative; overflow: hidden; }
 .practice-cta-banner::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(6,182,212,0.06), rgba(139,92,246,0.06)); opacity: 0; transition: opacity 0.3s; }
@@ -598,6 +625,8 @@
     border-top: 1px solid rgba(255,255,255,0.08);
     box-shadow: 0 -8px 32px rgba(0,0,0,0.5);
     padding-bottom: env(safe-area-inset-bottom, 0px);
+    /* CRITICAL FIX: Nav bar doesn't block scrolling */
+    pointer-events: none;
 }
 .pm-mobile-nav-inner {
     display: flex;
@@ -605,6 +634,8 @@
     justify-content: space-around;
     padding: 0 8px;
     height: 62px;
+    /* FIXED: Only buttons are clickable */
+    pointer-events: auto;
 }
 .pm-nav-btn {
     flex: 1;
@@ -624,6 +655,9 @@
     position: relative;
     letter-spacing: 0.3px;
     -webkit-tap-highlight-color: transparent;
+    /* FIXED: Buttons capture touches */
+    pointer-events: auto;
+    touch-action: manipulation;
 }
 .pm-nav-btn.active {
     color: #8b5cf6;
@@ -664,9 +698,13 @@
     -webkit-backdrop-filter: blur(24px);
     border-top: 1px solid rgba(255,255,255,0.1);
     border-radius: 20px 20px 0 0;
-    max-height: 72vh;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
+    max-height: 65vh;
+    /* CRITICAL FIX: Panel is scrollable */
+    overflow-y: auto !important;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior: contain !important;
+    touch-action: pan-y !important;
     padding: 20px 16px 8px;
     transform: translateY(100%);
     transition: transform 0.38s cubic-bezier(0.22,1,0.36,1), opacity 0.3s;
@@ -696,6 +734,9 @@
     background: rgba(0,0,0,0.4);
     opacity: 0;
     transition: opacity 0.3s;
+    /* FIXED: Backdrop closes panel but doesn't block main page scroll */
+    pointer-events: auto;
+    touch-action: none;
 }
 .pm-panel-backdrop.open {
     opacity: 1;
@@ -752,15 +793,18 @@
     .pm-sidebar { display: none !important; }
 
     /* ── Mobile nav & panel become visible ── */
-    .pm-mobile-nav { display: block; }
-    .pm-mobile-panel { display: block; }
-    .pm-panel-backdrop { display: block; }
+    .pm-mobile-nav { display: block !important; }
+    .pm-mobile-panel { display: block !important; }
+    .pm-panel-backdrop { display: block !important; }
 
     /* ── Hide desktop-only sticky bar, replaced by mobile nav ── */
-    .pm-sticky-bar { display: none; }
+    .pm-sticky-bar { display: none !important; }
 
     /* ── Main content pushes above mobile nav ── */
-    .dashboard-main { padding-bottom: calc(62px + env(safe-area-inset-bottom, 16px)) !important; }
+    .dashboard-main {
+        padding-bottom: calc(72px + env(safe-area-inset-bottom, 20px)) !important;
+        min-height: 100vh;
+    }
 
     /* ── Welcome screen ── */
     .practice-cta-banner { flex-direction: column; gap: 16px; padding: 20px; }
