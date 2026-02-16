@@ -2069,16 +2069,18 @@
         height: 6px;
     }
 
-    /* AI Orb - smaller on mobile */
+    /* AI Orb - MUCH smaller on mobile */
     .header-ai-orb-small {
-        margin-bottom: 12px;
-        transform: scale(0.5);
+        margin-bottom: 8px;
+        transform: scale(0.35);
     }
 
-    /* Scale down FinScope orb animation */
+    /* Scale down FinScope orb animation aggressively */
     .header-ai-orb-small > * {
-        width: 50px !important;
-        height: 50px !important;
+        width: 35px !important;
+        height: 35px !important;
+        max-width: 35px !important;
+        max-height: 35px !important;
     }
 
     /* Title - FIXED */
@@ -2500,15 +2502,17 @@
         padding: 16px 12px 24px;
     }
 
-    /* AI Orb - even smaller on very small phones */
+    /* AI Orb - TINY on very small phones */
     .header-ai-orb-small {
-        transform: scale(0.4);
-        margin-bottom: 8px;
+        transform: scale(0.25);
+        margin-bottom: 4px;
     }
 
     .header-ai-orb-small > * {
-        width: 40px !important;
-        height: 40px !important;
+        width: 30px !important;
+        height: 30px !important;
+        max-width: 30px !important;
+        max-height: 30px !important;
     }
 
     .header-content h1 {
