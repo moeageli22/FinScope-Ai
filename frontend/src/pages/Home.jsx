@@ -12,7 +12,6 @@ import CookieBanner from './CookieBanner.jsx';
 import LiveExchange from './LiveExchange.jsx';
 import UserMenu from '../components/UserMenu.jsx';
 import DashboardTutorial from '../components/DashboardTutorial.jsx';
-import HomeAIChat from '../components/HomeAIChat.jsx';
 import { supabase } from '../config/supabase';
 
 function Home() {
@@ -97,30 +96,6 @@ function Home() {
             setActiveSection(section);
             setTimeout(() => {
                 const element = document.getElementById(section);
-                if (element) {
-                    element.scrollIntoView({ behavior: 'smooth' });
-                }
-            }, 100);
-        }
-    };
-
-    // Handle AI chatbot navigation
-    const handleAINavigation = (action) => {
-        if (action === 'home') {
-            setShowExchange(false);
-            setActiveSection('home');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        } else if (action === 'dashboard') {
-            navigate('/dashboard');
-        } else if (action === 'exchange') {
-            setShowExchange(true);
-            setActiveSection('exchange');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        } else if (action === 'about' || action === 'features' || action === 'contact') {
-            setShowExchange(false);
-            setActiveSection(action);
-            setTimeout(() => {
-                const element = document.getElementById(action);
                 if (element) {
                     element.scrollIntoView({ behavior: 'smooth' });
                 }
@@ -381,9 +356,6 @@ function Home() {
 
                 <LiveExchange />
                 <Footer />
-
-                {/* AI Assistant */}
-                <HomeAIChat onNavigate={handleAINavigation} />
             </div>
         );
     }
@@ -663,9 +635,6 @@ function Home() {
 
             {/* Footer */}
             <Footer />
-
-            {/* AI Assistant */}
-            <HomeAIChat onNavigate={handleAINavigation} />
         </div>
     );
 }
