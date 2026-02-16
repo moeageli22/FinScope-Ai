@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import './FeaturesSection.css';
 
 const FeaturesSection = () => {
-    const [isVisible, setIsVisible] = useState(false);
+    const [isVisible, setIsVisible] = useState(true); // Start visible
     const sectionRef = useRef(null);
 
     useEffect(() => {
@@ -12,7 +12,7 @@ const FeaturesSection = () => {
                     setIsVisible(true);
                 }
             },
-            { threshold: 0.2 }
+            { threshold: 0.1 } // Lower threshold for better mobile detection
         );
 
         if (sectionRef.current) {
