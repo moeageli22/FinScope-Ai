@@ -226,73 +226,79 @@
 /* Responsive Design */
 @media (max-width: 1024px) {
     .features-section {
-        padding: 80px 30px;
+        padding: 60px 24px;
     }
 
     .features-header h2 {
-        font-size: 42px;
+        font-size: 38px;
     }
 
     .features-grid {
-        gap: 30px;
-        margin-bottom: 80px;
-    }
-
-    .feature-card {
-        padding: 30px;
-    }
-
-    .stat-number {
-        font-size: 42px;
-    }
-
-    .stats-bar {
-        padding: 40px 50px;
-    }
-}
-
-@media (max-width: 768px) {
-    .features-section {
-        padding: 60px 20px;
-    }
-
-    .features-header {
-        margin-bottom: 50px;
-    }
-
-    .features-header h2 {
-        font-size: 36px;
-    }
-
-    .features-grid {
-        grid-template-columns: 1fr;
         gap: 24px;
         margin-bottom: 60px;
     }
 
     .feature-card {
-        padding: 28px;
-        gap: 20px;
+        padding: 24px;
+    }
+
+    .stat-number {
+        font-size: 38px;
+    }
+
+    .stats-bar {
+        padding: 32px 40px;
+    }
+}
+
+@media (max-width: 768px) {
+    .features-section {
+        padding: 48px 16px;
+    }
+
+    .features-header {
+        margin-bottom: 36px;
+    }
+
+    .features-header h2 {
+        font-size: 28px;
+        line-height: 1.3;
+    }
+
+    .features-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+        margin-bottom: 48px;
+    }
+
+    .feature-card {
+        padding: 20px;
+        gap: 16px;
+        border-radius: 16px;
     }
 
     .feature-number {
-        min-width: 60px;
-        height: 60px;
-        font-size: 28px;
+        min-width: 50px;
+        height: 50px;
+        font-size: 22px;
+        border-radius: 12px;
     }
 
     .feature-content h3 {
-        font-size: 20px;
+        font-size: 17px;
+        margin-bottom: 8px;
     }
 
     .feature-content p {
-        font-size: 15px;
+        font-size: 14px;
+        line-height: 1.6;
     }
 
     .stats-bar {
         flex-direction: column;
-        gap: 32px;
-        padding: 36px 24px;
+        gap: 24px;
+        padding: 28px 20px;
+        border-radius: 16px;
     }
 
     .stat-divider {
@@ -307,32 +313,107 @@
     }
 
     .stat-number {
-        font-size: 36px;
+        font-size: 32px;
     }
 
     .stat-prefix,
     .stat-suffix {
-        font-size: 24px;
+        font-size: 20px;
+    }
+
+    .stat-label {
+        font-size: 13px;
     }
 }
 
 @media (max-width: 480px) {
+    .features-section {
+        padding: 40px 12px;
+    }
+
+    .features-header {
+        margin-bottom: 28px;
+    }
+
     .features-header h2 {
-        font-size: 30px;
+        font-size: 22px;
+        line-height: 1.4;
+    }
+
+    .features-grid {
+        gap: 12px;
+        margin-bottom: 36px;
     }
 
     .feature-card {
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-        padding: 24px;
+        flex-direction: row;
+        align-items: flex-start;
+        text-align: left;
+        padding: 16px;
+        gap: 12px;
+    }
+
+    .feature-number {
+        min-width: 44px;
+        height: 44px;
+        font-size: 18px;
+        border-radius: 10px;
+    }
+
+    .feature-content h3 {
+        font-size: 15px;
+        margin-bottom: 6px;
+    }
+
+    .feature-content p {
+        font-size: 13px;
+        line-height: 1.5;
+    }
+
+    .stats-bar {
+        padding: 24px 16px;
+        gap: 20px;
     }
 
     .stat-number {
-        font-size: 32px;
+        font-size: 28px;
+    }
+
+    .stat-prefix,
+    .stat-suffix {
+        font-size: 18px;
     }
 
     .stat-label {
+        font-size: 12px;
+    }
+}
+
+/* Small phones (≤375px) */
+@media (max-width: 375px) {
+    .features-section {
+        padding: 32px 10px;
+    }
+
+    .features-header h2 {
+        font-size: 20px;
+    }
+
+    .feature-card {
+        padding: 14px;
+    }
+
+    .feature-number {
+        min-width: 40px;
+        height: 40px;
+        font-size: 16px;
+    }
+
+    .feature-content h3 {
         font-size: 14px;
+    }
+
+    .feature-content p {
+        font-size: 12px;
     }
 }
