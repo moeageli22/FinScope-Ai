@@ -7,6 +7,13 @@
     min-height: 100vh; /* Ensure section is visible */
 }
 
+/* HIDE on mobile, SHOW on desktop */
+@media (max-width: 767px) {
+    .features-section {
+        display: none !important;
+    }
+}
+
 .features-section::before {
     content: '';
     position: absolute;
