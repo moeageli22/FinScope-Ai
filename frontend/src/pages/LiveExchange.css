@@ -2053,6 +2053,13 @@
     /* AI Orb - smaller on mobile */
     .header-ai-orb-small {
         margin-bottom: 16px;
+        transform: scale(0.7);
+    }
+
+    /* Scale down FinScope orb animation */
+    .header-ai-orb-small > * {
+        width: 70px !important;
+        height: 70px !important;
     }
 
     /* Title - FIXED */
@@ -2470,6 +2477,17 @@
     /* Header - Extra small */
     .exchange-header {
         padding: 16px 12px 24px;
+    }
+
+    /* AI Orb - even smaller on very small phones */
+    .header-ai-orb-small {
+        transform: scale(0.6);
+        margin-bottom: 12px;
+    }
+
+    .header-ai-orb-small > * {
+        width: 60px !important;
+        height: 60px !important;
     }
 
     .header-content h1 {
