@@ -1,0 +1,86 @@
+/**
+ * Mobile Overrides CSS
+ * Hides desktop-only sections on mobile devices (≤767px)
+ *
+ * Usage: Import this in App.jsx or index.css
+ * import './styles/mobile-overrides.css';
+ */
+
+/* ========================================
+   HIDE DESKTOP SECTIONS ON MOBILE
+   ======================================== */
+
+@media (max-width: 767px) {
+    /* Features Section - "How FinScope AI Transforms Your Banking" */
+    .features-section {
+        display: none !important;
+        height: 0 !important;
+        min-height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: hidden !important;
+    }
+
+    /* Dashboard Preview Section */
+    .dashboard-preview,
+    .dashboard-preview-section,
+    .preview-section {
+        display: none !important;
+        height: 0 !important;
+        min-height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: hidden !important;
+    }
+
+    /* Charts & Insights Section */
+    .charts-insights,
+    .charts-insights-section,
+    .charts-section,
+    .insights-section {
+        display: none !important;
+        height: 0 !important;
+        min-height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: hidden !important;
+    }
+
+    /* About Section (Detailed Version) */
+    .about-section-detailed,
+    .about-detailed,
+    .about-full {
+        display: none !important;
+        height: 0 !important;
+        min-height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: hidden !important;
+    }
+
+    /* Any section with these IDs */
+    #features,
+    #dashboard-preview,
+    #charts-insights {
+        display: none !important;
+        height: 0 !important;
+        min-height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: hidden !important;
+    }
+}
+
+/* ========================================
+   KEEP VISIBLE ON DESKTOP (≥768px)
+   ======================================== */
+
+@media (min-width: 768px) {
+    /* Ensure sections display normally on desktop */
+    .features-section,
+    .dashboard-preview,
+    .charts-insights,
+    .about-section {
+        display: block;
+    }
+}

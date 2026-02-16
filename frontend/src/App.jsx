@@ -15,6 +15,8 @@ import Profile from "./pages/Profile.jsx";
 import Settings from "./pages/Settings.jsx";
 import PracticeMode from './pages/PracticeMode.jsx';
 import AuthCallback from './pages/AuthCallback';
+import './styles/mobile-overrides.css';
+
 
 
 function App() {
