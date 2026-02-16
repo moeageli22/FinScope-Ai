@@ -21,43 +21,6 @@
         overflow: hidden !important;
     }
 
-    /* Dashboard Preview Section */
-    .dashboard-preview,
-    .dashboard-preview-section,
-    .preview-section {
-        display: none !important;
-        height: 0 !important;
-        min-height: 0 !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        overflow: hidden !important;
-    }
-
-    /* Charts & Insights Section */
-    .charts-insights,
-    .charts-insights-section,
-    .charts-section,
-    .insights-section {
-        display: none !important;
-        height: 0 !important;
-        min-height: 0 !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        overflow: hidden !important;
-    }
-
-    /* About Section (Detailed Version) */
-    .about-section-detailed,
-    .about-detailed,
-    .about-full {
-        display: none !important;
-        height: 0 !important;
-        min-height: 0 !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        overflow: hidden !important;
-    }
-
     /* Any section with these IDs */
     #features,
     #dashboard-preview,
