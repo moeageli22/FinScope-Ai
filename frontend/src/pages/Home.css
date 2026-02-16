@@ -999,47 +999,20 @@ body {
 
 /* ==================== MOBILE HAMBURGER MENU ==================== */
 
-/* Hamburger Button */
-.mobile-menu-btn {
-    display: none;
-    align-items: center;
-    justify-content: center;
-    width: 36px;
-    height: 36px;
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: 10px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    position: relative;
-    z-index: 1001;
-    padding: 0;
-}
-
-.mobile-menu-btn:hover {
-    background: rgba(255, 255, 255, 0.12);
-    border-color: rgba(255, 255, 255, 0.25);
-}
-
-.mobile-menu-btn.open {
-    background: rgba(139, 92, 246, 0.15);
-    border-color: rgba(139, 92, 246, 0.4);
-}
-
-/* Three Dots Icon */
+/* Navigation Hamburger Icon */
 .menu-dots {
     display: flex;
     flex-direction: column;
-    gap: 3px;
+    gap: 4px;
     align-items: center;
     justify-content: center;
 }
 
 .menu-dot {
-    width: 4px;
-    height: 4px;
+    width: 16px;
+    height: 2px;
     background: #ffffff;
-    border-radius: 50%;
+    border-radius: 2px;
     transition: all 0.3s ease;
 }
 
@@ -1047,6 +1020,19 @@ body {
     background: #a78bfa;
 }
 
+/* Animate to X when open */
+.mobile-menu-btn.open .menu-dot:nth-child(1) {
+    transform: translateY(6px) rotate(45deg);
+}
+
+.mobile-menu-btn.open .menu-dot:nth-child(2) {
+    opacity: 0;
+    transform: scaleX(0);
+}
+
+.mobile-menu-btn.open .menu-dot:nth-child(3) {
+    transform: translateY(-6px) rotate(-45deg);
+}
 /* Mobile Menu Backdrop */
 .mobile-menu-backdrop {
     display: none;
