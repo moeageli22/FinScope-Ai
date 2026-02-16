@@ -198,7 +198,7 @@ function Home() {
                                             <rect x="14" y="14" width="7" height="7" />
                                             <rect x="3" y="14" width="7" height="7" />
                                         </svg>
-                                        Dashboard
+                                        <span>Dashboard</span>
                                     </button>
                                     <UserMenu />
                                 </>
@@ -299,7 +299,7 @@ function Home() {
                                         <rect x="14" y="14" width="7" height="7" />
                                         <rect x="3" y="14" width="7" height="7" />
                                     </svg>
-                                    Dashboard
+                                    <span>Dashboard</span>
                                 </button>
                                 <UserMenu />
                             </>

@@ -581,10 +581,11 @@ html {
     .btn-dashboard {
         padding: 6px 8px;
         font-size: 10px;
+        min-width: auto;
     }
 
     .btn-dashboard span {
-        display: none;
+        display: none !important; /* Hide "Dashboard" text on mobile */
     }
 
     .btn-dashboard svg {
