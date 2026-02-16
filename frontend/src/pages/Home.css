@@ -545,22 +545,22 @@ html {
 /* iPhone SE / Small Mobile (320px - 375px) */
 @media (max-width: 375px) {
     .home-header {
-        padding: 10px 12px;
+        padding: 8px 10px;
     }
 
     .logo {
         gap: 4px;
-        font-size: 15px;
+        font-size: 13px;
     }
 
     .logo-icon {
-        width: 36px;
-        height: 36px;
-        min-width: 36px;
+        width: 30px;
+        height: 30px;
+        min-width: 30px;
     }
 
     .logo-icon > div {
-        transform: scale(0.09);
+        transform: scale(0.075);
     }
 
     .nav-links {
@@ -573,14 +573,14 @@ html {
 
     .btn-sign-in,
     .btn-get-started {
-        padding: 7px 12px;
-        font-size: 11px;
+        padding: 6px 10px;
+        font-size: 10px;
         white-space: nowrap;
     }
 
     .btn-dashboard {
-        padding: 7px 10px;
-        font-size: 11px;
+        padding: 6px 8px;
+        font-size: 10px;
     }
 
     .btn-dashboard span {
@@ -593,30 +593,30 @@ html {
     }
 
     .home-main {
-        padding: 12px 12px 30px;
+        padding: 10px 10px 25px;
     }
 
     .badge {
-        font-size: 10px;
-        padding: 5px 12px;
-        margin-bottom: 12px;
-        gap: 6px;
+        font-size: 9px;
+        padding: 4px 10px;
+        margin-bottom: 10px;
+        gap: 5px;
     }
 
     .sparkle-icon {
-        font-size: 12px;
+        font-size: 11px;
     }
 
     .main-heading {
-        font-size: 22px;
-        margin-bottom: 10px;
+        font-size: 18px;
+        margin-bottom: 8px;
         line-height: 1.25;
     }
 
     .main-description {
-        font-size: 12px;
-        margin-bottom: 18px;
-        padding: 0 6px;
+        font-size: 11px;
+        margin-bottom: 15px;
+        padding: 0 5px;
         line-height: 1.5;
     }
 
@@ -626,9 +626,9 @@ html {
 
     .cta-buttons {
         flex-direction: column;
-        gap: 10px;
-        margin-bottom: 24px;
-        padding: 0 12px;
+        gap: 8px;
+        margin-bottom: 20px;
+        padding: 0 10px;
     }
 
     .btn-primary,
@@ -636,51 +636,51 @@ html {
     .btn-how-it-works {
         width: 100%;
         max-width: 100%;
-        padding: 11px 18px;
-        font-size: 13px;
+        padding: 10px 16px;
+        font-size: 12px;
         justify-content: center;
     }
 
     .btn-how-it-works svg {
-        width: 14px;
-        height: 14px;
+        width: 13px;
+        height: 13px;
     }
 
     .ai-orb-container {
-        min-height: 240px;
-        margin: 20px auto 24px;
+        min-height: 200px;
+        margin: 15px auto 20px;
     }
 
     .features-grid {
         grid-template-columns: 1fr;
-        gap: 14px;
-        padding: 0 12px;
+        gap: 12px;
+        padding: 0 10px;
     }
 
     .feature-card {
-        padding: 18px 14px;
+        padding: 16px 12px;
     }
 
     .feature-icon {
-        width: 44px;
-        height: 44px;
-        margin-bottom: 14px;
+        width: 38px;
+        height: 38px;
+        margin-bottom: 12px;
     }
 
     .analytics-icon svg,
     .security-icon svg,
     .transactions-icon svg {
-        width: 22px;
-        height: 22px;
+        width: 20px;
+        height: 20px;
     }
 
     .feature-card h3 {
-        font-size: 16px;
-        margin-bottom: 7px;
+        font-size: 15px;
+        margin-bottom: 6px;
     }
 
     .feature-card p {
-        font-size: 12px;
+        font-size: 11px;
         line-height: 1.5;
     }
 }
@@ -688,11 +688,107 @@ html {
 /* Standard Mobile (376px - 480px) */
 @media (min-width: 376px) and (max-width: 480px) {
     .home-header {
-        padding: 12px 14px;
+        padding: 10px 12px;
     }
 
     .logo {
         gap: 5px;
+        font-size: 14px;
+    }
+
+    .logo-icon {
+        width: 32px;
+        height: 32px;
+        min-width: 32px;
+    }
+
+    .logo-icon > div {
+        transform: scale(0.08);
+    }
+
+    .nav-links {
+        display: none;
+    }
+
+    .nav-buttons {
+        gap: 7px;
+    }
+
+    .btn-sign-in,
+    .btn-get-started {
+        padding: 7px 11px;
+        font-size: 10.5px;
+    }
+
+    .btn-dashboard {
+        padding: 7px 9px;
+        font-size: 10.5px;
+    }
+
+    .btn-dashboard span {
+        display: none;
+    }
+
+    .home-main {
+        padding: 12px 12px 35px;
+    }
+
+    .badge {
+        font-size: 9.5px;
+        padding: 5px 12px;
+    }
+
+    .main-heading {
+        font-size: 20px;
+        margin-bottom: 9px;
+    }
+
+    .main-description {
+        font-size: 11.5px;
+        margin-bottom: 17px;
+    }
+
+    .main-description br {
+        display: none;
+    }
+
+    .cta-buttons {
+        flex-direction: column;
+        gap: 9px;
+        margin-bottom: 24px;
+    }
+
+    .btn-primary,
+    .btn-secondary,
+    .btn-how-it-works {
+        width: 100%;
+        max-width: 240px;
+        padding: 10px 18px;
+        font-size: 12.5px;
+    }
+
+    .ai-orb-container {
+        min-height: 220px;
+        margin: 18px auto 24px;
+    }
+
+    .features-grid {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+
+    .feature-card {
+        padding: 18px 14px;
+    }
+}
+
+/* Large Mobile / Small Tablet (481px - 767px) */
+@media (min-width: 481px) and (max-width: 767px) {
+    .home-header {
+        padding: 12px 16px;
+    }
+
+    .logo {
         font-size: 16px;
     }
 
@@ -711,126 +807,30 @@ html {
     }
 
     .nav-buttons {
-        gap: 7px;
-    }
-
-    .btn-sign-in,
-    .btn-get-started {
-        padding: 7px 13px;
-        font-size: 11.5px;
-    }
-
-    .btn-dashboard {
-        padding: 7px 11px;
-        font-size: 11.5px;
-    }
-
-    .btn-dashboard span {
-        display: none;
-    }
-
-    .home-main {
-        padding: 14px 14px 40px;
-    }
-
-    .badge {
-        font-size: 10.5px;
-        padding: 6px 14px;
-    }
-
-    .main-heading {
-        font-size: 24px;
-        margin-bottom: 11px;
-    }
-
-    .main-description {
-        font-size: 13px;
-        margin-bottom: 20px;
-    }
-
-    .main-description br {
-        display: none;
-    }
-
-    .cta-buttons {
-        flex-direction: column;
-        gap: 10px;
-        margin-bottom: 28px;
-    }
-
-    .btn-primary,
-    .btn-secondary,
-    .btn-how-it-works {
-        width: 100%;
-        max-width: 280px;
-        padding: 11px 20px;
-        font-size: 13.5px;
-    }
-
-    .ai-orb-container {
-        min-height: 260px;
-        margin: 22px auto 28px;
-    }
-
-    .features-grid {
-        grid-template-columns: 1fr;
-        gap: 16px;
-    }
-
-    .feature-card {
-        padding: 20px 16px;
-    }
-}
-
-/* Large Mobile / Small Tablet (481px - 767px) */
-@media (min-width: 481px) and (max-width: 767px) {
-    .home-header {
-        padding: 14px 20px;
-    }
-
-    .logo {
-        font-size: 18px;
-    }
-
-    .logo-icon {
-        width: 44px;
-        height: 44px;
-        min-width: 44px;
-    }
-
-    .logo-icon > div {
-        transform: scale(0.11);
-    }
-
-    .nav-links {
-        display: none;
-    }
-
-    .nav-buttons {
         gap: 8px;
     }
 
     .btn-sign-in,
     .btn-get-started {
-        padding: 8px 15px;
-        font-size: 12px;
+        padding: 8px 13px;
+        font-size: 11px;
     }
 
     .btn-dashboard {
-        padding: 8px 14px;
-        font-size: 12px;
+        padding: 8px 12px;
+        font-size: 11px;
     }
 
     .home-main {
-        padding: 16px 20px 50px;
+        padding: 14px 16px 40px;
     }
 
     .main-heading {
-        font-size: 30px;
+        font-size: 26px;
     }
 
     .main-description {
-        font-size: 14px;
+        font-size: 13px;
     }
 
     .cta-buttons {
@@ -843,25 +843,25 @@ html {
     .btn-secondary,
     .btn-how-it-works {
         flex: 0 1 auto;
-        min-width: 140px;
-        font-size: 14px;
+        min-width: 130px;
+        font-size: 13px;
     }
 
     .ai-orb-container {
-        min-height: 280px;
-        margin: 26px auto 32px;
+        min-height: 240px;
+        margin: 22px auto 28px;
     }
 
     .features-grid {
         grid-template-columns: 1fr;
-        gap: 18px;
+        gap: 16px;
     }
 }
 
 /* Tablet (768px - 1023px) */
 @media (min-width: 768px) and (max-width: 1023px) {
     .home-header {
-        padding: 16px 28px;
+        padding: 14px 24px;
     }
 
     .nav-links {
@@ -870,37 +870,37 @@ html {
 
     .btn-sign-in,
     .btn-get-started {
-        padding: 9px 18px;
-        font-size: 13px;
+        padding: 9px 16px;
+        font-size: 12px;
     }
 
     .btn-dashboard {
-        padding: 9px 16px;
-        font-size: 13px;
+        padding: 9px 14px;
+        font-size: 12px;
     }
 
     .main-heading {
-        font-size: 36px;
+        font-size: 32px;
     }
 
     .main-description {
-        font-size: 15px;
+        font-size: 14px;
     }
 
     .ai-orb-container {
-        min-height: 340px;
+        min-height: 300px;
     }
 
     .features-grid {
         grid-template-columns: repeat(2, 1fr);
-        gap: 20px;
+        gap: 18px;
     }
 }
 
 /* Desktop (1024px - 1399px) */
 @media (min-width: 1024px) and (max-width: 1399px) {
     .home-header {
-        padding: 18px 36px;
+        padding: 16px 32px;
     }
 
     .nav-links {
@@ -908,7 +908,7 @@ html {
     }
 
     .main-heading {
-        font-size: 42px;
+        font-size: 38px;
     }
 
     .features-grid {
@@ -919,11 +919,11 @@ html {
 /* Large Desktop (1400px+) */
 @media (min-width: 1400px) {
     .main-heading {
-        font-size: 56px;
+        font-size: 48px;
     }
 
     .main-description {
-        font-size: 18px;
+        font-size: 16px;
     }
 }
 
@@ -945,45 +945,45 @@ html {
 /* Landscape Orientation Fixes */
 @media (max-height: 500px) and (orientation: landscape) {
     .home-header {
-        padding: 8px 16px;
+        padding: 6px 12px;
     }
 
     .logo-icon {
-        width: 32px;
-        height: 32px;
-        min-width: 32px;
+        width: 28px;
+        height: 28px;
+        min-width: 28px;
     }
 
     .logo-icon > div {
-        transform: scale(0.08);
+        transform: scale(0.07);
     }
 
     .home-main {
-        padding: 12px 16px 30px;
+        padding: 10px 12px 25px;
     }
 
     .main-heading {
-        font-size: 20px;
+        font-size: 17px;
     }
 
     .main-description {
-        font-size: 11px;
+        font-size: 10px;
     }
 
     .ai-orb-container {
-        min-height: 180px;
-        margin: 14px auto 20px;
+        min-height: 150px;
+        margin: 12px auto 16px;
     }
 
     .cta-buttons {
-        margin-bottom: 20px;
+        margin-bottom: 16px;
     }
 
     .btn-primary,
     .btn-secondary,
     .btn-how-it-works {
-        padding: 9px 16px;
-        font-size: 12px;
+        padding: 8px 14px;
+        font-size: 11px;
     }
 }
 
