@@ -62,8 +62,7 @@
 .menu-backdrop {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(3px);
+    background: rgba(0, 0, 0, 0.3);
     z-index: 998;
     animation: backdropFadeIn 0.2s ease;
 }
