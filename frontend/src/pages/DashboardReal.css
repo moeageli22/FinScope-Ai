@@ -331,52 +331,251 @@
 }
 
 @media (max-width: 768px) {
-    .dr-balance-card { padding: 20px; border-radius: 18px; }
-    .dr-balance-amount { font-size: 32px; }
-    .dr-balance-top-row { flex-direction: column; gap: 16px; }
+    /* Balance Card - Compact */
+    .dr-balance-card { padding: 16px; border-radius: 16px; }
+    .dr-balance-label { font-size: 11px; margin-bottom: 4px; }
+    .dr-balance-amount { font-size: 26px; }
+    .dr-balance-top-row { flex-direction: column; gap: 12px; }
     .dr-balance-actions { width: 100%; }
-    .dr-action-btn { flex: 1; justify-content: center; }
-    .dr-balance-stats { flex-direction: column; gap: 12px; }
+    .dr-action-btn {
+        flex: 1; justify-content: center;
+        padding: 9px 14px; font-size: 12px; gap: 6px;
+    }
+    .dr-action-btn svg { width: 15px; height: 15px; }
+    .dr-balance-stats { flex-direction: column; gap: 10px; }
     .dr-bstat-sep { display: none; }
-    .dr-bstat { flex-direction: row; justify-content: space-between; }
+    .dr-bstat { flex-direction: row; justify-content: space-between; padding: 8px 0; }
+    .dr-bstat-label { font-size: 10px; }
+    .dr-bstat-val { font-size: 14px; }
 
-    /* Hide desktop tabs on mobile — bottom nav handles it */
+    /* Hide desktop tabs */
     .dr-desktop-tabs { display: none !important; }
 
-    .dr-monthly-stats { grid-template-columns: 1fr 1fr; }
-    .dr-modal { border-radius: 18px; }
-    .dr-amount-input { font-size: 20px; }
+    /* Monthly Summary - Compact */
+    .dr-monthly-summary { padding: 16px; border-radius: 14px; }
+    .dr-monthly-header { font-size: 13px; margin-bottom: 12px; }
+    .dr-monthly-header svg { width: 15px; height: 15px; }
+    .dr-monthly-stats { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .dr-mstat { padding: 8px; }
+    .dr-mstat-label { font-size: 9px; }
+    .dr-mstat-val { font-size: 13px; }
+    .dr-monthly-change { font-size: 11px; padding: 6px 0 3px; }
+    .dr-monthly-top { font-size: 11px; }
+
+    /* Modal - Compact */
+    .dr-modal { border-radius: 16px; }
+    .dr-modal-header { padding: 18px 18px 0; gap: 12px; }
+    .dr-modal-icon { width: 40px; height: 40px; }
+    .dr-modal-icon svg { width: 18px; height: 18px; }
+    .dr-modal-title { font-size: 17px; }
+    .dr-modal-sub { font-size: 12px; }
+    .dr-modal-close { width: 32px; height: 32px; }
+    .dr-modal-close svg { width: 15px; height: 15px; }
+    .dr-modal-body { padding: 18px; gap: 16px; }
+    .dr-field-label { font-size: 10px; }
+    .dr-amount-input-wrap { padding: 11px 14px; }
+    .dr-currency-symbol { font-size: 18px; }
+    .dr-amount-input { font-size: 18px; }
+    .dr-preset-btn { padding: 8px; font-size: 12px; }
+    .dr-text-input { padding: 10px 14px; font-size: 13px; }
+    .dr-modal-footer { padding: 0 18px 18px; gap: 8px; }
+    .dr-modal-cancel, .dr-modal-confirm { padding: 11px; font-size: 13px; }
+
+    /* Practice Banner - Compact */
+    .practice-cta-banner { padding: 14px; border-radius: 14px; gap: 12px; }
+    .practice-cta-orb { width: 50px; height: 50px; }
+    .practice-cta-orb-inner { width: 42px; height: 42px; }
+    .pcta-eye { width: 6px; height: 13px; }
+    .practice-cta-badge { padding: 3px 8px; font-size: 9px; }
+    .practice-cta-badge svg { width: 10px; height: 10px; }
+    .practice-cta-title { font-size: 15px; margin-bottom: 3px; }
+    .practice-cta-desc { font-size: 12px; }
+    .practice-cta-btn { padding: 9px 16px; font-size: 12px; }
+    .practice-cta-btn svg { width: 15px; height: 15px; }
+
+    /* Brand Expense Cards - Compact */
+    .pm-brand-section { padding: 16px 14px; border-radius: 14px; }
+    .pm-brand-header { gap: 10px; margin-bottom: 12px; }
+    .pm-brand-icon { width: 36px; height: 36px; min-width: 36px; }
+    .pm-brand-icon svg { width: 16px; height: 16px; }
+    .pm-brand-title { font-size: 15px; margin-bottom: 2px; }
+    .pm-brand-sub { font-size: 11px; }
+    .pm-brand-tabs { padding: 4px; gap: 4px; margin-bottom: 12px; }
+    .pm-brand-tab { padding: 7px 12px; font-size: 11px; border-radius: 8px; }
+    .pm-brand-grid { grid-template-columns: 1fr !important; gap: 10px; }
+    .pm-brand-card { padding: 12px; gap: 10px; border-radius: 10px; }
+    .pm-brand-logo-wrap, .pm-brand-emoji-wrap { width: 38px; height: 38px; min-width: 38px; }
+    .pm-brand-logo { width: 28px; height: 28px; }
+    .pm-brand-emoji { font-size: 20px; }
+    .pm-brand-name { font-size: 13px; }
+    .pm-brand-cat { font-size: 10px; }
+    .pm-brand-input-wrap { padding: 7px 10px; }
+    .pm-brand-currency { font-size: 13px; }
+    .pm-brand-input { font-size: 14px; }
+    .pm-brand-add-btn { width: 32px; height: 32px; min-width: 32px; }
+    .pm-brand-add-btn svg { width: 14px; height: 14px; }
+    .pm-brand-error { font-size: 10px; }
+
+    /* Custom Expense Form - Compact */
+    .pm-custom-expense { padding: 16px 14px; border-radius: 14px; }
+    .pm-custom-header { gap: 10px; margin-bottom: 12px; }
+    .pm-custom-icon { width: 36px; height: 36px; min-width: 36px; }
+    .pm-custom-icon svg { width: 16px; height: 16px; }
+    .pm-custom-title { font-size: 15px; margin-bottom: 2px; }
+    .pm-custom-sub { font-size: 11px; }
+    .pm-custom-row { grid-template-columns: 1fr; gap: 12px; }
+    .pm-field-label { font-size: 10px; margin-bottom: 6px; }
+    .pm-input-wrap { padding: 9px 12px; }
+    .pm-input-emoji { font-size: 15px; }
+    .pm-custom-input { font-size: 13px; }
+    .pm-input-currency { font-size: 14px; }
+    .pm-amount-input { font-size: 15px; }
+    .pm-field-error { font-size: 10px; }
+    .pm-category-pills { gap: 6px; }
+    .pm-cat-pill { padding: 7px 11px; font-size: 11px; }
+    .pm-cat-pill span:first-child { font-size: 13px; }
+    .pm-custom-submit { padding: 11px; font-size: 13px; }
+
+    /* Bottom Navigation - Compact */
+    .dr-mobile-bottom-nav { height: 68px; padding: 0 6px; }
+    .dr-bnav-item { font-size: 9px; padding: 6px 0; }
+    .dr-bnav-item svg { width: 20px; height: 20px; }
+    .dr-bnav-ai .dr-bnav-ai-orb { width: 44px; height: 44px; margin-top: -18px; }
+    .dr-bnav-ai .dr-bnav-ai-orb svg { width: 20px; height: 20px; }
+
+    /* Hamburger Menu - Compact */
+    .dr-hamburger-btn { width: 40px; height: 40px; }
+    .dr-hamburger-btn svg { width: 18px; height: 18px; }
+    .dr-avatar-pill { padding: 5px 12px 5px 5px; }
+    .dr-avatar-circle { width: 32px; height: 32px; font-size: 12px; }
+    .dr-avatar-chevron { width: 16px; height: 16px; }
+    .dr-ham-dropdown { width: calc(100vw - 32px); }
+    .dr-ham-section-label { font-size: 9px; padding: 10px 12px 5px; }
+    .dr-ham-item { padding: 9px 12px; }
+    .dr-ham-icon { width: 32px; height: 32px; }
+    .dr-ham-icon svg { width: 14px; height: 14px; }
+    .dr-ham-label { font-size: 13px; }
+    .dr-ham-sub { font-size: 10px; }
+
+    /* Mobile Panel - Compact */
+    .dr-mpanel-header { padding: 8px 18px 14px; }
+    .dr-mpanel-title { font-size: 15px; }
+    .dr-mpanel-close { width: 32px; height: 32px; }
+    .dr-mpanel-close svg { width: 15px; height: 15px; }
+    .dr-mpanel-body { padding: 18px; }
+
+    /* Statements - Compact */
+    .st-header { gap: 12px; }
+    .st-header-icon { width: 40px; height: 40px; }
+    .st-header-icon svg { width: 18px; height: 18px; }
+    .st-title { font-size: 18px; }
+    .st-sub { font-size: 12px; }
+    .st-dl-btn { padding: 8px 16px; font-size: 12px; }
+    .st-dl-btn svg { width: 14px; height: 14px; }
+    .st-picker { padding: 16px; border-radius: 14px; }
+    .st-picker-label { font-size: 10px; margin-bottom: 12px; }
+    .st-month-btn, .st-year-btn { padding: 6px 12px; font-size: 12px; }
+    .st-summary-row { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .st-sum-card { padding: 14px; }
+    .st-sum-icon { font-size: 20px; }
+    .st-sum-label { font-size: 10px; }
+    .st-sum-val { font-size: 16px; }
+    .st-section-title { font-size: 13px; margin-bottom: 12px; }
+    .st-section-title svg { width: 14px; height: 14px; }
+    .st-categories, .st-txn-table { padding: 16px; border-radius: 14px; }
+    .st-cat-info { width: 100px; }
+    .st-cat-name { font-size: 12px; }
+    .st-cat-pct { font-size: 11px; }
+    .st-cat-amt { font-size: 12px; width: 65px; }
+    .st-table-head { font-size: 10px; padding: 6px 10px; }
+    .st-table-row { padding: 10px; }
+    .st-td-date { font-size: 11px; }
+    .st-td-name { font-size: 13px; }
+    .st-td-amt { font-size: 13px; }
+    .st-cat-badge { padding: 2px 8px; font-size: 10px; }
+
+    /* Quick Access Buttons - Compact */
+    .dr-mobile-quick-row { gap: 8px; margin-top: 14px; }
+    .dr-mobile-quick-btn { padding: 12px 14px; font-size: 12px; }
+    .dr-mobile-quick-btn svg { width: 16px; height: 16px; }
+
+    /* Hide on mobile */
     .dr-bottom-grid { grid-template-columns: 1fr; }
-
-    /* Hide AI insights and transactions on mobile overview (use panels instead) */
     .dr-bottom-left, .dr-bottom-right { display: none; }
-
-    /* ═══ FIXED: Brand expense cards - single column on mobile for better UX ═══ */
-    .pm-brand-grid { grid-template-columns: 1fr !important; gap: 12px; }
-    .pm-brand-section { padding: 20px 16px; border-radius: 16px; }
-    .pm-brand-card { padding: 16px 14px; gap: 12px; border-radius: 12px; }
-    .pm-brand-logo-wrap, .pm-brand-emoji-wrap { width: 42px; height: 42px; min-width: 42px; }
-    .pm-brand-emoji { font-size: 22px; }
-    .pm-brand-name { font-size: 14px; }
-    .pm-brand-cat { font-size: 11px; }
-
-    /* Custom expense form */
-    .pm-custom-row { grid-template-columns: 1fr; }
-    .pm-custom-expense { padding: 20px 16px; border-radius: 16px; }
 }
 
 @media (max-width: 480px) {
-    .dr-balance-amount { font-size: 28px; }
-    .dr-action-btn { padding: 10px 16px; font-size: 13px; }
-    .dr-monthly-stats { grid-template-columns: 1fr 1fr; gap: 8px; }
-    .dr-mstat { padding: 10px; }
-    .dr-mstat-val { font-size: 14px; }
+    /* Balance Card - Extra Compact */
+    .dr-balance-label { font-size: 10px; }
+    .dr-balance-amount { font-size: 22px; }
+    .dr-action-btn { padding: 8px 12px; font-size: 11px; }
+    .dr-action-btn svg { width: 14px; height: 14px; }
+    .dr-bstat-label { font-size: 9px; }
+    .dr-bstat-val { font-size: 12px; }
 
+    /* Monthly Summary - Extra Compact */
+    .dr-monthly-summary { padding: 14px; }
+    .dr-monthly-header { font-size: 12px; }
+    .dr-monthly-stats { gap: 6px; }
+    .dr-mstat { padding: 7px; }
+    .dr-mstat-label { font-size: 8px; }
+    .dr-mstat-val { font-size: 12px; }
+    .dr-monthly-change, .dr-monthly-top { font-size: 10px; }
+
+    /* Modal - Extra Compact */
+    .dr-modal-title { font-size: 16px; }
+    .dr-modal-sub { font-size: 11px; }
+    .dr-currency-symbol { font-size: 16px; }
+    .dr-amount-input { font-size: 16px; }
+    .dr-preset-btn { font-size: 11px; }
+    .dr-text-input { font-size: 12px; }
+
+    /* Practice Banner - Extra Compact */
+    .practice-cta-title { font-size: 14px; }
+    .practice-cta-desc { font-size: 11px; }
+    .practice-cta-btn { padding: 8px 14px; font-size: 11px; }
+
+    /* Brand Cards - Extra Compact */
+    .pm-brand-title { font-size: 14px; }
+    .pm-brand-sub { font-size: 10px; }
+    .pm-brand-tab { padding: 6px 10px; font-size: 10px; }
+    .pm-brand-name { font-size: 12px; }
+    .pm-brand-cat { font-size: 9px; }
+    .pm-brand-input { font-size: 13px; }
+    .pm-brand-grid { grid-template-columns: 1fr !important; }
+
+    /* Custom Expense - Extra Compact */
+    .pm-custom-title { font-size: 14px; }
+    .pm-custom-sub { font-size: 10px; }
+    .pm-custom-input { font-size: 12px; }
+    .pm-amount-input { font-size: 14px; }
+    .pm-cat-pill { padding: 6px 10px; font-size: 10px; }
+    .pm-cat-pill span:first-child { font-size: 12px; }
+    .pm-custom-submit { font-size: 12px; }
+
+    /* Bottom Nav - Extra Compact */
+    .dr-bnav-item { font-size: 8px; }
+    .dr-bnav-item svg { width: 18px; height: 18px; }
+
+    /* Statements - Extra Compact */
+    .st-title { font-size: 16px; }
+    .st-sub { font-size: 11px; }
+    .st-dl-btn { padding: 7px 14px; font-size: 11px; }
+    .st-month-btn, .st-year-btn { padding: 5px 10px; font-size: 11px; }
+    .st-sum-icon { font-size: 18px; }
+    .st-sum-label { font-size: 9px; }
+    .st-sum-val { font-size: 14px; }
+    .st-section-title { font-size: 12px; }
+    .st-cat-name { font-size: 11px; }
+    .st-cat-pct { font-size: 10px; }
+    .st-cat-amt { font-size: 11px; }
+    .st-td-date { font-size: 10px; }
+    .st-td-name { font-size: 12px; }
+    .st-td-amt { font-size: 12px; }
+
+    /* Hamburger Menu - Extra Compact */
     .dr-ham-dropdown { width: calc(100vw - 32px); right: -8px; }
     .dr-avatar-pill ~ .dr-ham-dropdown { right: 0; width: calc(100vw - 32px); }
-
-    /* Ensure single column layout on very small phones */
-    .pm-brand-grid { grid-template-columns: 1fr !important; }
 }
 
 @media (prefers-reduced-motion: reduce) {
