@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import FinScopeAI from '../components/FinScopeAI.jsx';
 import './AboutSection.css';
 
 const AboutSection = () => {
+    const navigate = useNavigate();
     const [isVisible, setIsVisible] = useState(false);
     const sectionRef = useRef(null);
 
@@ -71,6 +73,19 @@ const AboutSection = () => {
             delay: 0.6
         }
     ];
+
+    // Navigation handlers
+    const handleGetStarted = () => {
+        navigate('/register');
+    };
+
+    const handleLearnMore = () => {
+        // Scroll to features section
+        const featuresSection = document.getElementById('features');
+        if (featuresSection) {
+            featuresSection.scrollIntoView({ behavior: 'smooth' });
+        }
+    };
 
     return (
         <section className="about-section" ref={sectionRef}>
@@ -160,8 +175,12 @@ const AboutSection = () => {
                             </div>
 
                             <div className="cta-group">
-                                <button className="btn-about-primary">Get Started Free</button>
-                                <button className="btn-about-secondary">Learn More</button>
+                                <button className="btn-about-primary" onClick={handleGetStarted}>
+                                    Get Started Free
+                                </button>
+                                <button className="btn-about-secondary" onClick={handleLearnMore}>
+                                    Learn More
+                                </button>
                             </div>
                         </div>
                     </div>
