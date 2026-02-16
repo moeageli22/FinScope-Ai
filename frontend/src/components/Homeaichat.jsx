@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import FinScopeAI from './FinScopeAI';
-import './HomeAIChat.css';
+import './HomeAIchat.css';
 
 /* ═══════════════════════════════════════════
    MINI ORB - Real FinScopeAI scaled down
