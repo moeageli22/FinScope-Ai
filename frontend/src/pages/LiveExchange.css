@@ -255,6 +255,7 @@
     padding: 0 40px;
     position: relative;
     z-index: 1;
+    overflow: visible;
 }
 
 /* Error Message */
@@ -1285,7 +1286,7 @@
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
     animation: fadeInUp 0.5s ease;
     position: relative;
-    overflow: hidden;
+    overflow: visible;
 }
 
 .converter-card-upgraded::before {
@@ -1349,6 +1350,8 @@
     display: flex;
     flex-direction: column;
     gap: 24px;
+    position: relative;
+    overflow: visible;
 }
 
 .currency-input-section-upgraded {
@@ -1356,6 +1359,12 @@
     flex-direction: column;
     gap: 12px;
     position: relative;
+    z-index: 10;
+}
+
+/* When dropdown is open, increase z-index */
+.currency-input-section-upgraded:has(.currency-dropdown-panel) {
+    z-index: 10000;
 }
 
 .currency-input-section-upgraded label {
@@ -1400,6 +1409,11 @@
     padding: 18px 22px;
     transition: all 0.3s;
     cursor: pointer;
+    z-index: 1;
+}
+
+.currency-selector-box-upgraded:hover {
+    border-color: rgba(59, 130, 246, 0.5);
 }
 
 .currency-selector-box-upgraded:focus-within {
@@ -1598,7 +1612,7 @@
     border-radius: 12px;
     max-height: 400px;
     overflow-y: auto;
-    z-index: 9999;
+    z-index: 99999;
     backdrop-filter: blur(20px);
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
     animation: dropdownSlide 0.3s ease;
@@ -2375,6 +2389,7 @@
         border-radius: 20px 20px 0 0;
         animation: slideUpMobile 0.3s ease;
         border-bottom: none;
+        z-index: 999999;
     }
 
     @keyframes slideUpMobile {
