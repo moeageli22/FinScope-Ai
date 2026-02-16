@@ -999,7 +999,7 @@ body {
 
 /* ==================== MOBILE HAMBURGER MENU ==================== */
 
-/* Navigation Hamburger Icon */
+/* Hamburger Lines Icon */
 .menu-dots {
     display: flex;
     flex-direction: column;
@@ -1020,7 +1020,7 @@ body {
     background: #a78bfa;
 }
 
-/* Animate to X when open */
+/* Animate into X when open */
 .mobile-menu-btn.open .menu-dot:nth-child(1) {
     transform: translateY(6px) rotate(45deg);
 }
