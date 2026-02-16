@@ -48,10 +48,10 @@
     z-index: 1;
 }
 
-/* Header Top Row - Badge and Live Indicator */
+/* Header Top Row - Centered Live Indicator */
 .header-top-row {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
     width: 100%;
     margin-bottom: 20px;
@@ -2034,19 +2034,7 @@
         margin-bottom: 16px;
     }
 
-    .header-badge {
-        font-size: 10px;
-        padding: 5px 12px;
-        order: 1;
-    }
-
-    .header-badge svg {
-        width: 12px;
-        height: 12px;
-    }
-
     .live-updates-indicator {
-        order: 2;
         padding: 6px 14px;
         flex-wrap: wrap;
         justify-content: center;
