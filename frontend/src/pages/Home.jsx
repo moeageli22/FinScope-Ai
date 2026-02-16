@@ -21,6 +21,7 @@ function Home() {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [loading, setLoading] = useState(true);
     const [showTutorial, setShowTutorial] = useState(false);
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
     // Check authentication status
     useEffect(() => {
@@ -40,17 +41,66 @@ function Home() {
         return () => subscription.unsubscribe();
     }, []);
 
+    // Close mobile menu when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (mobileMenuOpen && !e.target.closest('.mobile-menu-btn') && !e.target.closest('.mobile-menu-dropdown')) {
+                setMobileMenuOpen(false);
+            }
+        };
+
+        if (mobileMenuOpen) {
+            document.addEventListener('mousedown', handleClickOutside);
+            document.addEventListener('touchstart', handleClickOutside);
+            // Prevent body scroll on mobile when menu is open
+            document.body.style.overflow = 'hidden';
+        }
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+            document.removeEventListener('touchstart', handleClickOutside);
+            document.body.style.overflow = '';
+        };
+    }, [mobileMenuOpen]);
+
     // Navigation handlers for authentication
     const handleSignIn = () => {
+        setMobileMenuOpen(false);
         navigate('/login');
     };
 
     const handleGetStarted = () => {
+        setMobileMenuOpen(false);
         navigate('/register');
     };
 
     const handleDashboard = () => {
+        setMobileMenuOpen(false);
         navigate('/dashboard');
+    };
+
+    // Handle mobile menu navigation
+    const handleMobileNav = (section) => {
+        setMobileMenuOpen(false);
+
+        if (section === 'home') {
+            setShowExchange(false);
+            setActiveSection('home');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else if (section === 'exchange') {
+            setShowExchange(true);
+            setActiveSection('exchange');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else {
+            setShowExchange(false);
+            setActiveSection(section);
+            setTimeout(() => {
+                const element = document.getElementById(section);
+                if (element) {
+                    element.scrollIntoView({ behavior: 'smooth' });
+                }
+            }, 100);
+        }
     };
 
     // Track active section on scroll
@@ -137,7 +187,6 @@ function Home() {
                                 e.preventDefault();
                                 setShowExchange(false);
                                 setActiveSection('about');
-                                // Let the anchor link handle scrolling after page loads
                                 setTimeout(() => {
                                     window.location.hash = 'about';
                                 }, 100);
@@ -188,6 +237,19 @@ function Home() {
                     </nav>
 
                     <div className="nav-buttons">
+                        {/* Mobile Hamburger Menu */}
+                        <button
+                            className={`mobile-menu-btn ${mobileMenuOpen ? 'open' : ''}`}
+                            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                            type="button"
+                        >
+                            <div className="menu-dots">
+                                <span className="menu-dot"></span>
+                                <span className="menu-dot"></span>
+                                <span className="menu-dot"></span>
+                            </div>
+                        </button>
+
                         {!loading && (
                             isAuthenticated ? (
                                 <>
@@ -211,6 +273,86 @@ function Home() {
                         )}
                     </div>
                 </header>
+
+                {/* Mobile Menu Backdrop */}
+                <div
+                    className={`mobile-menu-backdrop ${mobileMenuOpen ? 'show' : ''}`}
+                    onClick={() => setMobileMenuOpen(false)}
+                />
+
+                {/* Mobile Menu Dropdown */}
+                <div className={`mobile-menu-dropdown ${mobileMenuOpen ? 'show' : ''}`}>
+                    <div className="mobile-menu-header">
+                        <h3 className="mobile-menu-title">Navigation</h3>
+                    </div>
+
+                    <div className="mobile-menu-items">
+                        <button
+                            className={`mobile-menu-item ${activeSection === 'home' ? 'active' : ''}`}
+                            onClick={() => handleMobileNav('home')}
+                        >
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                                <polyline points="9 22 9 12 15 12 15 22" />
+                            </svg>
+                            <span>Home</span>
+                        </button>
+
+                        <button
+                            className={`mobile-menu-item ${activeSection === 'about' ? 'active' : ''}`}
+                            onClick={() => handleMobileNav('about')}
+                        >
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <circle cx="12" cy="12" r="10" />
+                                <line x1="12" y1="16" x2="12" y2="12" />
+                                <line x1="12" y1="8" x2="12.01" y2="8" />
+                            </svg>
+                            <span>About</span>
+                        </button>
+
+                        <button
+                            className={`mobile-menu-item ${activeSection === 'features' ? 'active' : ''}`}
+                            onClick={() => handleMobileNav('features')}
+                        >
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+                            </svg>
+                            <span>Features</span>
+                        </button>
+
+                        <button
+                            className={`mobile-menu-item ${activeSection === 'exchange' ? 'active' : ''}`}
+                            onClick={() => handleMobileNav('exchange')}
+                        >
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <line x1="12" y1="1" x2="12" y2="23" />
+                                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                            </svg>
+                            <span>Live Exchange</span>
+                        </button>
+
+                        <button
+                            className={`mobile-menu-item ${activeSection === 'contact' ? 'active' : ''}`}
+                            onClick={() => handleMobileNav('contact')}
+                        >
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                            </svg>
+                            <span>Contact</span>
+                        </button>
+                    </div>
+
+                    {!isAuthenticated && (
+                        <div className="mobile-menu-auth">
+                            <button className="mobile-menu-auth-btn primary" onClick={handleGetStarted}>
+                                Get Started
+                            </button>
+                            <button className="mobile-menu-auth-btn secondary" onClick={handleSignIn}>
+                                Sign In
+                            </button>
+                        </div>
+                    )}
+                </div>
 
                 <LiveExchange />
                 <Footer />
@@ -289,6 +431,19 @@ function Home() {
                 </nav>
 
                 <div className="nav-buttons">
+                    {/* Mobile Hamburger Menu */}
+                    <button
+                        className={`mobile-menu-btn ${mobileMenuOpen ? 'open' : ''}`}
+                        onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                        type="button"
+                    >
+                        <div className="menu-dots">
+                            <span className="menu-dot"></span>
+                            <span className="menu-dot"></span>
+                            <span className="menu-dot"></span>
+                        </div>
+                    </button>
+
                     {!loading && (
                         isAuthenticated ? (
                             <>
@@ -312,6 +467,86 @@ function Home() {
                     )}
                 </div>
             </header>
+
+            {/* Mobile Menu Backdrop */}
+            <div
+                className={`mobile-menu-backdrop ${mobileMenuOpen ? 'show' : ''}`}
+                onClick={() => setMobileMenuOpen(false)}
+            />
+
+            {/* Mobile Menu Dropdown */}
+            <div className={`mobile-menu-dropdown ${mobileMenuOpen ? 'show' : ''}`}>
+                <div className="mobile-menu-header">
+                    <h3 className="mobile-menu-title">Navigation</h3>
+                </div>
+
+                <div className="mobile-menu-items">
+                    <button
+                        className={`mobile-menu-item ${activeSection === 'home' ? 'active' : ''}`}
+                        onClick={() => handleMobileNav('home')}
+                    >
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                            <polyline points="9 22 9 12 15 12 15 22" />
+                        </svg>
+                        <span>Home</span>
+                    </button>
+
+                    <button
+                        className={`mobile-menu-item ${activeSection === 'about' ? 'active' : ''}`}
+                        onClick={() => handleMobileNav('about')}
+                    >
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <circle cx="12" cy="12" r="10" />
+                            <line x1="12" y1="16" x2="12" y2="12" />
+                            <line x1="12" y1="8" x2="12.01" y2="8" />
+                        </svg>
+                        <span>About</span>
+                    </button>
+
+                    <button
+                        className={`mobile-menu-item ${activeSection === 'features' ? 'active' : ''}`}
+                        onClick={() => handleMobileNav('features')}
+                    >
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+                        </svg>
+                        <span>Features</span>
+                    </button>
+
+                    <button
+                        className={`mobile-menu-item ${activeSection === 'exchange' ? 'active' : ''}`}
+                        onClick={() => handleMobileNav('exchange')}
+                    >
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <line x1="12" y1="1" x2="12" y2="23" />
+                            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                        </svg>
+                        <span>Live Exchange</span>
+                    </button>
+
+                    <button
+                        className={`mobile-menu-item ${activeSection === 'contact' ? 'active' : ''}`}
+                        onClick={() => handleMobileNav('contact')}
+                    >
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                        </svg>
+                        <span>Contact</span>
+                    </button>
+                </div>
+
+                {!isAuthenticated && (
+                    <div className="mobile-menu-auth">
+                        <button className="mobile-menu-auth-btn primary" onClick={handleGetStarted}>
+                            Get Started
+                        </button>
+                        <button className="mobile-menu-auth-btn secondary" onClick={handleSignIn}>
+                            Sign In
+                        </button>
+                    </div>
+                )}
+            </div>
 
             {/* Main Content */}
             <main className="home-main" id="home">
