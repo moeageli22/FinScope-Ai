@@ -260,6 +260,22 @@
         height: 14px;
     }
 
+    /* Add backdrop overlay on mobile */
+    .user-menu-dropdown::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(4px);
+        z-index: -1;
+        animation: fadeIn 0.2s ease;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
     /* Dropdown - Full Width on Mobile */
     .user-menu-dropdown {
         position: fixed;
@@ -271,6 +287,7 @@
         border-radius: 24px 24px 0 0;
         max-height: 85vh;
         overflow-y: auto;
+        z-index: 9999;
         animation: slideUpMobile 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 

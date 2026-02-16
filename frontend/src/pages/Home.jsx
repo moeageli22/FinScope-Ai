@@ -393,7 +393,7 @@ function Home() {
                 <ChartsInsights />
             </div>
 
-            {/* Contact Sectionn */}
+            {/* Contact Section */}
             <div id="contact">
                 <ContactSection />
             </div>

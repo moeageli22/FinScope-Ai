@@ -40,8 +40,26 @@ const UserMenu = ({ onEraseData }) => {
         };
 
         document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
+        document.addEventListener('touchstart', handleClickOutside);
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+            document.removeEventListener('touchstart', handleClickOutside);
+        };
     }, []);
+
+    // Prevent body scroll when menu is open on mobile
+    useEffect(() => {
+        if (isOpen && window.innerWidth <= 480) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+
+        return () => {
+            document.body.style.overflow = '';
+        };
+    }, [isOpen]);
 
     const handleSignOut = async () => {
         await supabase.auth.signOut();
@@ -69,11 +87,18 @@ const UserMenu = ({ onEraseData }) => {
         return user?.email?.split('@')[0] || 'User';
     };
 
+    const toggleMenu = (e) => {
+        e.stopPropagation();
+        setIsOpen(!isOpen);
+    };
+
     return (
         <div className="user-menu-container" ref={menuRef}>
             <button
                 className="user-menu-trigger"
-                onClick={() => setIsOpen(!isOpen)}
+                onClick={toggleMenu}
+                aria-label="User menu"
+                aria-expanded={isOpen}
             >
                 <div className="user-avatar">
                     <span className="user-initials">{getUserInitials()}</span>
