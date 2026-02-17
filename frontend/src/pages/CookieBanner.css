@@ -28,6 +28,21 @@
     }
 }
 
+@keyframes slideDown {
+    from {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+}
+
+.cookie-banner--hide {
+    animation: slideDown 0.35s ease-in forwards;
+}
+
 .cookie-content {
     display: flex;
     align-items: center;

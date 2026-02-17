@@ -1,31 +1,48 @@
 import React, { useState, useEffect } from 'react';
 import './CookieBanner.css';
 
+const STORAGE_KEY = 'cookiesAccepted';
+
 const CookieBanner = () => {
     const [showBanner, setShowBanner] = useState(false);
+    const [animatingOut, setAnimatingOut] = useState(false);
 
     useEffect(() => {
-        // Check if user has already accepted cookies
-        const cookiesAccepted = localStorage.getItem('cookiesAccepted');
-        if (!cookiesAccepted) {
+        // Try localStorage first; fall back to sessionStorage, then in-memory
+        try {
+            const stored = localStorage.getItem(STORAGE_KEY);
+            if (stored === null) {
+                setShowBanner(true);
+            }
+        } catch {
+            // localStorage unavailable (e.g. private mode or sandboxed iframe)
             setShowBanner(true);
         }
     }, []);
 
-    const acceptCookies = () => {
-        localStorage.setItem('cookiesAccepted', 'true');
-        setShowBanner(false);
+    const dismiss = (accepted) => {
+        // Animate banner out before removing it
+        setAnimatingOut(true);
+        setTimeout(() => {
+            setShowBanner(false);
+            setAnimatingOut(false);
+        }, 350); // matches CSS transition duration
+
+        try {
+            localStorage.setItem(STORAGE_KEY, accepted ? 'true' : 'false');
+        } catch {
+            // Storage unavailable – preference won't persist across page loads,
+            // but the banner will still close correctly for this session.
+        }
     };
 
-    const declineCookies = () => {
-        localStorage.setItem('cookiesAccepted', 'false');
-        setShowBanner(false);
-    };
+    const acceptCookies = () => dismiss(true);
+    const declineCookies = () => dismiss(false);
 
     if (!showBanner) return null;
 
     return (
-        <div className="cookie-banner">
+        <div className={`cookie-banner${animatingOut ? ' cookie-banner--hide' : ''}`}>
             <div className="cookie-content">
                 <div className="cookie-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
