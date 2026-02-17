@@ -505,7 +505,6 @@ const Register = () => {
     }
 
     const availableCities = getCountryCities(formData.country);
-    const selectedCountryData = COUNTRY_DATA.find(c => c.name === formData.country);
 
     return (
         <div className="register-page">
@@ -681,15 +680,12 @@ const Register = () => {
                             <div className="form-group">
                                 <label htmlFor="country">Country *</label>
                                 <div className="country-select-wrapper">
-                                    {selectedCountryData && (
-                                        <span className="country-flag-preview">{selectedCountryData.flag}</span>
-                                    )}
                                     <select
                                         id="country"
                                         name="country"
                                         value={formData.country}
                                         onChange={handleChange}
-                                        className={`form-select country-select ${errors.country ? 'error' : ''} ${selectedCountryData ? 'has-flag' : ''}`}
+                                        className={`form-select country-select ${errors.country ? 'error' : ''}`}
                                         disabled={loading}
                                     >
                                         <option value="">Select your country</option>
