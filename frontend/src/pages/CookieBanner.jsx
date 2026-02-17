@@ -3,24 +3,22 @@ import './CookieBanner.css';
 
 const STORAGE_KEY = 'cookiesAccepted';
 
+// ─── One-time cleanup ─────────────────────────────────────────────────────────
+// Previous versions wrote to localStorage which permanently hid the banner.
+// Remove it so the banner shows correctly again.
+try { localStorage.removeItem(STORAGE_KEY); } catch { /* ignored */ }
+// ─────────────────────────────────────────────────────────────────────────────
+
 // ─── Module-level flag ────────────────────────────────────────────────────────
-// This variable lives outside React. It is set once per JS session and survives
-// every remount (e.g. navigating away and back in a React Router SPA).
-// localStorage / sessionStorage are used as a cross-session backup.
+// Lives outside React — survives component remounts (navigate away & back).
+// sessionStorage resets when the tab closes, so the banner reappears next visit.
 let _preferenceGiven = (() => {
-    try {
-        return (
-            localStorage.getItem(STORAGE_KEY) !== null ||
-            sessionStorage.getItem(STORAGE_KEY) !== null
-        );
-    } catch {
-        return false;
-    }
+    try { return sessionStorage.getItem(STORAGE_KEY) !== null; }
+    catch { return false; }
 })();
 
 const savePreference = (value) => {
     _preferenceGiven = true;
-    try { localStorage.setItem(STORAGE_KEY, value); } catch { /* ignored */ }
     try { sessionStorage.setItem(STORAGE_KEY, value); } catch { /* ignored */ }
 };
 // ─────────────────────────────────────────────────────────────────────────────
