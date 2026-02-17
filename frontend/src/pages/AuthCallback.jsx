@@ -10,7 +10,7 @@ const AuthCallback = () => {
     const [countdown, setCountdown] = useState(3);
 
     useEffect(() => {
-        handleEmailConfirmation();
+        handleAuthCallback();
     }, []);
 
     useEffect(() => {
@@ -24,47 +24,87 @@ const AuthCallback = () => {
                     return prev - 1;
                 });
             }, 1000);
-
             return () => clearInterval(timer);
         }
     }, [status, countdown, navigate]);
 
-    const handleEmailConfirmation = async () => {
+    const handleAuthCallback = async () => {
         try {
-            console.log('=== Email Confirmation Callback ===');
+            console.log('=== Auth Callback ===');
+            console.log('URL:', window.location.href);
 
-            // Get the current session
-            const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+            const params = new URLSearchParams(window.location.search);
 
-            console.log('Session check:', {
-                hasSession: !!session,
-                error: sessionError
-            });
-
-            if (sessionError) {
-                console.error('Session error:', sessionError);
+            // Check for errors in URL first (expired/invalid links)
+            const urlError = params.get('error');
+            const urlErrorCode = params.get('error_code');
+            if (urlError || urlErrorCode) {
+                console.error('URL error:', urlError, urlErrorCode);
                 setStatus('error');
                 return;
             }
 
-            if (session && session.user) {
-                console.log('✅ Email confirmed successfully!');
-                console.log('User ID:', session.user.id);
-                console.log('Email:', session.user.email);
-                console.log('Email confirmed at:', session.user.email_confirmed_at);
-
-                // Sign out the user so they can login properly (without 2FA confusion)
-                await supabase.auth.signOut();
-                console.log('✅ User signed out - ready for normal login');
-
-                setStatus('success');
-            } else {
-                console.error('No session found after confirmation');
-                setStatus('error');
+            // Exchange PKCE code for session
+            const code = params.get('code');
+            if (code) {
+                console.log('Exchanging PKCE code...');
+                const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(window.location.href);
+                if (exchangeError) {
+                    console.error('Code exchange error:', exchangeError);
+                    setStatus('error');
+                    return;
+                }
+                console.log('Code exchanged successfully');
             }
 
+            // Listen for auth state change to determine type of callback
+            const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+                console.log('Auth event:', event, '| Has session:', !!session);
+
+                if (event === 'PASSWORD_RECOVERY') {
+                    // Password reset - go to reset form (session stays active)
+                    console.log('PASSWORD_RECOVERY - navigating to /reset-password');
+                    subscription.unsubscribe();
+                    navigate('/reset-password');
+                    return;
+                }
+
+                if (event === 'SIGNED_IN' && session) {
+                    const type = params.get('type');
+                    if (type === 'recovery') {
+                        console.log('Recovery SIGNED_IN - navigating to /reset-password');
+                        subscription.unsubscribe();
+                        navigate('/reset-password');
+                        return;
+                    }
+
+                    // Email confirmation flow
+                    console.log('Email confirmed for:', session.user.email);
+                    subscription.unsubscribe();
+                    await supabase.auth.signOut();
+                    setStatus('success');
+                }
+            });
+
+            // Fallback: check existing session after a short wait
+            setTimeout(async () => {
+                const { data: { session } } = await supabase.auth.getSession();
+                if (session) {
+                    console.log('Fallback session found, treating as email confirmation');
+                    setStatus(prev => {
+                        if (prev === 'verifying') {
+                            supabase.auth.signOut();
+                            return 'success';
+                        }
+                        return prev;
+                    });
+                } else {
+                    setStatus(prev => prev === 'verifying' ? 'error' : prev);
+                }
+            }, 5000);
+
         } catch (error) {
-            console.error('Unexpected error during email confirmation:', error);
+            console.error('Unexpected error during auth callback:', error);
             setStatus('error');
         }
     };
@@ -81,8 +121,8 @@ const AuthCallback = () => {
                         <div className="verification-spinner">
                             <div className="spinner-ring"></div>
                         </div>
-                        <h1>Confirming Your Email...</h1>
-                        <p>Please wait while we verify your email address.</p>
+                        <h1>Verifying...</h1>
+                        <p>Please wait while we process your link.</p>
                     </div>
                 )}
 
@@ -101,10 +141,7 @@ const AuthCallback = () => {
                         <p className="redirect-message">
                             Redirecting you to login in {countdown} seconds...
                         </p>
-                        <button
-                            className="btn-continue"
-                            onClick={() => navigate('/login')}
-                        >
+                        <button className="btn-continue" onClick={() => navigate('/login')}>
                             Continue to Login
                         </button>
                     </div>
@@ -119,21 +156,15 @@ const AuthCallback = () => {
                                 <line x1="9" y1="9" x2="15" y2="15" />
                             </svg>
                         </div>
-                        <h1>Verification Failed</h1>
+                        <h1>Link Expired or Invalid</h1>
                         <p className="error-message">
-                            We couldn't verify your email address. The link may have expired or is invalid.
+                            This link has expired or is no longer valid.
                         </p>
                         <div className="error-actions">
-                            <button
-                                className="btn-try-again"
-                                onClick={() => navigate('/register')}
-                            >
-                                Register Again
+                            <button className="btn-try-again" onClick={() => navigate('/forgot-password')}>
+                                Reset Password Again
                             </button>
-                            <button
-                                className="btn-contact"
-                                onClick={() => navigate('/')}
-                            >
+                            <button className="btn-contact" onClick={() => navigate('/')}>
                                 Back to Home
                             </button>
                         </div>

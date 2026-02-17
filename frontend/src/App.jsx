@@ -6,6 +6,7 @@ import Home from "./pages/Home.jsx";
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
 import ForgotPassword from "./pages/ForgotPassword.jsx";
+import ResetPassword from "./pages/ResetPassword.jsx";
 import EmailConfirmed from "./pages/EmailConfirmed.jsx";
 import Verify2FA from "./pages/Verify2FA";
 import Terms from './pages/Terms'
@@ -15,9 +16,6 @@ import Profile from "./pages/Profile.jsx";
 import Settings from "./pages/Settings.jsx";
 import PracticeMode from './pages/PracticeMode.jsx';
 import AuthCallback from './pages/AuthCallback';
-
-
-
 
 function App() {
     return (
@@ -30,6 +28,7 @@ function App() {
                             <Route path="/login" element={<Login />} />
                             <Route path="/register" element={<Register />} />
                             <Route path="/forgot-password" element={<ForgotPassword />} />
+                            <Route path="/reset-password" element={<ResetPassword />} />
                             <Route path="/email-confirmed" element={<EmailConfirmed />} />
                             <Route path="/verify-2fa" element={<Verify2FA />} />
                             <Route path="/verify-email" element={<VerifyEmail />} />

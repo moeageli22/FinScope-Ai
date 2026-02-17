@@ -13,11 +13,13 @@ const ForgotPassword = () => {
     const [resendCooldown, setResendCooldown] = useState(0);
 
     const sendResetEmail = async (emailAddress) => {
+        // Use the current origin so it works both locally and when deployed
+        const redirectUrl = `${window.location.origin}/reset-password`;
+        console.log('Reset redirect URL:', redirectUrl);
+
         const { error: resetError } = await supabase.auth.resetPasswordForEmail(
             emailAddress,
-            {
-                redirectTo: `${window.location.origin}/reset-password`,
-            }
+            { redirectTo: redirectUrl }
         );
         return resetError;
     };
