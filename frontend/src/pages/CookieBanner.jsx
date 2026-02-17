@@ -3,38 +3,40 @@ import './CookieBanner.css';
 
 const STORAGE_KEY = 'cookiesAccepted';
 
-// Check storage synchronously so the banner never flickers in/out
-const hasStoredPreference = () => {
+// ─── Module-level flag ────────────────────────────────────────────────────────
+// This variable lives outside React. It is set once per JS session and survives
+// every remount (e.g. navigating away and back in a React Router SPA).
+// localStorage / sessionStorage are used as a cross-session backup.
+let _preferenceGiven = (() => {
     try {
-        return localStorage.getItem(STORAGE_KEY) !== null;
+        return (
+            localStorage.getItem(STORAGE_KEY) !== null ||
+            sessionStorage.getItem(STORAGE_KEY) !== null
+        );
     } catch {
-        return false; // storage unavailable — show the banner
+        return false;
     }
+})();
+
+const savePreference = (value) => {
+    _preferenceGiven = true;
+    try { localStorage.setItem(STORAGE_KEY, value); } catch { /* ignored */ }
+    try { sessionStorage.setItem(STORAGE_KEY, value); } catch { /* ignored */ }
 };
+// ─────────────────────────────────────────────────────────────────────────────
 
 const CookieBanner = () => {
-    // Show immediately unless the user already gave a preference
-    const [showBanner, setShowBanner] = useState(!hasStoredPreference());
+    const [showBanner, setShowBanner] = useState(!_preferenceGiven);
     const [animatingOut, setAnimatingOut] = useState(false);
 
     const dismiss = (accepted) => {
-        // Animate banner out before removing it
+        savePreference(accepted ? 'true' : 'false');
         setAnimatingOut(true);
         setTimeout(() => {
             setShowBanner(false);
             setAnimatingOut(false);
-        }, 350); // matches CSS transition duration
-
-        try {
-            localStorage.setItem(STORAGE_KEY, accepted ? 'true' : 'false');
-        } catch {
-            // Storage unavailable – preference won't persist across page loads,
-            // but the banner will still close correctly for this session.
-        }
+        }, 350);
     };
-
-    const acceptCookies = () => dismiss(true);
-    const declineCookies = () => dismiss(false);
 
     if (!showBanner) return null;
 
@@ -62,10 +64,10 @@ const CookieBanner = () => {
                 </div>
             </div>
             <div className="cookie-actions">
-                <button className="btn-cookie-decline" onClick={declineCookies}>
+                <button className="btn-cookie-decline" onClick={() => dismiss(false)}>
                     Decline
                 </button>
-                <button className="btn-cookie-accept" onClick={acceptCookies}>
+                <button className="btn-cookie-accept" onClick={() => dismiss(true)}>
                     Accept Cookies
                 </button>
             </div>
