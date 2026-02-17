@@ -1,24 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import './CookieBanner.css';
 
 const STORAGE_KEY = 'cookiesAccepted';
 
-const CookieBanner = () => {
-    const [showBanner, setShowBanner] = useState(false);
-    const [animatingOut, setAnimatingOut] = useState(false);
+// Check storage synchronously so the banner never flickers in/out
+const hasStoredPreference = () => {
+    try {
+        return localStorage.getItem(STORAGE_KEY) !== null;
+    } catch {
+        return false; // storage unavailable — show the banner
+    }
+};
 
-    useEffect(() => {
-        // Try localStorage first; fall back to sessionStorage, then in-memory
-        try {
-            const stored = localStorage.getItem(STORAGE_KEY);
-            if (stored === null) {
-                setShowBanner(true);
-            }
-        } catch {
-            // localStorage unavailable (e.g. private mode or sandboxed iframe)
-            setShowBanner(true);
-        }
-    }, []);
+const CookieBanner = () => {
+    // Show immediately unless the user already gave a preference
+    const [showBanner, setShowBanner] = useState(!hasStoredPreference());
+    const [animatingOut, setAnimatingOut] = useState(false);
 
     const dismiss = (accepted) => {
         // Animate banner out before removing it
