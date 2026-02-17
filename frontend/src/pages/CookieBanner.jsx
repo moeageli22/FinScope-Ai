@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import './CookieBanner.css';
 
 const STORAGE_KEY = 'cookiesAccepted';
@@ -57,7 +58,7 @@ const CookieBanner = () => {
                         We use cookies to enhance your browsing experience, analyze site traffic,
                         and personalize content. By clicking "Accept", you consent to our use of cookies.
                         {' '}
-                        <a href="#privacy" className="cookie-link">Learn more</a>
+                        <Link to="/terms" className="cookie-link">Learn more</Link>
                     </p>
                 </div>
             </div>
