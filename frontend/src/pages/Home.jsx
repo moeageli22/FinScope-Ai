@@ -550,10 +550,6 @@ function Home() {
 
             {/* Main Content */}
             <main className="home-main" id="home">
-                <div className="badge">
-                    <span className="sparkle-icon">✨</span>
-                    <span>AI-Powered Banking Platform</span>
-                </div>
 
                 <h1 className="main-heading">
                     Welcome to<br />
