@@ -6,7 +6,7 @@ import FinScopeAI from '../components/FinScopeAI';
 import AIAssistant from '../components/AIAssistant';
 import DashboardTutorial from '../components/DashboardTutorial';
 import { FullscreenAIChat, AIInsightsDashboard } from '../components/FullscreenAIchat.jsx';
-import { useCurrency, CURRENCIES } from '../contexts/CurrencyContext';
+import { useCurrency, CURRENCIES } from '../contexts/CurrencyContext.jsx';
 import {
     initUserFinance, getUserFinance, addTransaction,
     getTransactions, getMonthlySummaries, getCategorySummary, deleteTransaction

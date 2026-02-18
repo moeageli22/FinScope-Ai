@@ -2,7 +2,7 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { ToastProvider } from "./components/Toast";
 import { LanguageProvider } from "./pages/LanguageContext";
-import { CurrencyProvider } from "./contexts/CurrencyContext";
+import { CurrencyProvider } from "./contexts/CurrencyContext.jsx";
 import Home from "./pages/Home.jsx";
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
