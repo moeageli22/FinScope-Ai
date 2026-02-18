@@ -314,7 +314,6 @@ const Profile = () => {
 
     const tabs = [
         { id: 'profile',  label: 'Profile',      icon: <><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></> },
-        { id: 'card',     label: 'Virtual Card',  icon: <><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></> },
         { id: 'wallpaper',label: 'Wallpaper',     icon: <><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></> },
         { id: 'security', label: 'Security',      icon: <><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></> },
     ];
@@ -456,17 +455,10 @@ const Profile = () => {
                         <div className="virtual-card-container">
                             <div className="card-label-row">
                                 <span className="card-label-text">Your Virtual Card</span>
-                                <button className="card-edit-btn" onClick={() => setActiveTab('card')}>
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14">
-                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                                    </svg>
-                                    Customise
-                                </button>
                             </div>
                             <div
                                 className="virtual-card"
-                                style={{ background: currentCardTheme.gradient, color: currentCardTheme.textColor }}
+                                style={{ background: 'linear-gradient(135deg, #0a1628 0%, #0f2347 50%, #152d5e 100%)', color: '#fff' }}
                             >
                                 <div className="card-ai-background"><FinScopeAI /></div>
                                 <div className="card-top">
@@ -482,23 +474,11 @@ const Profile = () => {
                                 <div className="card-bottom-info">
                                     <div className="card-holder-name">{getDisplayName().toUpperCase()}</div>
                                     <div className="card-network-logo">
-                                        {selectedCardType === 'mastercard' && (
-                                            <svg viewBox="0 0 131.39 86.9" fill="none">
-                                                <circle cx="41.5" cy="43.45" r="35.9" fill="#eb001b"/>
-                                                <circle cx="89.9" cy="43.45" r="35.9" fill="#f79e1b"/>
-                                                <path d="M65.7,21.1c-6.9,5.3-11.4,13.6-11.4,23s4.5,17.7,11.4,23c6.9-5.3,11.4-13.6,11.4-23S72.6,26.4,65.7,21.1z" fill="#ff5f00"/>
-                                            </svg>
-                                        )}
-                                        {selectedCardType === 'visa' && (
-                                            <svg viewBox="0 0 750 471" fill="none">
-                                                <path fill="currentColor" d="M278.2 334.2l33.4-195.7h53.4l-33.4 195.7h-53.4zm246.8-191.9c-10.6-4-27.1-8.4-47.8-8.4-52.7 0-89.8 26.3-90.1 64-0.3 27.9 26.5 43.5 46.8 52.8 20.8 9.6 27.8 15.7 27.7 24.2-0.2 13.1-16.7 19.1-32.2 19.1-21.5 0-32.9-2.9-50.5-10.1l-7-3.1-7.6 44.3c12.5 5.4 35.8 10.2 59.9 10.4 56 0 92.4-26 92.7-66.2 0.2-22.1-14-38.9-44.7-52.8-18.6-9-30-15-29.9-24.1 0-8.1 9.6-16.7 30.4-16.7 17.4-0.3 30 3.5 39.8 7.5l4.8 2.2 7.3-42.1z"/>
-                                            </svg>
-                                        )}
-                                        {selectedCardType === 'amex' && (
-                                            <svg viewBox="0 0 300 200" fill="none">
-                                                <path fill="currentColor" d="M55.9 65.2h-8.5l-5.4 12.3-5.7-12.3h-8.6v18.2l-8.8-18.2h-7.6l-9 18.2h5.8l1.5-3.5h10.4l1.5 3.5h12.2V72.9l9.3 13.3h5.6l9.4-13.3v13.3h5.8V65.2h-7.9z"/>
-                                            </svg>
-                                        )}
+                                        <svg viewBox="0 0 131.39 86.9" fill="none">
+                                            <circle cx="41.5" cy="43.45" r="35.9" fill="#eb001b"/>
+                                            <circle cx="89.9" cy="43.45" r="35.9" fill="#f79e1b"/>
+                                            <path d="M65.7,21.1c-6.9,5.3-11.4,13.6-11.4,23s4.5,17.7,11.4,23c6.9-5.3,11.4-13.6,11.4-23S72.6,26.4,65.7,21.1z" fill="#ff5f00"/>
+                                        </svg>
                                     </div>
                                 </div>
                             </div>
@@ -655,110 +635,6 @@ const Profile = () => {
                                             </svg>
                                             Save Changes
                                         </>}
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* ══════════════════════════════════════
-                        CARD TAB
-                    ══════════════════════════════════════ */}
-                    {activeTab === 'card' && (
-                        <div className="tab-content">
-                            <div className="content-section">
-                                <div className="section-header-row">
-                                    <h2 className="section-heading">Customise Your Virtual Card</h2>
-                                    <p className="section-sub">Pick the look that fits you</p>
-                                </div>
-
-                                {/* Live card preview */}
-                                <div className="card-preview-section">
-                                    <div
-                                        className="virtual-card card-preview-full"
-                                        style={{ background: currentCardTheme.gradient, color: currentCardTheme.textColor }}
-                                    >
-                                        <div className="card-ai-background"><FinScopeAI /></div>
-                                        <div className="card-top">
-                                            <div className="card-brand-text">
-                                                <div className="brand-name">FinScope AI</div>
-                                                <div className="virtual-label">VIRTUAL</div>
-                                            </div>
-                                        </div>
-                                        <div className="card-number-center">
-                                            <span>****</span><span>****</span><span>****</span>
-                                            <span className="highlighted-digits">5000</span>
-                                        </div>
-                                        <div className="card-bottom-info">
-                                            <div className="card-holder-name">{getDisplayName().toUpperCase()}</div>
-                                            <div className="card-network-logo">
-                                                {selectedCardType === 'mastercard' && (
-                                                    <svg viewBox="0 0 131.39 86.9" fill="none">
-                                                        <circle cx="41.5" cy="43.45" r="35.9" fill="#eb001b"/>
-                                                        <circle cx="89.9" cy="43.45" r="35.9" fill="#f79e1b"/>
-                                                        <path d="M65.7,21.1c-6.9,5.3-11.4,13.6-11.4,23s4.5,17.7,11.4,23c6.9-5.3,11.4-13.6,11.4-23S72.6,26.4,65.7,21.1z" fill="#ff5f00"/>
-                                                    </svg>
-                                                )}
-                                                {selectedCardType === 'visa' && (
-                                                    <svg viewBox="0 0 750 471" fill="none">
-                                                        <path fill="currentColor" d="M278.2 334.2l33.4-195.7h53.4l-33.4 195.7h-53.4zm246.8-191.9c-10.6-4-27.1-8.4-47.8-8.4-52.7 0-89.8 26.3-90.1 64-0.3 27.9 26.5 43.5 46.8 52.8 20.8 9.6 27.8 15.7 27.7 24.2-0.2 13.1-16.7 19.1-32.2 19.1-21.5 0-32.9-2.9-50.5-10.1l-7-3.1-7.6 44.3c12.5 5.4 35.8 10.2 59.9 10.4 56 0 92.4-26 92.7-66.2 0.2-22.1-14-38.9-44.7-52.8-18.6-9-30-15-29.9-24.1 0-8.1 9.6-16.7 30.4-16.7 17.4-0.3 30 3.5 39.8 7.5l4.8 2.2 7.3-42.1z"/>
-                                                    </svg>
-                                                )}
-                                                {selectedCardType === 'amex' && (
-                                                    <svg viewBox="0 0 300 200" fill="none">
-                                                        <path fill="currentColor" d="M55.9 65.2h-8.5l-5.4 12.3-5.7-12.3h-8.6v18.2l-8.8-18.2h-7.6l-9 18.2h5.8l1.5-3.5h10.4l1.5 3.5h12.2V72.9l9.3 13.3h5.6l9.4-13.3v13.3h5.8V65.2h-7.9z"/>
-                                                    </svg>
-                                                )}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Card type */}
-                                <div className="customization-group">
-                                    <h3 className="cust-group-label">Network</h3>
-                                    <div className="card-type-selector">
-                                        {[
-                                            { type: 'visa',       label: 'Visa' },
-                                            { type: 'mastercard', label: 'Mastercard' },
-                                            { type: 'amex',       label: 'Amex' },
-                                        ].map(card => (
-                                            <button
-                                                key={card.type}
-                                                className={`card-type-btn ${selectedCardType === card.type ? 'active' : ''}`}
-                                                onClick={() => setSelectedCardType(card.type)}
-                                            >
-                                                {card.label}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                {/* Card theme */}
-                                <div className="customization-group">
-                                    <h3 className="cust-group-label">Theme — <em>{currentCardTheme.name}</em></h3>
-                                    <div className="card-theme-selector">
-                                        {Object.entries(cardThemes).map(([key, theme]) => (
-                                            <button
-                                                key={key}
-                                                className={`card-theme-btn ${selectedCardTheme === key ? 'active' : ''}`}
-                                                style={{ background: theme.gradient }}
-                                                onClick={() => setSelectedCardTheme(key)}
-                                                title={theme.name}
-                                            >
-                                                {selectedCardTheme === key && (
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3">
-                                                        <polyline points="20 6 9 17 4 12"/>
-                                                    </svg>
-                                                )}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                <div className="form-actions">
-                                    <button className="btn-save" onClick={handleSave} disabled={saving}>
-                                        {saving ? <><div className="spinner"/><span>Saving...</span></> : 'Save Card Settings'}
                                     </button>
                                 </div>
                             </div>
