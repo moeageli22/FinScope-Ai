@@ -6,6 +6,7 @@ import FinScopeAI from '../components/FinScopeAI';
 import AIAssistant from '../components/AIAssistant';
 import DashboardTutorial from '../components/DashboardTutorial';
 import { FullscreenAIChat, AIInsightsDashboard } from '../components/FullscreenAIchat.jsx';
+import { useCurrency, CURRENCIES } from '../contexts/CurrencyContext';
 import {
     initUserFinance, getUserFinance, addTransaction,
     getTransactions, getMonthlySummaries, getCategorySummary, deleteTransaction
@@ -100,6 +101,7 @@ const FinScopeToast = ({ visible, onDone }) => {
 const DEPOSIT_LIMIT = 15_000_000;
 
 const MoneyModal = ({ type, onClose, onConfirm, balance }) => {
+    const { currency, fmt } = useCurrency();
     const [amount, setAmount] = useState('');
     const [source, setSource] = useState('');
     const [showToast, setShowToast] = useState(false);
@@ -108,6 +110,7 @@ const MoneyModal = ({ type, onClose, onConfirm, balance }) => {
     const overLimit = isDeposit && numAmount > DEPOSIT_LIMIT;
     const isValid = numAmount > 0 && (isDeposit ? !overLimit : numAmount <= balance);
     const presets = isDeposit ? [500, 1000, 2000, 5000] : [50, 100, 500, 1000];
+    const sym = currency?.symbol || '$';
 
     const handleAmountChange = (val) => {
         setAmount(val);
@@ -125,20 +128,20 @@ const MoneyModal = ({ type, onClose, onConfirm, balance }) => {
                             {isDeposit ? <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 5v14M5 12l7-7 7 7" /></svg>
                                 : <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 19V5M5 12l7 7 7-7" /></svg>}
                         </div>
-                        <div><h3 className="dr-modal-title">{isDeposit ? 'Deposit Money' : 'Withdraw Money'}</h3><p className="dr-modal-sub">{isDeposit ? `Max $${DEPOSIT_LIMIT.toLocaleString()}` : 'Take money out'}</p></div>
+                        <div><h3 className="dr-modal-title">{isDeposit ? 'Deposit Money' : 'Withdraw Money'}</h3><p className="dr-modal-sub">{isDeposit ? `Max ${fmt(DEPOSIT_LIMIT, { decimals: 0 })}` : 'Take money out'}</p></div>
                         <button className="dr-modal-close" onClick={onClose}><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12" /></svg></button>
                     </div>
                     <div className="dr-modal-body">
                         <div className="dr-modal-field">
                             <label className="dr-field-label">Amount</label>
                             <div className={`dr-amount-input-wrap ${overLimit ? 'dr-input-over-limit' : ''}`}>
-                                <span className="dr-currency-symbol">$</span>
+                                <span className="dr-currency-symbol">{sym}</span>
                                 <input type="number" className="dr-amount-input" placeholder="0.00" value={amount} onChange={e => handleAmountChange(e.target.value)} min="0.01" step="0.01" autoFocus />
                             </div>
-                            {overLimit && <span className="dr-field-error">🚫 Max deposit is $15,000,000 — you're not Elon Musk!</span>}
-                            {!isDeposit && numAmount > balance && <span className="dr-field-error">Exceeds balance (${balance.toFixed(2)})</span>}
+                            {overLimit && <span className="dr-field-error">🚫 Max deposit is {fmt(DEPOSIT_LIMIT, { decimals: 0 })} — you're not Elon Musk!</span>}
+                            {!isDeposit && numAmount > balance && <span className="dr-field-error">Exceeds balance ({fmt(balance)})</span>}
                         </div>
-                        <div className="dr-presets">{presets.map(p => (<button key={p} className={`dr-preset-btn ${numAmount === p ? 'active' : ''}`} onClick={() => setAmount(String(p))}>${p.toLocaleString()}</button>))}</div>
+                        <div className="dr-presets">{presets.map(p => (<button key={p} className={`dr-preset-btn ${numAmount === p ? 'active' : ''}`} onClick={() => setAmount(String(p))}>{fmt(p, { decimals: 0 })}</button>))}</div>
                         <div className="dr-modal-field">
                             <label className="dr-field-label">{isDeposit ? 'Source (optional)' : 'Reason (optional)'}</label>
                             <input type="text" className="dr-text-input" placeholder={isDeposit ? 'e.g. Salary, Freelance...' : 'e.g. ATM, Transfer...'} value={source} onChange={e => setSource(e.target.value)} />
@@ -146,7 +149,7 @@ const MoneyModal = ({ type, onClose, onConfirm, balance }) => {
                     </div>
                     <div className="dr-modal-footer">
                         <button className="dr-modal-cancel" onClick={onClose}>Cancel</button>
-                        <button className={`dr-modal-confirm ${isDeposit ? 'green' : 'orange'}`} disabled={!isValid} onClick={() => onConfirm(numAmount, source)}>{isDeposit ? 'Deposit' : 'Withdraw'} ${numAmount > 0 ? numAmount.toLocaleString(undefined, { minimumFractionDigits: 2 }) : '0.00'}</button>
+                        <button className={`dr-modal-confirm ${isDeposit ? 'green' : 'orange'}`} disabled={!isValid} onClick={() => onConfirm(numAmount, source)}>{isDeposit ? 'Deposit' : 'Withdraw'} {fmt(numAmount)}</button>
                     </div>
                 </div>
             </div>
@@ -155,7 +158,7 @@ const MoneyModal = ({ type, onClose, onConfirm, balance }) => {
 };
 
 /* ═══ BRAND EXPENSE SECTION ═══ */
-const BrandExpenseSection = ({ balance, onAddExpense }) => {
+const BrandExpenseSection = ({ balance, onAddExpense, fmt, currency }) => {
     const [amounts, setAmounts] = useState({});
     const [addingId, setAddingId] = useState(null);
     const [successId, setSuccessId] = useState(null);
@@ -172,6 +175,7 @@ const BrandExpenseSection = ({ balance, onAddExpense }) => {
             setTimeout(() => setSuccessId(null), 1500);
         }, 300);
     };
+    const sym = currency?.symbol || '$';
     return (
         <div className="pm-brand-section">
             <div className="pm-brand-header"><div className="pm-brand-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" strokeWidth="2"><rect x="2" y="7" width="20" height="14" rx="2" /><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" /></svg></div><div><h3 className="pm-brand-title">Add Expense</h3><p className="pm-brand-sub">Track your daily spending</p></div></div>
@@ -188,7 +192,7 @@ const BrandExpenseSection = ({ balance, onAddExpense }) => {
                                 <div className="pm-brand-info"><span className="pm-brand-name">{item.name}</span><span className="pm-brand-cat">{item.category}</span></div>
                             </div>
                             <div className="pm-brand-input-row">
-                                <div className={`pm-brand-input-wrap ${isOverBudget ? 'error' : ''}`}><span className="pm-brand-currency">$</span><input type="number" className="pm-brand-input" placeholder={item.placeholder} value={amounts[item.id] || ''} onChange={e => setAmounts(prev => ({ ...prev, [item.id]: e.target.value }))} onKeyDown={e => e.key === 'Enter' && isValid && handleAdd(item)} min="0.01" step="0.01" /></div>
+                                <div className={`pm-brand-input-wrap ${isOverBudget ? 'error' : ''}`}><span className="pm-brand-currency">{sym}</span><input type="number" className="pm-brand-input" placeholder={item.placeholder} value={amounts[item.id] || ''} onChange={e => setAmounts(prev => ({ ...prev, [item.id]: e.target.value }))} onKeyDown={e => e.key === 'Enter' && isValid && handleAdd(item)} min="0.01" step="0.01" /></div>
                                 <button className={`pm-brand-add-btn ${successId === item.id ? 'success' : ''} ${addingId === item.id ? 'loading' : ''}`} onClick={() => handleAdd(item)} disabled={!isValid || addingId === item.id}>{successId === item.id ? <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8"><polyline points="20 6 9 17 4 12"/></svg> : <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>}</button>
                             </div>
                             {isOverBudget && <span className="pm-brand-error">Exceeds balance</span>}
@@ -201,7 +205,7 @@ const BrandExpenseSection = ({ balance, onAddExpense }) => {
 };
 
 /* ═══ CUSTOM EXPENSE FORM ═══ */
-const CustomExpenseForm = ({ balance, onAddExpense }) => {
+const CustomExpenseForm = ({ balance, onAddExpense, fmt, currency }) => {
     const [name, setName] = useState('');
     const [amount, setAmount] = useState('');
     const [category, setCategory] = useState('Other');
@@ -211,6 +215,7 @@ const CustomExpenseForm = ({ balance, onAddExpense }) => {
     const numAmount = parseFloat(amount) || 0;
     const isOverBudget = numAmount > balance;
     const isValid = name.trim() && numAmount > 0 && !isOverBudget;
+    const sym = currency?.symbol || '$';
     const handleSubmit = (e) => {
         e.preventDefault(); if (!isValid) return;
         setIsAdding(true);
@@ -222,7 +227,7 @@ const CustomExpenseForm = ({ balance, onAddExpense }) => {
             <form className="pm-custom-form" onSubmit={handleSubmit}>
                 <div className="pm-custom-row">
                     <div className="pm-custom-field pm-custom-field-name"><label className="pm-field-label">What did you buy?</label><div className="pm-input-wrap"><span className="pm-input-emoji">{selectedCat?.emoji || '📝'}</span><input type="text" className="pm-custom-input" placeholder="e.g. Gym, Uber ride..." value={name} onChange={e => setName(e.target.value)} maxLength={50} /></div></div>
-                    <div className="pm-custom-field pm-custom-field-amount"><label className="pm-field-label">Amount</label><div className="pm-input-wrap pm-input-amount-wrap"><span className="pm-input-currency">$</span><input type="number" className="pm-custom-input pm-amount-input" placeholder="0.00" value={amount} onChange={e => setAmount(e.target.value)} min="0.01" step="0.01" /></div>{isOverBudget && <span className="pm-field-error">Exceeds balance</span>}</div>
+                    <div className="pm-custom-field pm-custom-field-amount"><label className="pm-field-label">Amount</label><div className="pm-input-wrap pm-input-amount-wrap"><span className="pm-input-currency">{sym}</span><input type="number" className="pm-custom-input pm-amount-input" placeholder="0.00" value={amount} onChange={e => setAmount(e.target.value)} min="0.01" step="0.01" /></div>{isOverBudget && <span className="pm-field-error">Exceeds balance</span>}</div>
                 </div>
                 <div className="pm-custom-field"><label className="pm-field-label">Category</label><div className="pm-category-pills">{CUSTOM_CATEGORIES.map(cat => (<button key={cat.value} type="button" className={`pm-cat-pill ${category === cat.value ? 'active' : ''}`} onClick={() => setCategory(cat.value)}><span>{cat.emoji}</span><span>{cat.label}</span></button>))}</div></div>
                 <div className="pm-custom-footer"><button type="submit" className={`pm-custom-submit ${isAdding ? 'adding' : ''} ${showSuccess ? 'success' : ''}`} disabled={!isValid || isAdding}>{showSuccess ? <>✓ Added!</> : <>+ Add Expense</>}</button></div>
@@ -232,7 +237,7 @@ const CustomExpenseForm = ({ balance, onAddExpense }) => {
 };
 
 /* ═══ SPENDING TREND CHART ═══ */
-const SpendingTrendChart = ({ transactions }) => {
+const SpendingTrendChart = ({ transactions, fmt }) => {
     const [tooltip, setTooltip] = useState(null);
     const expenses = transactions.filter(t => t.type === 'expense');
     if (expenses.length === 0) return (<div className="pm-chart-card"><div className="pm-chart-hdr"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12" /></svg><span>Spending Trend</span></div><div className="pm-chart-empty"><span>No spending data yet</span><span className="sub">Add expenses to see your trend</span></div></div>);
@@ -250,9 +255,9 @@ const SpendingTrendChart = ({ transactions }) => {
         <div className="pm-chart-card pm-chart-card--trend">
             <div className="pm-chart-hdr"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12" /></svg><span>Spending Trend</span><span className="pm-chart-badge">{n} expense{n !== 1 ? 's' : ''}</span></div>
             <div className="pm-trend-stats-row">
-                <div className="pm-trend-stat"><span className="pm-trend-stat-label">Total Spent</span><span className="pm-trend-stat-val">${running.toFixed(2)}</span></div>
-                <div className="pm-trend-stat"><span className="pm-trend-stat-label">Avg / Txn</span><span className="pm-trend-stat-val">${(running / n).toFixed(2)}</span></div>
-                <div className="pm-trend-stat"><span className="pm-trend-stat-label">Largest</span><span className="pm-trend-stat-val pm-trend-stat-val--red">${Math.max(...expenses.map(t => t.amount)).toFixed(2)}</span></div>
+                <div className="pm-trend-stat"><span className="pm-trend-stat-label">Total Spent</span><span className="pm-trend-stat-val">{fmt(running)}</span></div>
+                <div className="pm-trend-stat"><span className="pm-trend-stat-label">Avg / Txn</span><span className="pm-trend-stat-val">{fmt(running / n)}</span></div>
+                <div className="pm-trend-stat"><span className="pm-trend-stat-label">Largest</span><span className="pm-trend-stat-val pm-trend-stat-val--red">{fmt(Math.max(...expenses.map(t => t.amount)))}</span></div>
             </div>
             <div className="pm-trend-svg-wrap">
                 <svg viewBox={`0 0 ${W} ${H}`} className="pm-trend-svg" style={{ display: 'block', width: '100%' }}>
@@ -260,14 +265,14 @@ const SpendingTrendChart = ({ transactions }) => {
                     <path d={areaPath} fill="url(#drFill)" /><polyline points={linePts} fill="none" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                     {points.map((p, i) => (<g key={i} onMouseEnter={() => setTooltip({ i, x: xOf(i), y: yOf(p.cumulative), ...p })} onMouseLeave={() => setTooltip(null)} style={{ cursor: 'pointer' }}><circle cx={xOf(i)} cy={yOf(p.cumulative)} r="10" fill="transparent" /><circle cx={xOf(i)} cy={yOf(p.cumulative)} r={tooltip?.i === i ? 5 : 3.5} fill={tooltip?.i === i ? '#fff' : '#3b82f6'} stroke={tooltip?.i === i ? '#3b82f6' : '#1e3a8a'} strokeWidth="2" /></g>))}
                 </svg>
-                {tooltip && (<div className="pm-trend-tooltip" style={{ left: `${(tooltip.x / W) * 100}%`, top: `${(tooltip.y / H) * 100}%` }}><div className="pm-tt-name">{tooltip.name}</div><div className="pm-tt-row"><span>Amount</span><span className="pm-tt-red">-${tooltip.amount.toFixed(2)}</span></div><div className="pm-tt-row"><span>Total</span><span>${tooltip.cumulative.toFixed(2)}</span></div><div className="pm-tt-cat">{tooltip.category}</div></div>)}
+                {tooltip && (<div className="pm-trend-tooltip" style={{ left: `${(tooltip.x / W) * 100}%`, top: `${(tooltip.y / H) * 100}%` }}><div className="pm-tt-name">{tooltip.name}</div><div className="pm-tt-row"><span>Amount</span><span className="pm-tt-red">-{fmt(tooltip.amount)}</span></div><div className="pm-tt-row"><span>Total</span><span>{fmt(tooltip.cumulative)}</span></div><div className="pm-tt-cat">{tooltip.category}</div></div>)}
             </div>
         </div>
     );
 };
 
 /* ═══ SPENDING BY CATEGORY CHART ═══ */
-const SpendingByCategoryChart = ({ transactions }) => {
+const SpendingByCategoryChart = ({ transactions, fmt }) => {
     const [hovered, setHovered] = useState(null);
     const colors = { Groceries: '#3b82f6', Subscriptions: '#8b5cf6', Shopping: '#a78bfa', Transport: '#06b6d4', Dining: '#f59e0b', Bills: '#ef4444', Health: '#10b981', Entertainment: '#ec4899', Education: '#f97316', Other: '#6b7280' };
     const expenses = transactions.filter(t => t.type === 'expense');
@@ -282,11 +287,11 @@ const SpendingByCategoryChart = ({ transactions }) => {
             <div className="pm-donut-area">
                 <div className="pm-donut-wrap">
                     <svg viewBox="0 0 100 100" className="pm-donut">{segs.map(([cat, amt]) => { const pct = amt / total; const dash = pct * circ; const gap = circ - dash; const cur = off; off += pct * circ; return (<circle key={cat} cx="50" cy="50" r={r} fill="none" stroke={colors[cat] || '#666'} strokeWidth={hovered === cat ? 10 : 7} strokeDasharray={`${dash} ${gap}`} strokeDashoffset={-cur} strokeLinecap="round" className="pm-donut-seg" style={{ filter: hovered === cat ? `drop-shadow(0 0 6px ${colors[cat]})` : 'none' }} onMouseEnter={() => setHovered(cat)} onMouseLeave={() => setHovered(null)} />); })}</svg>
-                    <div className="pm-donut-center">{hovered ? (<><span className="pm-donut-center-pct" style={{ color: colors[hovered] }}>{((totals[hovered] / total) * 100).toFixed(0)}%</span><span className="pm-donut-center-label">{hovered}</span></>) : (<><span className="pm-donut-center-total">${total >= 1000 ? `${(total / 1000).toFixed(1)}k` : total.toFixed(0)}</span><span className="pm-donut-center-label">total</span></>)}</div>
+                    <div className="pm-donut-center">{hovered ? (<><span className="pm-donut-center-pct" style={{ color: colors[hovered] }}>{((totals[hovered] / total) * 100).toFixed(0)}%</span><span className="pm-donut-center-label">{hovered}</span></>) : (<><span className="pm-donut-center-total">{fmt(total, { decimals: 0 })}</span><span className="pm-donut-center-label">total</span></>)}</div>
                 </div>
                 <div className="pm-donut-legend">
-                    {segs.map(([cat, amt]) => (<div key={cat} className={`pm-legend-item ${hovered === cat ? 'hovered' : ''}`} onMouseEnter={() => setHovered(cat)} onMouseLeave={() => setHovered(null)} style={{ cursor: 'pointer' }}><span className="pm-legend-dot" style={{ background: colors[cat] || '#666' }} /><span className="pm-legend-name">{cat}</span><div className="pm-legend-right"><span className="pm-legend-pct">{((amt / total) * 100).toFixed(0)}%</span><span className="pm-legend-amt">${amt.toFixed(2)}</span></div></div>))}
-                    <div className="pm-legend-total-row"><span>Total</span><span className="pm-legend-total-val">${total.toFixed(2)}</span></div>
+                    {segs.map(([cat, amt]) => (<div key={cat} className={`pm-legend-item ${hovered === cat ? 'hovered' : ''}`} onMouseEnter={() => setHovered(cat)} onMouseLeave={() => setHovered(null)} style={{ cursor: 'pointer' }}><span className="pm-legend-dot" style={{ background: colors[cat] || '#666' }} /><span className="pm-legend-name">{cat}</span><div className="pm-legend-right"><span className="pm-legend-pct">{((amt / total) * 100).toFixed(0)}%</span><span className="pm-legend-amt">{fmt(amt)}</span></div></div>))}
+                    <div className="pm-legend-total-row"><span>Total</span><span className="pm-legend-total-val">{fmt(total)}</span></div>
                 </div>
             </div>
         </div>
@@ -294,7 +299,7 @@ const SpendingByCategoryChart = ({ transactions }) => {
 };
 
 /* ═══ RECENT TRANSACTIONS ═══ */
-const RecentTransactions = ({ transactions }) => (
+const RecentTransactions = ({ transactions, fmt }) => (
     <div className="pm-txns">
         <div className="pm-txns-header"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" strokeWidth="2"><line x1="12" y1="1" x2="12" y2="23" /><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" /></svg><span>Recent Transactions</span></div>
         <div className="pm-txns-list">
@@ -303,7 +308,7 @@ const RecentTransactions = ({ transactions }) => (
                 <div key={t.id || i} className="pm-txn-row">
                     {t.logo && logoMap[t.logo] ? <img src={logoMap[t.logo]} alt={t.name} className="pm-txn-logo" /> : <span className="pm-txn-emoji">{t.emoji || (t.type === 'deposit' ? '💰' : '💳')}</span>}
                     <div className="pm-txn-info"><span className="pm-txn-name">{t.name}</span><span className="pm-txn-cat">{t.category}{t.created_at ? ` · ${new Date(t.created_at).toLocaleDateString()}` : ''}</span></div>
-                    <span className="pm-txn-amt" style={{ color: t.type === 'deposit' ? '#10b981' : '#ef4444' }}>{t.type === 'deposit' ? '+' : '-'}${t.amount.toFixed(2)}</span>
+                    <span className="pm-txn-amt" style={{ color: t.type === 'deposit' ? '#10b981' : '#ef4444' }}>{t.type === 'deposit' ? '+' : '-'}{fmt(t.amount)}</span>
                 </div>
             ))}
         </div>
@@ -311,7 +316,7 @@ const RecentTransactions = ({ transactions }) => (
 );
 
 /* ═══ MONTHLY SUMMARY ═══ */
-const MonthlySummaryCard = ({ summaries }) => {
+const MonthlySummaryCard = ({ summaries, fmt }) => {
     if (!summaries || summaries.length === 0) return null;
     const current = summaries[0]; const previous = summaries[1];
     const changePercent = previous && previous.totalExpenses > 0 ? (((current.totalExpenses - previous.totalExpenses) / previous.totalExpenses) * 100).toFixed(0) : null;
@@ -319,13 +324,13 @@ const MonthlySummaryCard = ({ summaries }) => {
         <div className="dr-monthly-summary">
             <div className="dr-monthly-header"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg><span>Monthly Overview — {current.month}</span></div>
             <div className="dr-monthly-stats">
-                <div className="dr-mstat"><span className="dr-mstat-label">Deposited</span><span className="dr-mstat-val green">${current.totalDeposits.toFixed(2)}</span></div>
-                <div className="dr-mstat"><span className="dr-mstat-label">Spent</span><span className="dr-mstat-val red">${current.totalExpenses.toFixed(2)}</span></div>
-                <div className="dr-mstat"><span className="dr-mstat-label">Net</span><span className="dr-mstat-val" style={{ color: current.saved >= 0 ? '#10b981' : '#ef4444' }}>${current.saved.toFixed(2)}</span></div>
+                <div className="dr-mstat"><span className="dr-mstat-label">Deposited</span><span className="dr-mstat-val green">{fmt(current.totalDeposits)}</span></div>
+                <div className="dr-mstat"><span className="dr-mstat-label">Spent</span><span className="dr-mstat-val red">{fmt(current.totalExpenses)}</span></div>
+                <div className="dr-mstat"><span className="dr-mstat-label">Net</span><span className="dr-mstat-val" style={{ color: current.saved >= 0 ? '#10b981' : '#ef4444' }}>{fmt(current.saved)}</span></div>
                 <div className="dr-mstat"><span className="dr-mstat-label">Transactions</span><span className="dr-mstat-val">{current.transactionCount}</span></div>
             </div>
             {changePercent !== null && <div className="dr-monthly-change" style={{ color: Number(changePercent) <= 0 ? '#10b981' : '#ef4444' }}>{Number(changePercent) <= 0 ? '↓' : '↑'} {Math.abs(Number(changePercent))}% {Number(changePercent) <= 0 ? 'less' : 'more'} spending than {previous.month}</div>}
-            {current.topCategory && <div className="dr-monthly-top">Top category: <strong>{current.topCategory[0]}</strong> — ${current.topCategory[1].toFixed(2)}</div>}
+            {current.topCategory && <div className="dr-monthly-top">Top category: <strong>{current.topCategory[0]}</strong> — {fmt(current.topCategory[1])}</div>}
         </div>
     );
 };
@@ -438,7 +443,7 @@ const EraseDataModal = ({ onClose, onConfirmed }) => {
 /* ═══════════════════════════════════════════════════════════
    STATEMENTS TAB
    ═══════════════════════════════════════════════════════════ */
-const StatementsTab = ({ transactions, balance, totalIncome, totalExpenses }) => {
+const StatementsTab = ({ transactions, balance, totalIncome, totalExpenses, fmt, currency }) => {
     const now = new Date();
     const [selectedYear, setSelectedYear] = useState(now.getFullYear());
     const [selectedMonth, setSelectedMonth] = useState(now.getMonth());
@@ -567,12 +572,12 @@ const StatementsTab = ({ transactions, balance, totalIncome, totalExpenses }) =>
                 <div className="st-sum-card st-sum-income">
                     <span className="st-sum-icon">💰</span>
                     <span className="st-sum-label">Income</span>
-                    <span className="st-sum-val green">+${totalIn.toFixed(2)}</span>
+                    <span className="st-sum-val green">+{fmt(totalIn)}</span>
                 </div>
                 <div className="st-sum-card st-sum-expense">
                     <span className="st-sum-icon">💸</span>
                     <span className="st-sum-label">Spent</span>
-                    <span className="st-sum-val red">-${totalSpent.toFixed(2)}</span>
+                    <span className="st-sum-val red">-{fmt(totalSpent)}</span>
                 </div>
                 <div className="st-sum-card st-sum-net">
                     <span className="st-sum-icon">{net >= 0 ? '📈' : '📉'}</span>
@@ -611,7 +616,7 @@ const StatementsTab = ({ transactions, balance, totalIncome, totalExpenses }) =>
                                         </div>
                                         <div className="st-cat-right">
                                             <span className="st-cat-pct">{pct.toFixed(0)}%</span>
-                                            <span className="st-cat-amt">${amt.toFixed(2)}</span>
+                                            <span className="st-cat-amt">{fmt(amt)}</span>
                                         </div>
                                     </div>
                                 );
@@ -632,7 +637,7 @@ const StatementsTab = ({ transactions, balance, totalIncome, totalExpenses }) =>
                                 <span className="st-td-date">{new Date(t.created_at).toLocaleDateString('en-US', { month:'short', day:'numeric' })}</span>
                                 <span className="st-td-name">{t.name}</span>
                                 <span className="st-td-cat"><span className="st-cat-badge" style={{ background: (catColors[t.category] || '#6b7280') + '22', color: catColors[t.category] || '#6b7280' }}>{t.category}</span></span>
-                                <span className={`st-td-amt ${t.type === 'deposit' ? 'st-green' : 'st-red'}`}>{t.type === 'deposit' ? '+' : '-'}${t.amount.toFixed(2)}</span>
+                                <span className={`st-td-amt ${t.type === 'deposit' ? 'st-green' : 'st-red'}`}>{t.type === 'deposit' ? '+' : '-'}{fmt(t.amount)}</span>
                             </div>
                         ))}
                     </div>
@@ -647,6 +652,12 @@ const StatementsTab = ({ transactions, balance, totalIncome, totalExpenses }) =>
    ═══════════════════════════════════════════════════════════ */
 const Dashboard = () => {
     const navigate = useNavigate();
+    const { currency, setCurrency, fmt } = useCurrency();
+    const [currencyPickerOpen, setCurrencyPickerOpen] = useState(false);
+    const [currencySearch, setCurrencySearch] = useState('');
+    const [dropdownPos, setDropdownPos] = useState({ top: 0, right: 0 });
+    const currencyPickerRef = useRef(null);
+    const currencyBtnRef = useRef(null);
     const [user, setUser] = useState(null);
     const [profile, setProfile] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -666,6 +677,12 @@ const Dashboard = () => {
     const [showEraseModal, setShowEraseModal] = useState(false);
     const chartsRef = useRef(null);
     const menuRef = useRef(null);
+
+    useEffect(() => {
+        const handler = (e) => { if (currencyPickerRef.current && !currencyPickerRef.current.contains(e.target)) setCurrencyPickerOpen(false); };
+        if (currencyPickerOpen) document.addEventListener('mousedown', handler);
+        return () => document.removeEventListener('mousedown', handler);
+    }, [currencyPickerOpen]);
 
     useEffect(() => {
         const handler = (e) => { if (menuRef.current && !menuRef.current.contains(e.target)) setMenuOpen(false); };
@@ -838,16 +855,71 @@ const Dashboard = () => {
                     <div className="dr-balance-row">
                         <div className="dr-balance-card">
                             <div className="dr-balance-top-row">
-                                <div><span className="dr-balance-label">Total Balance</span><span className="dr-balance-amount">${balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></div>
+                                <div>
+                                    <span className="dr-balance-label">Total Balance</span>
+                                    <span className="dr-balance-amount">{fmt(balance)}</span>
+                                </div>
                                 <div className="dr-balance-actions">
+                                    {/* Currency Picker */}
+                                    <div className="dr-currency-picker" ref={currencyPickerRef}>
+                                        <button className="dr-currency-btn" ref={currencyBtnRef} onClick={() => {
+                                            if (!currencyPickerOpen && currencyBtnRef.current) {
+                                                const r = currencyBtnRef.current.getBoundingClientRect();
+                                                const isMobile = window.innerWidth <= 768;
+                                                if (isMobile) {
+                                                    setDropdownPos({ top: r.bottom + 8, right: 16 });
+                                                } else {
+                                                    setDropdownPos({ top: r.bottom + 8, right: window.innerWidth - r.right });
+                                                }
+                                            }
+                                            setCurrencyPickerOpen(o => !o);
+                                            setCurrencySearch('');
+                                        }} title="Change currency">
+                                            <span className="dr-currency-flag">{currency.flag}</span>
+                                            <span className="dr-currency-code">{currency.code}</span>
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+                                        </button>
+                                        {currencyPickerOpen && (
+                                            <div className="dr-currency-dropdown" style={{ top: dropdownPos.top, right: dropdownPos.right }}>
+                                                <div className="dr-currency-search-wrap">
+                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                                                    <input
+                                                        className="dr-currency-search"
+                                                        placeholder="Search currency..."
+                                                        value={currencySearch}
+                                                        onChange={e => setCurrencySearch(e.target.value)}
+                                                        autoFocus
+                                                    />
+                                                </div>
+                                                <div className="dr-currency-list">
+                                                    {CURRENCIES.filter(c =>
+                                                        c.code.toLowerCase().includes(currencySearch.toLowerCase()) ||
+                                                        c.name.toLowerCase().includes(currencySearch.toLowerCase())
+                                                    ).map(c => (
+                                                        <button
+                                                            key={c.code}
+                                                            className={`dr-currency-option ${currency.code === c.code ? 'active' : ''}`}
+                                                            onClick={() => { setCurrency(c); setCurrencyPickerOpen(false); }}
+                                                        >
+                                                            <span className="dr-currency-option-flag">{c.flag}</span>
+                                                            <span className="dr-currency-option-code">{c.code}</span>
+                                                            <span className="dr-currency-option-name">{c.name}</span>
+                                                            <span className="dr-currency-option-symbol">{c.symbol}</span>
+                                                            {currency.code === c.code && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
                                     <button className="dr-action-btn dr-deposit" onClick={() => setMoneyModal('deposit')}><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 5v14M5 12l7-7 7 7" /></svg>Deposit</button>
                                     <button className="dr-action-btn dr-withdraw" onClick={() => setMoneyModal('withdraw')} disabled={balance <= 0}><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 19V5M5 12l7 7 7-7" /></svg>Withdraw</button>
                                 </div>
                             </div>
                             <div className="dr-balance-stats">
-                                <div className="dr-bstat"><span className="dr-bstat-label">Total Income</span><span className="dr-bstat-val green">+${totalIncome.toFixed(2)}</span></div>
+                                <div className="dr-bstat"><span className="dr-bstat-label">Total Income</span><span className="dr-bstat-val green">+{fmt(totalIncome)}</span></div>
                                 <div className="dr-bstat-sep" />
-                                <div className="dr-bstat"><span className="dr-bstat-label">Total Expenses</span><span className="dr-bstat-val red">-${totalExpenses.toFixed(2)}</span></div>
+                                <div className="dr-bstat"><span className="dr-bstat-label">Total Expenses</span><span className="dr-bstat-val red">-{fmt(totalExpenses)}</span></div>
                                 <div className="dr-bstat-sep" />
                                 <div className="dr-bstat"><span className="dr-bstat-label">Savings</span><span className="dr-bstat-val" style={{ color: savings >= 0 ? '#10b981' : '#ef4444' }}>{savingsPct}%</span></div>
                             </div>
@@ -871,11 +943,11 @@ const Dashboard = () => {
                             </div>
                             <button className="practice-cta-btn" onClick={(e) => { e.stopPropagation(); navigate('/practice'); }}>Start Practicing<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7" /></svg></button>
                         </div>
-                        <MonthlySummaryCard summaries={monthlySummaries} />
-                        <div className="pm-charts-row" ref={chartsRef}><SpendingTrendChart transactions={transactions} /><SpendingByCategoryChart transactions={transactions} /></div>
+                        <MonthlySummaryCard summaries={monthlySummaries} fmt={fmt} />
+                        <div className="pm-charts-row" ref={chartsRef}><SpendingTrendChart transactions={transactions} fmt={fmt} /><SpendingByCategoryChart transactions={transactions} fmt={fmt} /></div>
                         <div className="dr-bottom-grid">
                             <div className="dr-bottom-left"><AIInsightsDashboard transactions={expenseTransactions.map(t => ({ ...t, amount: t.amount }))} balance={balance} totalSpent={totalExpenses} startingBalance={totalIncome || balance + totalExpenses} onOpenChat={() => setShowFullChat(true)} /></div>
-                            <div className="dr-bottom-right"><RecentTransactions transactions={transactions} /></div>
+                            <div className="dr-bottom-right"><RecentTransactions transactions={transactions} fmt={fmt} /></div>
                         </div>
                         {/* Mobile quick-access buttons */}
                         <div className="dr-mobile-quick-row mobile-only">
@@ -885,22 +957,22 @@ const Dashboard = () => {
                     </>)}
 
                     {/* ═══ EXPENSES TAB ═══ */}
-                    {activeTab === 'expenses' && (<><BrandExpenseSection balance={balance} onAddExpense={handleAddExpense} /><CustomExpenseForm balance={balance} onAddExpense={handleAddExpense} /></>)}
+                    {activeTab === 'expenses' && (<><BrandExpenseSection balance={balance} onAddExpense={handleAddExpense} fmt={fmt} currency={currency} /><CustomExpenseForm balance={balance} onAddExpense={handleAddExpense} fmt={fmt} currency={currency} /></>)}
 
                     {/* ═══ STATEMENTS TAB ═══ */}
-                    {activeTab === 'statements' && <StatementsTab transactions={transactions} balance={balance} totalIncome={totalIncome} totalExpenses={totalExpenses} />}
+                    {activeTab === 'statements' && <StatementsTab transactions={transactions} balance={balance} totalIncome={totalIncome} totalExpenses={totalExpenses} fmt={fmt} currency={currency} />}
 
                     {/* ═══ ANALYTICS TAB ═══ */}
                     {activeTab === 'analytics' && (<>
-                        <div className="pm-charts-row"><SpendingTrendChart transactions={transactions} /><SpendingByCategoryChart transactions={transactions} /></div>
-                        <MonthlySummaryCard summaries={monthlySummaries} />
+                        <div className="pm-charts-row"><SpendingTrendChart transactions={transactions} fmt={fmt} /><SpendingByCategoryChart transactions={transactions} fmt={fmt} /></div>
+                        <MonthlySummaryCard summaries={monthlySummaries} fmt={fmt} />
                         {monthlySummaries.length > 1 && (
                             <div className="dr-multi-month">
                                 <div className="dr-monthly-header"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" strokeWidth="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12" /></svg><span>Monthly Comparison</span></div>
-                                <div className="dr-month-bars">{monthlySummaries.filter(s => s.transactionCount > 0).map((s, i) => { const maxExp = Math.max(...monthlySummaries.map(m => m.totalExpenses), 1); return (<div key={i} className="dr-month-bar-row"><span className="dr-month-label">{s.month.split(' ')[0].substring(0, 3)}</span><div className="dr-month-bar-track"><div className="dr-month-bar-fill" style={{ width: `${(s.totalExpenses / maxExp) * 100}%`, background: i === 0 ? 'linear-gradient(90deg, #3b82f6, #8b5cf6)' : 'rgba(255,255,255,0.15)' }} /></div><span className="dr-month-val">${s.totalExpenses.toFixed(0)}</span></div>); })}</div>
+                                <div className="dr-month-bars">{monthlySummaries.filter(s => s.transactionCount > 0).map((s, i) => { const maxExp = Math.max(...monthlySummaries.map(m => m.totalExpenses), 1); return (<div key={i} className="dr-month-bar-row"><span className="dr-month-label">{s.month.split(' ')[0].substring(0, 3)}</span><div className="dr-month-bar-track"><div className="dr-month-bar-fill" style={{ width: `${(s.totalExpenses / maxExp) * 100}%`, background: i === 0 ? 'linear-gradient(90deg, #3b82f6, #8b5cf6)' : 'rgba(255,255,255,0.15)' }} /></div><span className="dr-month-val">{fmt(s.totalExpenses, { decimals: 0 })}</span></div>); })}</div>
                             </div>
                         )}
-                        <RecentTransactions transactions={transactions} />
+                        <RecentTransactions transactions={transactions} fmt={fmt} />
                     </>)}
                 </div>
             </main>

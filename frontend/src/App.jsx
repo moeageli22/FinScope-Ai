@@ -2,6 +2,7 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { ToastProvider } from "./components/Toast";
 import { LanguageProvider } from "./pages/LanguageContext";
+import { CurrencyProvider } from "./contexts/CurrencyContext";
 import Home from "./pages/Home.jsx";
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
@@ -20,28 +21,30 @@ import AuthCallback from './pages/AuthCallback';
 function App() {
     return (
         <LanguageProvider>
-            <ToastProvider>
-                <Router>
-                    <div className="App">
-                        <Routes>
-                            <Route path="/" element={<Home />} />
-                            <Route path="/login" element={<Login />} />
-                            <Route path="/register" element={<Register />} />
-                            <Route path="/forgot-password" element={<ForgotPassword />} />
-                            <Route path="/reset-password" element={<ResetPassword />} />
-                            <Route path="/email-confirmed" element={<EmailConfirmed />} />
-                            <Route path="/verify-2fa" element={<Verify2FA />} />
-                            <Route path="/verify-email" element={<VerifyEmail />} />
-                            <Route path="/dashboard" element={<Dashboard />} />
-                            <Route path="/profile" element={<Profile />} />
-                            <Route path="/settings" element={<Settings />} />
-                            <Route path="/terms" element={<Terms />} />
-                            <Route path="/practice" element={<PracticeMode />} />
-                            <Route path="/auth/callback" element={<AuthCallback />} />
-                        </Routes>
-                    </div>
-                </Router>
-            </ToastProvider>
+            <CurrencyProvider>
+                <ToastProvider>
+                    <Router>
+                        <div className="App">
+                            <Routes>
+                                <Route path="/" element={<Home />} />
+                                <Route path="/login" element={<Login />} />
+                                <Route path="/register" element={<Register />} />
+                                <Route path="/forgot-password" element={<ForgotPassword />} />
+                                <Route path="/reset-password" element={<ResetPassword />} />
+                                <Route path="/email-confirmed" element={<EmailConfirmed />} />
+                                <Route path="/verify-2fa" element={<Verify2FA />} />
+                                <Route path="/verify-email" element={<VerifyEmail />} />
+                                <Route path="/dashboard" element={<Dashboard />} />
+                                <Route path="/profile" element={<Profile />} />
+                                <Route path="/settings" element={<Settings />} />
+                                <Route path="/terms" element={<Terms />} />
+                                <Route path="/practice" element={<PracticeMode />} />
+                                <Route path="/auth/callback" element={<AuthCallback />} />
+                            </Routes>
+                        </div>
+                    </Router>
+                </ToastProvider>
+            </CurrencyProvider>
         </LanguageProvider>
     );
 }
