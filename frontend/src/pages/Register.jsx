@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import './Register.css';
 import FinScopeAI from '../components/FinScopeAI.jsx';
 import { supabase } from '../config/supabase';
@@ -893,7 +893,7 @@ const Register = () => {
                                         disabled={loading}
                                     />
                                     <label htmlFor="agreeTerms">
-                                        I agree to the <a href="/terms" target="_blank" rel="noopener noreferrer">Terms of Service</a>
+                                        I agree to the <Link to="/terms" target="_blank" rel="noopener noreferrer">Terms of Service</Link>
                                     </label>
                                 </div>
 
@@ -907,7 +907,7 @@ const Register = () => {
                                         disabled={loading}
                                     />
                                     <label htmlFor="agreePrivacy">
-                                        I agree to the <a href="/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>
+                                        I agree to the <Link to="/terms" target="_blank" rel="noopener noreferrer">Privacy Policy</Link>
                                     </label>
                                 </div>
 

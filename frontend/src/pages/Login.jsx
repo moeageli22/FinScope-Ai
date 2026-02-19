@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import './Login.css';
 import FinScopeAI from '../components/FinScopeAI.jsx';
 import { supabase } from '../config/supabase';
@@ -317,7 +317,7 @@ const Login = () => {
 
                     {/* Terms & Privacy */}
                     <p className="terms-text">
-                        By continuing, you agree to FinScope AI's <a href="/terms">Terms of Service</a> and <a href="/terms">Privacy Policy</a>
+                        By continuing, you agree to FinScope AI's <Link to="/terms">Terms of Service</Link> and <Link to="/terms">Privacy Policy</Link>
                     </p>
                 </form>
             </div>
