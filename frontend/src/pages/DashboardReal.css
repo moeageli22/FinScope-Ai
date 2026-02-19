@@ -359,8 +359,8 @@
     }
     .dr-currency-dropdown {
         width: calc(100vw - 32px) !important;
-        right: 16px !important;
-        left: 16px !important;
+        right: 0 !important;
+        left: auto !important;
         max-width: 100%;
     }
 
@@ -993,10 +993,11 @@
     box-shadow: 0 0 0 3px rgba(239,68,68,0.12) !important;
     animation: drShake 0.4s cubic-bezier(0.36,0.07,0.19,0.97);
 }
+
 /* ═══ CURRENCY PICKER ═══ */
 .dr-currency-picker {
     position: relative;
-    z-index: 300;
+    z-index: 200;
 }
 
 .dr-currency-btn {
@@ -1015,6 +1016,7 @@
     white-space: nowrap;
     box-shadow: 0 0 14px rgba(59,130,246,0.25), inset 0 1px 0 rgba(255,255,255,0.08);
     letter-spacing: 0.03em;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .dr-currency-btn:hover {
@@ -1035,8 +1037,11 @@
     letter-spacing: 0.04em;
 }
 
+/* ─── FIX 1: position:absolute (was fixed) so dropdown stays relative to button ─── */
 .dr-currency-dropdown {
-    position: fixed;
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
     width: 300px;
     background: rgba(8, 12, 35, 0.99);
     backdrop-filter: blur(24px);
@@ -1047,6 +1052,15 @@
     overflow: hidden;
     box-shadow: 0 24px 70px rgba(0,0,0,0.75), 0 0 0 1px rgba(59,130,246,0.1);
     animation: currencyDropIn 0.18s ease-out;
+}
+
+/* On mobile, anchor to right edge to prevent overflow */
+@media (max-width: 768px) {
+    .dr-currency-dropdown {
+        left: auto;
+        right: 0;
+        width: min(300px, calc(100vw - 32px));
+    }
 }
 
 @keyframes currencyDropIn {
@@ -1063,13 +1077,14 @@
     background: rgba(255,255,255,0.03);
 }
 
+/* ─── FIX 2: font-size:16px prevents iOS from auto-zooming on input focus ─── */
 .dr-currency-search {
     flex: 1;
     background: none;
     border: none;
     outline: none;
     color: #fff;
-    font-size: 13px;
+    font-size: 16px;
 }
 
 .dr-currency-search::placeholder {
@@ -1080,6 +1095,7 @@
     max-height: 260px;
     overflow-y: auto;
     overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
 }
 
 .dr-currency-list::-webkit-scrollbar {
@@ -1101,6 +1117,7 @@
     cursor: pointer;
     transition: background 0.15s ease;
     text-align: left;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .dr-currency-option:hover {
