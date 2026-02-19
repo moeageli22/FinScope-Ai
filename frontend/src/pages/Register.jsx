@@ -353,27 +353,8 @@ const Register = () => {
             return;
         }
 
-        // On step 2, check if email is already registered before proceeding
-        if (currentStep === 2) {
-            setLoading(true);
-            try {
-                const { data } = await supabase.auth.signUp({
-                    email: formData.email,
-                    password: 'temp_check_' + Math.random(),
-                });
-                const identities = data?.user?.identities;
-                if (identities !== undefined && identities.length === 0) {
-                    setErrors(prev => ({ ...prev, email: 'This email is already registered' }));
-                    setLoading(false);
-                    return;
-                }
-                // Free — clean up the temp session
-                await supabase.auth.signOut();
-            } catch (err) {
-                console.warn('Email pre-check failed:', err);
-            }
-            setLoading(false);
-        }
+        // On step 2, we no longer pre-check email with a temp signUp call
+        // (that caused 429 rate limit errors). Duplicate email is caught in handleSubmit.
 
         setCurrentStep(currentStep + 1);
         setTouched({});
@@ -413,7 +394,7 @@ const Register = () => {
                         city: formData.city,
                         country: formData.country,
                     },
-                    emailRedirectTo: `${window.location.origin}/auth/callback`
+                    // No emailRedirectTo — we handle verification ourselves via code
                 }
             });
 
@@ -481,9 +462,39 @@ const Register = () => {
                 }
             }
 
-            console.log('✅ Registration complete - showing success screen');
-            setRegistrationComplete(true);
-            addToast('Registration successful! Check your email to verify your account.', 'success');
+            console.log('✅ Account created - sending email verification code...');
+
+            // Sign out the auto-session Supabase creates on signUp
+            await supabase.auth.signOut();
+
+            // Send verification code via our Edge Function (same as 2FA)
+            const { error: codeError } = await supabase.functions.invoke('send-2fa-code', {
+                body: {
+                    email: formData.email,
+                    userId: authData.user.id,
+                    ipAddress: 'registration',
+                    userAgent: navigator.userAgent
+                }
+            });
+
+            if (codeError) {
+                console.error('Failed to send verification code:', codeError);
+                addToast('Account created but failed to send verification code. Please contact support.', 'error');
+                setLoading(false);
+                return;
+            }
+
+            console.log('✅ Verification code sent - navigating to verify page');
+            addToast('Account created! Please check your email for a verification code.', 'success');
+
+            // Navigate to email verification code page
+            navigate('/verify-email-code', {
+                state: {
+                    email: formData.email,
+                    userId: authData.user.id,
+                    password: formData.password
+                }
+            });
 
         } catch (error) {
             console.error('❌ Unexpected error:', error);

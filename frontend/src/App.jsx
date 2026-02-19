@@ -17,6 +17,7 @@ import Profile from "./pages/Profile.jsx";
 import Settings from "./pages/Settings.jsx";
 import PracticeMode from './pages/PracticeMode.jsx';
 import AuthCallback from './pages/AuthCallback';
+import VerifyEmailCode from './pages/VerifyEmailCode';
 
 function App() {
     return (
@@ -40,6 +41,7 @@ function App() {
                                 <Route path="/terms" element={<Terms />} />
                                 <Route path="/practice" element={<PracticeMode />} />
                                 <Route path="/auth/callback" element={<AuthCallback />} />
+                                <Route path="/verify-email-code" element={<VerifyEmailCode />} />
                             </Routes>
                         </div>
                     </Router>
