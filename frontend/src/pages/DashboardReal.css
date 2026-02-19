@@ -997,7 +997,13 @@
 /* ═══ CURRENCY PICKER ═══ */
 .dr-currency-picker {
     position: relative;
-    z-index: 200;
+    z-index: 10; /* Below hamburger menu so it never bleeds through */
+}
+
+/* Fully suppress when any overlay menu is open */
+.dr-ham-open .dr-currency-picker,
+.dr-user-open .dr-currency-picker {
+    z-index: 1;
 }
 
 .dr-currency-btn {
@@ -1043,6 +1049,8 @@
     top: calc(100% + 8px);
     left: 0;
     width: 300px;
+    /* Ensure it never bleeds into other overlays */
+    isolation: isolate;
     background: rgba(8, 12, 35, 0.99);
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
