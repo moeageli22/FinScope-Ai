@@ -132,7 +132,7 @@ serve(async (req) => {
                 "Authorization": `Bearer ${RESEND_API_KEY}`,
             },
             body: JSON.stringify({
-                from: "FinScope AI <onboarding@resend.dev>",
+                from: "FinScope AI <noreply@finscopeai.app>",
                 to: [email],
                 subject: "Your Login Verification Code - FinScope AI",
                 html: `
