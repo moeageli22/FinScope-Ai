@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import './Register.css';
 import FinScopeAI from '../components/FinScopeAI.jsx';
 import { supabase } from '../config/supabase';
@@ -347,14 +347,36 @@ const Register = () => {
         return Object.keys(newErrors).length === 0;
     };
 
-    const handleNext = () => {
-        if (validateStep(currentStep)) {
-            setCurrentStep(currentStep + 1);
-            // Reset touched state for next step
-            setTouched({});
-        } else {
+    const handleNext = async () => {
+        if (!validateStep(currentStep)) {
             addToast('Please fix the errors before continuing', 'error');
+            return;
         }
+
+        // On step 2, check if email is already registered before proceeding
+        if (currentStep === 2) {
+            setLoading(true);
+            try {
+                const { data } = await supabase.auth.signUp({
+                    email: formData.email,
+                    password: 'temp_check_' + Math.random(),
+                });
+                const identities = data?.user?.identities;
+                if (identities !== undefined && identities.length === 0) {
+                    setErrors(prev => ({ ...prev, email: 'This email is already registered' }));
+                    setLoading(false);
+                    return;
+                }
+                // Free — clean up the temp session
+                await supabase.auth.signOut();
+            } catch (err) {
+                console.warn('Email pre-check failed:', err);
+            }
+            setLoading(false);
+        }
+
+        setCurrentStep(currentStep + 1);
+        setTouched({});
     };
 
     const handlePrevious = () => {
@@ -397,16 +419,24 @@ const Register = () => {
 
             if (authError) {
                 console.error('❌ Auth error:', authError);
+                setErrors({ general: authError.message });
+                addToast(authError.message, 'error');
+                setLoading(false);
+                return;
+            }
 
-                if (authError.message.includes('already registered') ||
-                    authError.message.includes('User already registered') ||
-                    authError.message.includes('already been registered')) {
-                    setErrors({ email: 'This email is already registered' });
-                    addToast('This email is already registered', 'error');
-                } else {
-                    setErrors({ general: authError.message });
-                    addToast(authError.message, 'error');
-                }
+            // ── Supabase duplicate email detection ──────────────────────────
+            // Supabase does NOT return an error for duplicate emails.
+            // Instead it returns a fake success where identities is an empty array.
+            const identities = authData?.user?.identities;
+            if (identities !== undefined && identities.length === 0) {
+                console.warn('⚠️ Duplicate email detected via empty identities');
+                setErrors({
+                    email: 'This email is already registered',
+                    emailBanner: 'This email is already taken. Please sign in or use a different email.'
+                });
+                setCurrentStep(2);
+                addToast('This email is already registered', 'error');
                 setLoading(false);
                 return;
             }
@@ -529,14 +559,14 @@ const Register = () => {
                 </div>
 
                 {/* Error Message */}
-                {errors.general && (
+                {(errors.general || errors.emailBanner) && (
                     <div className="error-alert">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             <circle cx="12" cy="12" r="10" />
                             <line x1="12" y1="8" x2="12" y2="12" />
                             <line x1="12" y1="16" x2="12.01" y2="16" />
                         </svg>
-                        <p>{errors.general}</p>
+                        <p>{errors.emailBanner || errors.general}</p>
                     </div>
                 )}
 
@@ -863,7 +893,7 @@ const Register = () => {
                                         disabled={loading}
                                     />
                                     <label htmlFor="agreeTerms">
-                                        I agree to the <a href="/terms" target="_blank" rel="noopener noreferrer">Terms of Service</a>
+                                        I agree to the <Link to="/terms" target="_blank" rel="noopener noreferrer">Terms of Service</Link>
                                     </label>
                                 </div>
 
@@ -877,7 +907,7 @@ const Register = () => {
                                         disabled={loading}
                                     />
                                     <label htmlFor="agreePrivacy">
-                                        I agree to the <a href="/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>
+                                        I agree to the <Link to="/terms" target="_blank" rel="noopener noreferrer">Privacy Policy</Link>
                                     </label>
                                 </div>
 
