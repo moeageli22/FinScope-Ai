@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import './ContactSection.css';
 import ownerImage from '../assets/owner.jpg';
 import FinScopeAI from '../components/FinScopeAI';
+import { supabase } from '../config/supabase';
 
 const ContactSection = () => {
     const [formData, setFormData] = useState({
@@ -26,37 +27,22 @@ const ContactSection = () => {
         setSubmitStatus(null);
 
         try {
-            console.log('Submitting form data:', formData);
-
-            const response = await fetch('http://localhost:5173/api/send-contact-email', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
+            const { data, error } = await supabase.functions.invoke('send-contact-email', {
+                body: {
                     name: formData.name,
                     email: formData.email,
                     message: formData.message
-                })
+                }
             });
 
-            console.log('Response status:', response.status);
+            if (error) throw error;
 
-            const contentType = response.headers.get('content-type');
-            if (!contentType || !contentType.includes('application/json')) {
-                throw new Error('Server did not return JSON response');
-            }
-
-            const data = await response.json();
-            console.log('Response data:', data);
-
-            if (response.ok && data.success) {
+            if (data?.success) {
                 setSubmitStatus('success');
                 setShowSuccessModal(true);
                 setFormData({ name: '', email: '', message: '' });
             } else {
-                setSubmitStatus('error');
-                console.error('Error sending email:', data.error || 'Unknown error');
+                throw new Error(data?.error || 'Unknown error');
             }
         } catch (error) {
             setSubmitStatus('error');
