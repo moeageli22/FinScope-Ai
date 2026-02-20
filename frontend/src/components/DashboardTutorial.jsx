@@ -498,7 +498,7 @@ const ReadyVisual = () => {
    MAIN TUTORIAL COMPONENT
    ───────────────────────────────────── */
 
-const DashboardTutorial = ({ onComplete, onSkip }) => {
+const DashboardTutorial = ({ onComplete, onSkip, tutorialKey = 'finscope_tutorial_completed' }) => {
     const [currentStep, setCurrentStep] = useState(0);
     const [animKey, setAnimKey] = useState(0);
 
@@ -524,7 +524,7 @@ const DashboardTutorial = ({ onComplete, onSkip }) => {
     }, [tutorialSteps.length]);
 
     const handleNext = useCallback(() => {
-        if (isLastStep) { localStorage.setItem('finscope_tutorial_completed', 'true'); onComplete(); }
+        if (isLastStep) { localStorage.setItem(tutorialKey, 'true'); onComplete(); }
         else goToStep(currentStep + 1);
     }, [isLastStep, currentStep, goToStep, onComplete]);
 
@@ -533,7 +533,7 @@ const DashboardTutorial = ({ onComplete, onSkip }) => {
     }, [isFirstStep, currentStep, goToStep]);
 
     const handleSkipTutorial = useCallback(() => {
-        localStorage.setItem('finscope_tutorial_completed', 'true');
+        localStorage.setItem(tutorialKey, 'true');
         onSkip();
     }, [onSkip]);
 

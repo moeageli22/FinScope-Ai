@@ -700,9 +700,13 @@ const Dashboard = () => {
 
     useEffect(() => {
         if (!loading && user) {
-            const done = localStorage.getItem('finscope_tutorial_completed');
-            const seen = sessionStorage.getItem('dashboard_visited');
-            if (!done && !seen) { const t = setTimeout(() => setShowTutorial(true), 1500); sessionStorage.setItem('dashboard_visited', 'true'); return () => clearTimeout(t); }
+            // Use user-specific key so each new account gets the tutorial on first login
+            const userTutorialKey = `finscope_tutorial_completed_${user.id}`;
+            const done = localStorage.getItem(userTutorialKey);
+            if (!done) {
+                const t = setTimeout(() => setShowTutorial(true), 1500);
+                return () => clearTimeout(t);
+            }
         }
     }, [user, loading]);
 
@@ -790,7 +794,7 @@ const Dashboard = () => {
 
     return (
         <div className="dashboard dr-has-mobile-nav">
-            {showTutorial && <DashboardTutorial onComplete={() => setShowTutorial(false)} onSkip={() => setShowTutorial(false)} />}
+            {showTutorial && <DashboardTutorial tutorialKey={`finscope_tutorial_completed_${user?.id}`} onComplete={() => setShowTutorial(false)} onSkip={() => setShowTutorial(false)} />}
 
             {/* ═══ HEADER ═══ */}
             <header className="dashboard-header">
