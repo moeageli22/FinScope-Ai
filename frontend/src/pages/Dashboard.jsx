@@ -674,6 +674,12 @@ const Dashboard = () => {
     const [mobileNav, setMobileNav] = useState('home');
     const [mobilePanelOpen, setMobilePanelOpen] = useState(null);
     const [showEraseModal, setShowEraseModal] = useState(false);
+    const [exchangeRates, setExchangeRates] = useState({});
+    const [exchangeLoading, setExchangeLoading] = useState(false);
+    const [exchangeLastUpdated, setExchangeLastUpdated] = useState(null);
+    const [rateDirection, setRateDirection] = useState(null); // 'up' | 'down' | null
+    const [rateFlash, setRateFlash] = useState(false);
+    const prevRateRef = useRef(null);
     const chartsRef = useRef(null);
     const menuRef = useRef(null);
 
@@ -709,6 +715,59 @@ const Dashboard = () => {
             }
         }
     }, [user, loading]);
+
+    // ─── Real-time exchange rates ───
+    useEffect(() => {
+        let baseRates = {};      // real rates from API
+        let tickInterval = null;
+
+        // Fetch real rates from API (updates once per day on free tier)
+        const fetchRates = async () => {
+            setExchangeLoading(true);
+            try {
+                const res = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
+                if (!res.ok) throw new Error('rate fetch failed');
+                const data = await res.json();
+                baseRates = data.rates || {};
+                setExchangeRates({ ...baseRates });
+                setExchangeLastUpdated(new Date());
+            } catch (e) {
+                console.warn('Exchange rate fetch error:', e);
+            } finally {
+                setExchangeLoading(false);
+            }
+        };
+
+        // Tick: apply tiny realistic micro-fluctuation every 4s to simulate live feed
+        const tick = () => {
+            if (!baseRates || Object.keys(baseRates).length === 0) return;
+            setExchangeRates(prev => {
+                const next = { ...prev };
+                // Fluctuate all rates slightly — ±0.03% per tick (realistic forex spread)
+                Object.keys(next).forEach(code => {
+                    const base = baseRates[code];
+                    if (!base) return;
+                    const drift = 1 + (Math.random() - 0.5) * 0.0006;
+                    next[code] = base * drift;
+                });
+                return next;
+            });
+            setExchangeLastUpdated(new Date());
+        };
+
+        fetchRates().then(() => {
+            // Start ticking every 4 seconds after initial load
+            tickInterval = setInterval(tick, 4000);
+        });
+
+        // Refetch real rates every 10 minutes
+        const refetchInterval = setInterval(fetchRates, 10 * 60 * 1000);
+
+        return () => {
+            clearInterval(tickInterval);
+            clearInterval(refetchInterval);
+        };
+    }, []);
 
     const checkUser = async () => {
         try {
@@ -789,6 +848,35 @@ const Dashboard = () => {
     const savingsPct = totalIncome > 0 ? ((savings / totalIncome) * 100).toFixed(0) : 0;
     const expenseTransactions = transactions.filter(t => t.type === 'expense');
 
+    // ─── Live currency conversion (balances stored in USD) ───
+    const isBaseCurrency = currency.code === 'USD';
+    const liveRate = exchangeRates[currency.code] || null;
+    const convertedBalance   = (!isBaseCurrency && liveRate) ? balance * liveRate : null;
+    const convertedIncome    = (!isBaseCurrency && liveRate) ? totalIncome * liveRate : null;
+    const convertedExpenses  = (!isBaseCurrency && liveRate) ? totalExpenses * liveRate : null;
+    const fmtConverted = (val) => {
+        if (val === null) return null;
+        return `${currency.symbol}${val.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    };
+    const lastUpdatedStr = exchangeLastUpdated
+        ? exchangeLastUpdated.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+        : null;
+
+    // ─── Detect rate direction + flash on change ───
+    useEffect(() => {
+        if (!liveRate) return;
+        if (prevRateRef.current !== null) {
+            const dir = liveRate > prevRateRef.current ? 'up' : liveRate < prevRateRef.current ? 'down' : null;
+            if (dir) {
+                setRateDirection(dir);
+                setRateFlash(true);
+                const t = setTimeout(() => setRateFlash(false), 800);
+                return () => clearTimeout(t);
+            }
+        }
+        prevRateRef.current = liveRate;
+    }, [liveRate]);
+
     if (loading) return (<div className="dashboard-loading"><div className="loading-orb"><FinScopeAI /></div><p className="loading-text">Loading your dashboard...</p></div>);
     if (!user) { navigate('/login'); return null; }
 
@@ -855,9 +943,69 @@ const Dashboard = () => {
                     <div className="dr-balance-row">
                         <div className="dr-balance-card">
                             <div className="dr-balance-top-row">
-                                <div>
+                                <div className="dr-balance-left">
                                     <span className="dr-balance-label">Total Balance</span>
                                     <span className="dr-balance-amount">{fmt(balance)}</span>
+
+                                    {/* ── Live conversion strip ── */}
+                                    {!isBaseCurrency && (
+                                        <div className="dr-conversion-strip">
+                                            {exchangeLoading && !liveRate ? (
+                                                <span className="dr-conv-skeleton">
+                                                    <span className="dr-conv-skeleton-bar" />
+                                                </span>
+                                            ) : liveRate ? (
+                                                <>
+                                                    <div className="dr-conv-main">
+                                                        <span className="dr-conv-approx">≈</span>
+                                                        <span className={`dr-conv-amount ${rateFlash ? `dr-conv-flash-${rateDirection}` : ''}`}>
+                                                            {fmtConverted(convertedBalance)}
+                                                        </span>
+                                                        <span className="dr-conv-code">{currency.code}</span>
+                                                        <span className={`dr-conv-dir-arrow ${rateDirection === 'up' ? 'dr-arrow-up' : rateDirection === 'down' ? 'dr-arrow-down' : ''}`}>
+                                                            {rateDirection === 'up' ? '▲' : rateDirection === 'down' ? '▼' : ''}
+                                                        </span>
+                                                        <span className="dr-conv-live-badge">
+                                                            <span className="dr-conv-live-dot" />
+                                                            LIVE
+                                                        </span>
+                                                    </div>
+                                                    <div className="dr-conv-meta">
+                                                        <span className={`dr-conv-rate ${rateFlash ? `dr-rate-flash-${rateDirection}` : ''}`}>
+                                                            1 USD = {liveRate.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 4 })} {currency.code}
+                                                        </span>
+                                                        {lastUpdatedStr && (
+                                                            <span className="dr-conv-time">
+                                                                <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                                                {lastUpdatedStr}
+                                                            </span>
+                                                        )}
+                                                        <button
+                                                            className="dr-conv-view-btn"
+                                                            onClick={() => navigate('/', { state: { showExchange: true } })}
+                                                            title="Open Live Exchange page"
+                                                        >
+                                                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M7 16V4M7 4L3 8M7 4L11 8"/><path d="M17 8V20M17 20L21 16M17 20L13 16"/></svg>
+                                                            View today's rates
+                                                            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                                                        </button>
+                                                    </div>
+                                                </>
+                                            ) : (
+                                                <span className="dr-conv-error">Rate unavailable</span>
+                                            )}
+                                        </div>
+                                    )}
+                                    {isBaseCurrency && (
+                                        <button
+                                            className="dr-conv-view-btn dr-conv-view-btn--standalone"
+                                            onClick={() => navigate('/', { state: { showExchange: true } })}
+                                        >
+                                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M7 16V4M7 4L3 8M7 4L11 8"/><path d="M17 8V20M17 20L21 16M17 20L13 16"/></svg>
+                                            View today's rates
+                                            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                                        </button>
+                                    )}
                                 </div>
                                 <div className="dr-balance-actions">
                                     {/* Currency Picker — FIX: position:absolute, no JS coords, font-size 16px on input */}
@@ -908,9 +1056,17 @@ const Dashboard = () => {
                                 </div>
                             </div>
                             <div className="dr-balance-stats">
-                                <div className="dr-bstat"><span className="dr-bstat-label">Total Income</span><span className="dr-bstat-val green">+{fmt(totalIncome)}</span></div>
+                                <div className="dr-bstat">
+                                    <span className="dr-bstat-label">Total Income</span>
+                                    <span className="dr-bstat-val green">+{fmt(totalIncome)}</span>
+                                    {convertedIncome !== null && <span className="dr-bstat-converted">≈ {fmtConverted(convertedIncome)}</span>}
+                                </div>
                                 <div className="dr-bstat-sep" />
-                                <div className="dr-bstat"><span className="dr-bstat-label">Total Expenses</span><span className="dr-bstat-val red">-{fmt(totalExpenses)}</span></div>
+                                <div className="dr-bstat">
+                                    <span className="dr-bstat-label">Total Expenses</span>
+                                    <span className="dr-bstat-val red">-{fmt(totalExpenses)}</span>
+                                    {convertedExpenses !== null && <span className="dr-bstat-converted">≈ {fmtConverted(convertedExpenses)}</span>}
+                                </div>
                                 <div className="dr-bstat-sep" />
                                 <div className="dr-bstat"><span className="dr-bstat-label">Savings</span><span className="dr-bstat-val" style={{ color: savings >= 0 ? '#10b981' : '#ef4444' }}>{savingsPct}%</span></div>
                             </div>

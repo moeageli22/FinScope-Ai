@@ -2816,3 +2816,144 @@
         page-break-inside: avoid;
     }
 }
+/* ══════════════════════════════════════════════════════════════
+   BANKING-GRADE NUMBER TYPOGRAPHY OVERRIDES
+   Ultra-thin, tabular numerals — inspired by Bloomberg / Refinitiv
+   ══════════════════════════════════════════════════════════════ */
+
+/* Import thin numeric font */
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&display=swap');
+
+/* ── Universal number token ── */
+:root {
+    --font-banking: 'DM Mono', 'SF Mono', 'Fira Mono', monospace;
+    --num-weight-hero:  200;
+    --num-weight-main:  300;
+    --num-weight-label: 400;
+}
+
+/* ── Hero rate in chart header ── */
+.rate-text {
+    font-family: var(--font-banking) !important;
+    font-weight: var(--num-weight-hero) !important;
+    font-size: 17px !important;
+    letter-spacing: 0.04em !important;
+    font-variant-numeric: tabular-nums !important;
+    color: rgba(255,255,255,0.95) !important;
+}
+
+/* ── Table: main mid-rate column ── */
+.rate-cell {
+    font-family: var(--font-banking) !important;
+    font-weight: var(--num-weight-main) !important;
+    font-size: 14px !important;
+    letter-spacing: 0.05em !important;
+    font-variant-numeric: tabular-nums !important;
+    color: #ffffff !important;
+}
+
+/* ── Bid / Ask ── */
+.bid-cell,
+.ask-cell {
+    font-family: var(--font-banking) !important;
+    font-weight: var(--num-weight-main) !important;
+    font-size: 13px !important;
+    letter-spacing: 0.04em !important;
+    font-variant-numeric: tabular-nums !important;
+}
+
+/* ── High / Low ── */
+.high-value,
+.low-value {
+    font-family: var(--font-banking) !important;
+    font-weight: var(--num-weight-main) !important;
+    font-size: 12px !important;
+    letter-spacing: 0.03em !important;
+    font-variant-numeric: tabular-nums !important;
+}
+
+/* ── XE-style market table rates ── */
+.xe-rate {
+    font-family: var(--font-banking) !important;
+    font-weight: var(--num-weight-main) !important;
+    font-size: 17px !important;
+    letter-spacing: 0.05em !important;
+    font-variant-numeric: tabular-nums !important;
+    color: #ffffff !important;
+}
+
+/* ── XE change badges ── */
+.xe-change-badge {
+    font-family: var(--font-banking) !important;
+    font-weight: var(--num-weight-label) !important;
+    font-size: 13px !important;
+    letter-spacing: 0.04em !important;
+}
+
+/* ── Converter result — the big converted number ── */
+.result-amount-upgraded {
+    font-family: var(--font-banking) !important;
+    font-weight: 100 !important;
+    font-size: 52px !important;
+    letter-spacing: -0.01em !important;
+    font-variant-numeric: tabular-nums !important;
+    text-shadow: 0 0 40px rgba(16,185,129,0.25) !important;
+}
+
+/* ── Converter rate line ── */
+.result-rate-upgraded {
+    font-family: var(--font-banking) !important;
+    font-weight: var(--num-weight-main) !important;
+    font-size: 15px !important;
+    letter-spacing: 0.04em !important;
+    font-variant-numeric: tabular-nums !important;
+}
+
+/* ── Chart current rate ── */
+.chart-current-rate .rate-text {
+    font-family: var(--font-banking) !important;
+    font-weight: var(--num-weight-hero) !important;
+    font-size: 16px !important;
+    letter-spacing: 0.06em !important;
+}
+
+/* ── Change badge pro (table) ── */
+.change-badge-pro {
+    font-family: var(--font-banking) !important;
+    font-weight: var(--num-weight-label) !important;
+    font-size: 12px !important;
+    letter-spacing: 0.04em !important;
+}
+
+/* ── Amount input in converter ── */
+.amount-input {
+    font-family: var(--font-banking) !important;
+    font-weight: var(--num-weight-main) !important;
+    font-size: 22px !important;
+    letter-spacing: 0.03em !important;
+    font-variant-numeric: tabular-nums !important;
+}
+
+/* ── Any element carrying data-num attribute ── */
+[data-num] {
+    font-family: var(--font-banking) !important;
+    font-variant-numeric: tabular-nums !important;
+}
+
+/* ── Summary stat values in header ── */
+.summary-value,
+.stat-value,
+.header-stat-value {
+    font-family: var(--font-banking) !important;
+    font-weight: var(--num-weight-hero) !important;
+    letter-spacing: 0.02em !important;
+    font-variant-numeric: tabular-nums !important;
+}
+
+/* ── Pair code labels (e.g. "EUR/USD") — keep slightly heavier for readability ── */
+.pair-code,
+.xe-currency-code {
+    font-family: var(--font-banking) !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.06em !important;
+}

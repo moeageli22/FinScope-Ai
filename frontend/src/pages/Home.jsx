@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import './Home.css';
 import FinScopeAI from '../components/FinScopeAI.jsx';
 import AIChatDemo from './AIChatDemo.jsx';
@@ -16,12 +16,24 @@ import { supabase } from '../config/supabase';
 
 function Home() {
     const navigate = useNavigate();
+    const location = useLocation();
     const [activeSection, setActiveSection] = useState('home');
     const [showExchange, setShowExchange] = useState(false);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [loading, setLoading] = useState(true);
     const [showTutorial, setShowTutorial] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+    // Auto-open exchange if navigated here with state { showExchange: true }
+    useEffect(() => {
+        if (location.state?.showExchange) {
+            setShowExchange(true);
+            setActiveSection('exchange');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            // Clear the state so refresh doesn't re-trigger
+            window.history.replaceState({}, document.title);
+        }
+    }, [location.state]);
 
     // Check authentication status
     useEffect(() => {
