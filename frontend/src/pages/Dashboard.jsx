@@ -945,7 +945,9 @@ const Dashboard = () => {
                             <div className="dr-balance-top-row">
                                 <div className="dr-balance-left">
                                     <span className="dr-balance-label">Total Balance</span>
-                                    <span className="dr-balance-amount">{fmt(balance)}</span>
+                                    <span className="dr-balance-amount">
+  ${balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+</span>
 
                                     {/* ── Live conversion strip ── */}
                                     {!isBaseCurrency && (
@@ -1058,13 +1060,13 @@ const Dashboard = () => {
                             <div className="dr-balance-stats">
                                 <div className="dr-bstat">
                                     <span className="dr-bstat-label">Total Income</span>
-                                    <span className="dr-bstat-val green">+{fmt(totalIncome)}</span>
+                                    <span className="dr-bstat-val green">+${totalIncome.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                                     {convertedIncome !== null && <span className="dr-bstat-converted">≈ {fmtConverted(convertedIncome)}</span>}
                                 </div>
                                 <div className="dr-bstat-sep" />
                                 <div className="dr-bstat">
                                     <span className="dr-bstat-label">Total Expenses</span>
-                                    <span className="dr-bstat-val red">-{fmt(totalExpenses)}</span>
+                                    <span className="dr-bstat-val red">-${totalExpenses.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                                     {convertedExpenses !== null && <span className="dr-bstat-converted">≈ {fmtConverted(convertedExpenses)}</span>}
                                 </div>
                                 <div className="dr-bstat-sep" />
