@@ -495,43 +495,107 @@ const StatementsTab = ({ transactions, balance, totalIncome, totalExpenses, fmt,
     };
 
     // PDF download (Choice Bank Style Statement)
-    const downloadPDF = () => {
+    // PDF download — same Choice Bank style template, rendered as real PDF via jsPDF html()
+    const downloadPDF = async () => {
         setDownloading('pdf');
-        const logo = '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';
+        try {
+            // Load jsPDF + html2canvas if not present
+            if (!window.jspdf) {
+                await new Promise((resolve, reject) => {
+                    const s = document.createElement('script');
+                    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+                    s.onload = resolve; s.onerror = reject;
+                    document.head.appendChild(s);
+                });
+            }
+            if (!window.html2canvas) {
+                await new Promise((resolve, reject) => {
+                    const s = document.createElement('script');
+                    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+                    s.onload = resolve; s.onerror = reject;
+                    document.head.appendChild(s);
+                });
+            }
 
-        // Calculate opening balance for the month (balance at start of selected month)
-        const monthStart = new Date(selectedYear, selectedMonth, 1);
-        const prevTxns = transactions.filter(t => new Date(t.created_at) < monthStart);
-        let openingBal = 0;
-        prevTxns.forEach(t => {
-            if(t.type==='deposit') openingBal += t.amount;
-            else openingBal -= t.amount;
-        });
+            const logo = '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';
 
-        // Build transaction rows with running balance
-        let rb = openingBal;
-        const rows = monthTxns.map(t => {
-            const w = t.type==='expense'?t.amount.toFixed(2):'';
-            const d = t.type==='deposit'?t.amount.toFixed(2):'';
-            if(t.type==='deposit') rb += t.amount;
-            else rb -= t.amount;
-            const dt = new Date(t.created_at);
-            return '<tr><td>'+months[dt.getMonth()].substring(0,3)+' '+ dt.getDate()+'</td><td>'+t.name+'</td><td class="amt">'+w+'</td><td class="amt">'+d+'</td><td class="amt">'+rb.toFixed(2)+'</td></tr>';
-        }).join('');
+            // Calculate opening balance
+            const monthStart = new Date(selectedYear, selectedMonth, 1);
+            const prevTxns = transactions.filter(t => new Date(t.created_at) < monthStart);
+            let openingBal = 0;
+            prevTxns.forEach(t => {
+                if (t.type === 'deposit') openingBal += t.amount;
+                else openingBal -= t.amount;
+            });
 
-        const html='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>FinScope AI Statement</title><style>@page{margin:0.5in}*{margin:0;padding:0;box-sizing:border-box}body{font-family:Arial,sans-serif;font-size:10px;color:#000;padding:40px;line-height:1.3}.hdr{display:flex;justify-content:space-between;margin-bottom:25px}.logo-area{display:flex;gap:12px;align-items:center}.logo{width:50px;height:50px;object-fit:contain;display:block;background:#f8f8f8;border-radius:8px;padding:2px}.co h1{font-size:14px;font-weight:700;margin-bottom:5px}.co p{font-size:8px;margin:1px 0}.acct{text-align:right;font-size:9px}.acct .num{font-size:10px;font-weight:700;margin-top:4px}.svc{background:#f5f5f5;border:1px solid #000;padding:10px;margin:15px 0}.svc h3{font-size:9px;font-weight:700;text-transform:uppercase;border-bottom:1px solid #000;margin-bottom:6px;padding-bottom:3px}.svc-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px 10px;font-size:8px}.svc-item{display:flex;justify-content:space-between}.div{border-top:2px solid #000;margin:15px 0}.sum h2{font-size:11px;font-weight:700;margin-bottom:10px}.sum-grid{display:grid;grid-template-columns:180px 1fr;gap:6px 20px;font-size:9px}.sum-grid div:nth-child(even){text-align:right}.close{margin-top:10px;padding-top:8px;border-top:2px solid #000;font-weight:700}.txn{margin-top:20px}.txn h2{font-size:11px;font-weight:700;margin-bottom:12px}table{width:100%;border-collapse:collapse;font-size:9px}thead{border-top:2px solid #000;border-bottom:2px solid #000}th{padding:6px 4px;text-align:left;font-weight:700}td{padding:5px 4px;border-bottom:1px solid #ddd}.amt{text-align:right;font-family:"Courier New",monospace}.tot{border-top:2px solid #000;font-weight:700}.tot td{padding-top:8px}@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style></head><body><div class="hdr"><div class="logo-area"><img src="data:image/png;base64,'+logo+'" alt="FinScope AI" class="logo" onerror="this.style.display=\'none\'"><div class="co"><h1>FinScope AI</h1><p>Smart Financial Management</p><p>P.O. Box 000000</p><p>Virtual Banking, WA 00000-0000</p></div></div><div class="acct"><p>'+new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})+'</p><p>Primary Account <span class="num">Practice Mode</span></p></div></div><div class="svc"><h3>CUSTOMER SERVICE INFORMATION</h3><div class="svc-grid"><div class="svc-item"><span>Website:</span><span>https://finscopeai.app/</span></div><div class="svc-item"><span>Service Number:</span><span>1-800-FINSCOPE</span></div><div class="svc-item"><span>Practice Mode:</span><span>Educational Use Only</span></div><div class="svc-item"><span>Contact:</span><span>Available 24/7</span></div></div></div><div class="div"></div><div class="sum"><h2>Account Summary</h2><div class="sum-grid"><div>Opening Balance</div><div>$'+openingBal.toFixed(2)+'</div><div>Withdrawals</div><div>$'+totalSpent.toFixed(2)+'</div><div>Deposits</div><div>$'+totalIn.toFixed(2)+'</div></div><div class="close"><div class="sum-grid"><div>Closing Balance on '+months[selectedMonth]+' '+new Date(selectedYear,selectedMonth+1,0).getDate()+', '+selectedYear+'</div><div>$'+rb.toFixed(2)+'</div></div></div></div><div class="div"></div><div class="txn"><h2>Your Transaction Details</h2><table><thead><tr><th style="width:60px">Date</th><th>Details</th><th style="width:80px;text-align:right">Withdrawals</th><th style="width:80px;text-align:right">Deposits</th><th style="width:80px;text-align:right">Balance</th></tr></thead><tbody>'+rows+(rows?'<tr class="tot"><td colspan="2">Closing Balance</td><td class="amt"></td><td class="amt"></td><td class="amt">$'+rb.toFixed(2)+'</td></tr>':'<tr><td colspan="5" style="text-align:center;padding:20px">No transactions</td></tr>')+'</tbody></table></div></body></html>';
+            // Build transaction rows with running balance
+            let rb = openingBal;
+            const rows = monthTxns.map(t => {
+                const w = t.type === 'expense' ? t.amount.toFixed(2) : '';
+                const d = t.type === 'deposit' ? t.amount.toFixed(2) : '';
+                if (t.type === 'deposit') rb += t.amount;
+                else rb -= t.amount;
+                const dt = new Date(t.created_at);
+                return '<tr><td>' + months[dt.getMonth()].substring(0, 3) + ' ' + dt.getDate() + '</td><td>' + t.name + '</td><td class="amt">' + w + '</td><td class="amt">' + d + '</td><td class="amt">' + rb.toFixed(2) + '</td></tr>';
+            }).join('');
 
-        // Use Blob + anchor download for mobile compatibility (window.open is blocked on iOS/Android)
-        const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `FinScopeAI_Statement_${months[selectedMonth]}_${selectedYear}.html`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        setTimeout(() => setDownloading(null), 1500);
+            // Exact same HTML template as original
+            const html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>FinScope AI Statement</title><style>@page{margin:0.5in}*{margin:0;padding:0;box-sizing:border-box}body{font-family:Arial,sans-serif;font-size:10px;color:#000;padding:40px;line-height:1.3}.hdr{display:flex;justify-content:space-between;margin-bottom:25px}.logo-area{display:flex;gap:12px;align-items:center}.logo{width:50px;height:50px;object-fit:contain;display:block;background:#f8f8f8;border-radius:8px;padding:2px}.co h1{font-size:14px;font-weight:700;margin-bottom:5px}.co p{font-size:8px;margin:1px 0}.acct{text-align:right;font-size:9px}.acct .num{font-size:10px;font-weight:700;margin-top:4px}.svc{background:#f5f5f5;border:1px solid #000;padding:10px;margin:15px 0}.svc h3{font-size:9px;font-weight:700;text-transform:uppercase;border-bottom:1px solid #000;margin-bottom:6px;padding-bottom:3px}.svc-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px 10px;font-size:8px}.svc-item{display:flex;justify-content:space-between}.div{border-top:2px solid #000;margin:15px 0}.sum h2{font-size:11px;font-weight:700;margin-bottom:10px}.sum-grid{display:grid;grid-template-columns:180px 1fr;gap:6px 20px;font-size:9px}.sum-grid div:nth-child(even){text-align:right}.close{margin-top:10px;padding-top:8px;border-top:2px solid #000;font-weight:700}.txn{margin-top:20px}.txn h2{font-size:11px;font-weight:700;margin-bottom:12px}table{width:100%;border-collapse:collapse;font-size:9px}thead{border-top:2px solid #000;border-bottom:2px solid #000}th{padding:6px 4px;text-align:left;font-weight:700}td{padding:5px 4px;border-bottom:1px solid #ddd}.amt{text-align:right;font-family:"Courier New",monospace}.tot{border-top:2px solid #000;font-weight:700}.tot td{padding-top:8px}</style></head><body><div class="hdr"><div class="logo-area"><img src="data:image/jpeg;base64,' + logo + '" alt="FinScope AI" class="logo" onerror="this.style.display=\'none\'"><div class="co"><h1>FinScope AI</h1><p>Smart Financial Management</p><p>P.O. Box 000000</p><p>Virtual Banking, WA 00000-0000</p></div></div><div class="acct"><p>' + new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) + '</p><p>Primary Account <span class="num">Practice Mode</span></p></div></div><div class="svc"><h3>CUSTOMER SERVICE INFORMATION</h3><div class="svc-grid"><div class="svc-item"><span>Website:</span><span>https://finscopeai.app/</span></div><div class="svc-item"><span>Service Number:</span><span>1-800-FINSCOPE</span></div><div class="svc-item"><span>Practice Mode:</span><span>Educational Use Only</span></div><div class="svc-item"><span>Contact:</span><span>Available 24/7</span></div></div></div><div class="div"></div><div class="sum"><h2>Account Summary</h2><div class="sum-grid"><div>Opening Balance</div><div>$' + openingBal.toFixed(2) + '</div><div>Withdrawals</div><div>$' + totalSpent.toFixed(2) + '</div><div>Deposits</div><div>$' + totalIn.toFixed(2) + '</div></div><div class="close"><div class="sum-grid"><div>Closing Balance on ' + months[selectedMonth] + ' ' + new Date(selectedYear, selectedMonth + 1, 0).getDate() + ', ' + selectedYear + '</div><div>$' + rb.toFixed(2) + '</div></div></div></div><div class="div"></div><div class="txn"><h2>Your Transaction Details</h2><table><thead><tr><th style="width:60px">Date</th><th>Details</th><th style="width:80px;text-align:right">Withdrawals</th><th style="width:80px;text-align:right">Deposits</th><th style="width:80px;text-align:right">Balance</th></tr></thead><tbody>' + rows + (rows ? '<tr class="tot"><td colspan="2">Closing Balance</td><td class="amt"></td><td class="amt"></td><td class="amt">$' + rb.toFixed(2) + '</td></tr>' : '<tr><td colspan="5" style="text-align:center;padding:20px">No transactions</td></tr>') + '</tbody></table></div></body></html>';
+
+            // Render the HTML into a hidden iframe, screenshot it, then save as PDF
+            const iframe = document.createElement('iframe');
+            iframe.style.cssText = 'position:fixed;left:-9999px;top:0;width:794px;height:1123px;border:none;visibility:hidden;';
+            document.body.appendChild(iframe);
+
+            await new Promise(resolve => {
+                iframe.onload = resolve;
+                iframe.srcdoc = html;
+            });
+
+            // Give fonts/images a moment to render
+            await new Promise(r => setTimeout(r, 600));
+
+            const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+            const bodyEl = iframeDoc.body;
+            const fullHeight = Math.max(bodyEl.scrollHeight, 1123);
+
+            iframe.style.height = fullHeight + 'px';
+            await new Promise(r => setTimeout(r, 200));
+
+            const canvas = await window.html2canvas(iframeDoc.body, {
+                scale: 2,
+                useCORS: true,
+                allowTaint: true,
+                backgroundColor: '#ffffff',
+                width: 794,
+                windowWidth: 794,
+            });
+
+            document.body.removeChild(iframe);
+
+            const { jsPDF } = window.jspdf;
+            const imgData = canvas.toDataURL('image/jpeg', 0.95);
+            const pdfW = 595.28;  // A4 pt width
+            const pdfH = 841.89; // A4 pt height
+            const imgAspect = canvas.height / canvas.width;
+            const totalImgHeightPt = pdfW * imgAspect;
+            const pageCount = Math.ceil(totalImgHeightPt / pdfH);
+
+            const doc = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
+
+            for (let page = 0; page < pageCount; page++) {
+                if (page > 0) doc.addPage();
+                // Offset the image so we show the correct slice for this page
+                doc.addImage(imgData, 'JPEG', 0, -(page * pdfH), pdfW, totalImgHeightPt);
+            }
+
+            doc.save('FinScopeAI_Statement_' + months[selectedMonth] + '_' + selectedYear + '.pdf');
+
+        } catch (err) {
+            console.error('PDF generation failed:', err);
+            alert('Could not generate PDF. Please try again.');
+        }
+        setTimeout(() => setDownloading(null), 800);
     };
 
     const hasData = monthTxns.length > 0;
