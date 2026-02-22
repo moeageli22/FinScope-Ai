@@ -19,6 +19,7 @@ import PracticeMode from './pages/PracticeMode.jsx';
 import AuthCallback from './pages/AuthCallback';
 import VerifyEmailCode from './pages/VerifyEmailCode';
 import SmartAnalytics from './pages/SmartAnalytics';
+import Help from './pages/Help.jsx';
 
 function App() {
     return (
@@ -44,6 +45,7 @@ function App() {
                                 <Route path="/auth/callback" element={<AuthCallback />} />
                                 <Route path="/verify-email-code" element={<VerifyEmailCode />} />
                                 <Route path="/analytics" element={<SmartAnalytics />} />
+                                <Route path="/help" element={<Help />} />
                             </Routes>
                         </div>
                     </Router>
