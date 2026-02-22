@@ -264,6 +264,24 @@
 .dr-bnav-ai .dr-bnav-ai-orb svg { color: #fff; }
 .dr-bnav-ai span { margin-top: -2px; }
 
+/* Smart Analytics bnav button */
+.dr-bnav-smart .dr-bnav-smart-icon {
+    width: 36px; height: 36px; border-radius: 10px;
+    background: linear-gradient(135deg, rgba(99,102,241,0.18), rgba(6,182,212,0.12));
+    border: 1px solid rgba(99,102,241,0.35);
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.3s;
+    color: #a5b4fc;
+}
+.dr-bnav-smart:hover .dr-bnav-smart-icon,
+.dr-bnav-smart:active .dr-bnav-smart-icon {
+    background: linear-gradient(135deg, rgba(99,102,241,0.35), rgba(6,182,212,0.25));
+    border-color: rgba(99,102,241,0.65);
+    color: #fff;
+    box-shadow: 0 0 16px rgba(99,102,241,0.5);
+}
+.dr-bnav-smart span { color: #a5b4fc; }
+
 
 /* ═══════════════════════════════════════════
    MOBILE QUICK-ACCESS BUTTONS
