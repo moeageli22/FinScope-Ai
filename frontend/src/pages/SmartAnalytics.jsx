@@ -38,61 +38,169 @@ const Icons = {
 };
 
 /* ═══════════════════════════════════════════
-   MINI AI FACE — embedded orb with blinking eyes
+   FINSCOPE AI ORB — Real orb, scaled to fit
+   Embeds the actual FinScopeAI component logic
+   inline so no external import needed.
+   size prop controls the rendered pixel size.
    ═══════════════════════════════════════════ */
 const MiniAIFace = ({ size = 36, animated = true, className = '' }) => {
+    const [eyePosition, setEyePosition] = useState({ x: 0, y: 0 });
     const [isBlinking, setIsBlinking] = useState(false);
-    const [eyePos, setEyePos] = useState({ x: 0, y: 0 });
-    const uid = useRef(`maf_${Math.random().toString(36).slice(2)}`).current;
+    const [wavePhase, setWavePhase] = useState(0);
+    const [isHovered, setIsHovered] = useState(false);
+
+    // The real FinScopeAI always renders at 400×400 internally.
+    // We scale it down to `size` pixels via CSS transform.
+    const NATIVE = 400;
+    const scale = size / NATIVE;
 
     useEffect(() => {
         if (!animated) return;
+        const waveAnim = setInterval(() => {
+            setWavePhase(prev => (prev + 0.015) % (Math.PI * 2));
+        }, 50);
+        return () => clearInterval(waveAnim);
+    }, [animated]);
+
+    useEffect(() => {
+        if (!animated) return;
+        const lookAround = setInterval(() => {
+            const angle = Math.random() * Math.PI * 2;
+            const distance = Math.random() * 8 + 2;
+            setEyePosition({ x: Math.cos(angle) * distance, y: Math.sin(angle) * distance });
+        }, 1200);
         const blink = setInterval(() => {
             setIsBlinking(true);
             setTimeout(() => setIsBlinking(false), 100);
-        }, 2800 + Math.random() * 1200);
-        const look = setInterval(() => {
-            const a = Math.random() * Math.PI * 2;
-            const d = Math.random() * 2.5 + 0.5;
-            setEyePos({ x: Math.cos(a) * d, y: Math.sin(a) * d });
-        }, 1400);
-        return () => { clearInterval(blink); clearInterval(look); };
+        }, 3000);
+        const doubleBlink = setInterval(() => {
+            setIsBlinking(true);
+            setTimeout(() => {
+                setIsBlinking(false);
+                setTimeout(() => { setIsBlinking(true); setTimeout(() => setIsBlinking(false), 100); }, 120);
+            }, 100);
+        }, 10000);
+        return () => { clearInterval(lookAround); clearInterval(blink); clearInterval(doubleBlink); };
     }, [animated]);
 
-    const eyeH = isBlinking ? 1 : size * 0.185;
-    const eyeW = size * 0.072;
-    const eyeR = eyeW / 2;
-    const orbR = size * 0.44;
-    const cx = size / 2, cy = size / 2;
-    const eyeGap = size * 0.185;
-    const eyeY = cy - size * 0.01 + eyePos.y;
+    const generateWavePoints = (count, radius, offset, intensity, frequency) => {
+        const points = [];
+        for (let i = 0; i <= count; i++) {
+            const angle = (i / count) * Math.PI * 2;
+            const wave1 = Math.sin(angle * frequency + wavePhase + offset) * intensity;
+            const wave2 = Math.cos(angle * (frequency * 0.7) - wavePhase * 0.8 + offset) * (intensity * 0.5);
+            const wave3 = Math.sin(angle * (frequency * 1.5) + wavePhase * 1.2 + offset) * (intensity * 0.3);
+            const r = radius + wave1 + wave2 + wave3;
+            points.push(`${200 + Math.cos(angle) * r},${200 + Math.sin(angle) * r}`);
+        }
+        return points.join(' ');
+    };
+
+    const orbW = 280, orbH = 280;
+    const eyeH = isBlinking ? 4 : 72;
 
     return (
-        <svg viewBox={`0 0 ${size} ${size}`} width={size} height={size} className={`sa-mini-face ${className}`} style={{ flexShrink: 0 }}>
-            <defs>
-                <radialGradient id={`og_${uid}`} cx="38%" cy="28%" r="62%">
-                    <stop offset="0%" stopColor="#a78bfa"/>
-                    <stop offset="45%" stopColor="#4f46e5"/>
-                    <stop offset="100%" stopColor="#1e1b4b"/>
-                </radialGradient>
-                <radialGradient id={`sg_${uid}`} cx="35%" cy="20%" r="55%">
-                    <stop offset="0%" stopColor="rgba(255,255,255,0.55)"/>
-                    <stop offset="100%" stopColor="rgba(255,255,255,0)"/>
-                </radialGradient>
-                <filter id={`eg_${uid}`} x="-50%" y="-50%" width="200%" height="200%">
-                    <feGaussianBlur stdDeviation="1.2" result="b"/>
-                    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-                </filter>
-            </defs>
-            <circle cx={cx} cy={cy} r={orbR} fill={`url(#og_${uid})`}/>
-            <ellipse cx={cx - orbR*0.1} cy={cy - orbR*0.22} rx={orbR*0.52} ry={orbR*0.3} fill={`url(#sg_${uid})`}/>
-            {/* Left eye */}
-            <rect x={cx - eyeGap - eyeW/2 + eyePos.x} y={eyeY - eyeH/2}
-                  width={eyeW} height={eyeH} rx={eyeR} fill="white" filter={`url(#eg_${uid})`}/>
-            {/* Right eye */}
-            <rect x={cx + eyeGap - eyeW/2 + eyePos.x} y={eyeY - eyeH/2}
-                  width={eyeW} height={eyeH} rx={eyeR} fill="white" filter={`url(#eg_${uid})`}/>
-        </svg>
+        <div
+            className={`sa-mini-face ${className}`}
+            style={{
+                width: size, height: size, flexShrink: 0, position: 'relative',
+                display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+            }}
+        >
+            {/* Scale wrapper: native 400×400 shrunk to `size` */}
+            <div style={{
+                width: NATIVE, height: NATIVE,
+                transform: `scale(${scale})`,
+                transformOrigin: 'top left',
+                position: 'absolute', top: 0, left: 0,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                pointerEvents: animated ? 'auto' : 'none',
+            }}>
+                {/* Orbiting fintech icons — only on larger sizes */}
+                {size >= 80 && (
+                    <div className="sa-face-orbit">
+                        {[
+                            { type:'dollar', angle:0 }, { type:'bitcoin', angle:45 }, { type:'euro', angle:90 },
+                            { type:'chartup', angle:135 }, { type:'pound', angle:180 }, { type:'yen', angle:225 },
+                            { type:'chartbar', angle:270 }, { type:'wallet', angle:315 },
+                        ].map((icon, i) => (
+                            <div key={i} className="sa-face-orbit-icon"
+                                 style={{ '--icon-angle': `${icon.angle}deg`, '--icon-delay': `${i * -2.5}s` }}>
+                                {icon.type === 'dollar' && <span className="sa-face-symbol">$</span>}
+                                {icon.type === 'euro' && <span className="sa-face-symbol">€</span>}
+                                {icon.type === 'pound' && <span className="sa-face-symbol">£</span>}
+                                {icon.type === 'yen' && <span className="sa-face-symbol">¥</span>}
+                                {icon.type === 'chartup' && <svg className="sa-face-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>}
+                                {icon.type === 'chartbar' && <svg className="sa-face-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg>}
+                                {icon.type === 'wallet' && <svg className="sa-face-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"/><path d="M4 6v12c0 1.1.9 2 2 2h14v-4"/><path d="M18 12a2 2 0 0 0 0 4h4v-4h-4z"/></svg>}
+                                {icon.type === 'bitcoin' && <svg className="sa-face-svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12.5 8.8v-3h-1v3h1zm0 5.9v-3h-1v3h1zm2.5-5.4c0-.7-.1-1.2-.4-1.6-.3-.4-.7-.6-1.3-.7V5H12v2h-1V5h-1.3v2H8v1.3h.7c.4 0 .6.2.6.6v6.2c0 .4-.2.6-.6.6H8V17h1.7v2H11v-2h1v2h1.3v-2c.6-.1 1.1-.3 1.5-.6.4-.4.6-.9.7-1.6 0-.5-.1-1-.4-1.4-.2-.4-.6-.7-1.1-.8.4-.1.7-.4 1-.8.2-.4.4-.8.4-1.3zm-2 .9c0 .4-.1.7-.3.8-.2.2-.5.2-.9.2h-.8V9h.8c.4 0 .7.1.9.3.2.2.3.4.3.9zm.3 4.1c-.2.2-.6.3-1 .3h-1.3v-2.4h1.3c.4 0 .8.1 1 .3.2.2.3.5.3 1 0 .4-.1.7-.3.8z"/></svg>}
+                            </div>
+                        ))}
+                    </div>
+                )}
+
+                {/* Orbiting particles */}
+                {size >= 60 && (
+                    <div className="sa-face-particles">
+                        {[...Array(12)].map((_, i) => (
+                            <div key={i} className="sa-face-particle"
+                                 style={{ '--orbit-delay': `${i * -1.5}s`, '--orbit-size': `${4 + (i % 3) * 2}px` }} />
+                        ))}
+                    </div>
+                )}
+
+                {/* Animated wave rings */}
+                {size >= 40 && (
+                    <svg className="sa-face-wave" viewBox="0 0 400 400" style={{ width: 400, height: 400, position: 'absolute', pointerEvents: 'none', zIndex: 1 }}>
+                        <defs>
+                            <linearGradient id="saFaceWG1" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.4"/>
+                                <stop offset="50%" stopColor="#6366f1" stopOpacity="0.3"/>
+                                <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0.2"/>
+                            </linearGradient>
+                            <linearGradient id="saFaceWG2" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stopColor="#60a5fa" stopOpacity="0.5"/>
+                                <stop offset="100%" stopColor="#a78bfa" stopOpacity="0.25"/>
+                            </linearGradient>
+                            <linearGradient id="saFaceWG3" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stopColor="#93c5fd" stopOpacity="0.6"/>
+                                <stop offset="100%" stopColor="#c4b5fd" stopOpacity="0.3"/>
+                            </linearGradient>
+                            <filter id="saFaceWGlow" x="-50%" y="-50%" width="200%" height="200%">
+                                <feGaussianBlur stdDeviation="3" result="blur"/>
+                                <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                            </filter>
+                        </defs>
+                        <polygon points={generateWavePoints(120, 185, 0, 10, 3)} fill="none" stroke="url(#saFaceWG1)" strokeWidth="1.5" filter="url(#saFaceWGlow)"/>
+                        <polygon points={generateWavePoints(100, 175, 1, 8, 4)} fill="none" stroke="url(#saFaceWG2)" strokeWidth="2" filter="url(#saFaceWGlow)"/>
+                        <polygon points={generateWavePoints(80, 165, 2, 6, 5)} fill="none" stroke="url(#saFaceWG3)" strokeWidth="2.5" filter="url(#saFaceWGlow)"/>
+                    </svg>
+                )}
+
+                {/* Main orb */}
+                <div
+                    className={`sa-face-orb ${isHovered ? 'sa-face-orb--hovered' : ''}`}
+                    style={{ width: orbW, height: orbH }}
+                    onMouseEnter={() => animated && setIsHovered(true)}
+                    onMouseLeave={() => setIsHovered(false)}
+                >
+                    <div className="sa-face-reflect-1"/>
+                    <div className="sa-face-reflect-2"/>
+                    <div className="sa-face-reflect-3"/>
+                    <div className="sa-face-eyes">
+                        {[0, 1].map(i => (
+                            <div key={i} className="sa-face-eye-wrap">
+                                <div className="sa-face-eye" style={{
+                                    height: eyeH,
+                                    transform: `translate(${eyePosition.x}px, ${eyePosition.y}px)`,
+                                }}/>
+                            </div>
+                        ))}
+                    </div>
+                    <div className="sa-face-bottom-glow"/>
+                </div>
+            </div>
+        </div>
     );
 };
 
