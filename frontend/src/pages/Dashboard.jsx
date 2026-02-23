@@ -1178,7 +1178,7 @@ const Dashboard = () => {
                     </>)}
 
                     {/* ═══ EXPENSES TAB ═══ */}
-                    {activeTab === 'expenses' && (<><BrandExpenseSection balance={balance} onAddExpense={handleAddExpense} fmt={fmt} currency={currency} /><CustomExpenseForm balance={balance} onAddExpense={handleAddExpense} fmt={fmt} currency={currency} /></>)}
+                    {activeTab === 'expenses' && (<><CustomExpenseForm balance={balance} onAddExpense={handleAddExpense} fmt={fmt} currency={currency} /><BrandExpenseSection balance={balance} onAddExpense={handleAddExpense} fmt={fmt} currency={currency} /></>)}
 
                     {/* ═══ STATEMENTS TAB ═══ */}
                     {activeTab === 'statements' && <StatementsTab transactions={transactions} balance={balance} totalIncome={totalIncome} totalExpenses={totalExpenses} fmt={fmt} currency={currency} />}
