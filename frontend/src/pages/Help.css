@@ -210,7 +210,6 @@
     position: relative;
     overflow: hidden;
 }
-/* Scale the full FinScopeAI component down to fit the header */
 .help-ai-orb-scale {
     position: absolute;
     top: 50%;
@@ -261,13 +260,22 @@
 
 .help-chat-window { display: flex; flex-direction: column; }
 
+/* ─────────────────────────────────────
+   FIX: Fixed-height container so only
+   the chat box scrolls, not the page.
+   overflow-anchor: none prevents the
+   browser from jumping the page when
+   new messages are added.
+───────────────────────────────────── */
 .help-chat-messages {
     padding: 18px 18px 10px;
     display: flex;
     flex-direction: column;
     gap: 14px;
+    height: 360px;
     max-height: 360px;
     overflow-y: auto;
+    overflow-anchor: none;
     scrollbar-width: thin;
     scrollbar-color: rgba(255,255,255,0.1) transparent;
 }
@@ -353,7 +361,7 @@
     transform: translateY(-1px);
 }
 
-/* Input */
+/* Input row */
 .help-chat-input-row {
     display: flex;
     align-items: center;
@@ -364,6 +372,7 @@
 }
 .help-chat-input {
     flex: 1;
+    min-width: 0; /* prevents flex overflow on mobile */
     background: rgba(255,255,255,0.05);
     border: 1px solid rgba(255,255,255,0.1);
     border-radius: 12px;
@@ -373,6 +382,7 @@
     padding: 11px 15px;
     outline: none;
     transition: all 0.2s;
+    box-sizing: border-box;
 }
 .help-chat-input::placeholder { color: rgba(255,255,255,0.28); }
 .help-chat-input:focus {
@@ -380,20 +390,40 @@
     background: rgba(99,102,241,0.06);
     box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
 }
+
+/* ─────────────────────────────────────
+   Send button — fixed 44×44 px,
+   touch-friendly (Apple HIG minimum),
+   never shrinks on mobile.
+───────────────────────────────────── */
 .help-chat-send {
-    width: 42px; height: 42px;
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
     border-radius: 12px;
     background: linear-gradient(135deg, #6366f1, #8b5cf6);
     border: none;
     color: #fff;
     cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     flex-shrink: 0;
     transition: all 0.2s;
     box-shadow: 0 4px 14px rgba(99,102,241,0.35);
+    padding: 0;
+    box-sizing: border-box;
 }
-.help-chat-send svg { width: 16px; height: 16px; }
+.help-chat-send svg {
+    width: 17px;
+    height: 17px;
+    flex-shrink: 0;
+    display: block;
+    pointer-events: none;
+}
 .help-chat-send:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(99,102,241,0.5); }
+.help-chat-send:active:not(:disabled) { transform: scale(0.94); }
 .help-chat-send:disabled { opacity: 0.4; cursor: default; transform: none; box-shadow: none; }
 
 /* ══════════════════════
@@ -512,6 +542,10 @@
     .help-hero-title { letter-spacing: -0.8px; }
     .help-hero-sub { font-size: 14px; }
     .help-chat-bubble { max-width: 85%; font-size: 13.5px; }
+    .help-chat-messages {
+        height: 300px;
+        max-height: 300px;
+    }
     .help-quick-btns { gap: 6px; }
     .help-quick-btn { font-size: 12px; padding: 6px 12px; }
     .help-ai-title { font-size: 15px; }
@@ -519,4 +553,13 @@
     .help-faq-q { font-size: 13.5px; }
     .help-faq-a p { font-size: 13px; }
     .help-section-title { font-size: 18px; }
+    .help-chat-input-row { padding: 12px 14px; gap: 8px; }
+    /* Send button stays exactly 44×44 on mobile too */
+    .help-chat-send {
+        width: 44px;
+        height: 44px;
+        min-width: 44px;
+        min-height: 44px;
+        border-radius: 11px;
+    }
 }

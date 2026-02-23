@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import FinScopeAI from '../components/FinScopeAI.jsx'; // full orb used in AI section header
+import FinScopeAI from '../components/FinScopeAI.jsx';
 import './Help.css';
 
 const CLAUDE_API_KEY = import.meta.env.VITE_CLAUDE_API_KEY;
@@ -110,10 +110,15 @@ const HelpAIChat = () => {
     const [input, setInput] = useState('');
     const [typing, setTyping] = useState(false);
     const messagesEndRef = useRef(null);
+    const messagesContainerRef = useRef(null);
     const chatHistoryRef = useRef([]);
 
+    // Scroll only the chat container, not the whole page
     useEffect(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+        const container = messagesContainerRef.current;
+        if (container) {
+            container.scrollTop = container.scrollHeight;
+        }
     }, [messages, typing]);
 
     const sendMsg = async (text) => {
@@ -185,20 +190,21 @@ const HelpAIChat = () => {
             </div>
 
             <div className="help-chat-window">
-                <div className="help-chat-messages">
+                {/* Attach ref to the scrollable container, not the end sentinel */}
+                <div className="help-chat-messages" ref={messagesContainerRef}>
                     {messages.map((msg, i) => (
                         <div key={i} className={`help-chat-msg help-chat-msg--${msg.role}`}>
                             {msg.role === 'ai' && <MiniOrb />}
                             <div className={`help-chat-bubble help-chat-bubble--${msg.role}`}>
                                 {msg.text.split('\n').map((line, j) => (
                                     <span key={j}>
-                    {line.split(/(\*\*.*?\*\*)/).map((part, k) =>
-                        part.startsWith('**') && part.endsWith('**')
-                            ? <strong key={k}>{part.slice(2, -2)}</strong>
-                            : part
-                    )}
+                                        {line.split(/(\*\*.*?\*\*)/).map((part, k) =>
+                                            part.startsWith('**') && part.endsWith('**')
+                                                ? <strong key={k}>{part.slice(2, -2)}</strong>
+                                                : part
+                                        )}
                                         {j < msg.text.split('\n').length - 1 && <br />}
-                  </span>
+                                    </span>
                                 ))}
                             </div>
                         </div>
@@ -213,6 +219,7 @@ const HelpAIChat = () => {
                             </div>
                         </div>
                     )}
+                    {/* Invisible anchor at the bottom — no longer used for scrollIntoView */}
                     <div ref={messagesEndRef} />
                 </div>
 
@@ -235,7 +242,12 @@ const HelpAIChat = () => {
                         onKeyDown={e => e.key === 'Enter' && sendMsg(input)}
                         disabled={typing}
                     />
-                    <button className="help-chat-send" onClick={() => sendMsg(input)} disabled={!input.trim() || typing}>
+                    <button
+                        className="help-chat-send"
+                        onClick={() => sendMsg(input)}
+                        disabled={!input.trim() || typing}
+                        aria-label="Send message"
+                    >
                         <svg viewBox="0 0 24 24" fill="none" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" stroke="currentColor">
                             <line x1="22" y1="2" x2="11" y2="13"/>
                             <polygon points="22 2 15 22 11 13 2 9 22 2" fill="currentColor" stroke="none"/>
