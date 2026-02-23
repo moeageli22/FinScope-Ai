@@ -2,14 +2,15 @@
    MOBILE SCROLL & TOUCH FIXES - CRITICAL
    ═══════════════════════════════════════════ */
 
-/* CRITICAL: Allow page scrolling on mobile */
 @media (max-width: 768px) {
     html, body {
         overflow-x: hidden !important;
         overflow-y: auto !important;
         height: auto !important;
+        min-height: 100% !important;
         -webkit-overflow-scrolling: touch !important;
         touch-action: pan-y !important;
+        position: relative !important;
     }
 
     .dashboard {
@@ -17,11 +18,14 @@
         overflow-y: auto !important;
         -webkit-overflow-scrolling: touch !important;
         touch-action: pan-y !important;
+        height: auto !important;
+        min-height: 100vh !important;
     }
 
     .dashboard-main {
         overflow: visible !important;
         touch-action: pan-y !important;
+        height: auto !important;
     }
 }
 
@@ -67,7 +71,7 @@
 .pm-balance-card { width: 100%; max-width: 560px; background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; padding: 24px; }
 .pm-balance-header { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.8); margin-bottom: 20px; }
 .pm-balance-options { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; }
-.pm-bal-btn { display: flex; flex-direction: column; gap: 4px; padding: 20px 16px; background: rgba(255,255,255,0.03); border: 2px solid rgba(255,255,255,0.08); border-radius: 14px; color: #fff; cursor: pointer; transition: all 0.3s; text-align: left; }
+.pm-bal-btn { display: flex; flex-direction: column; gap: 4px; padding: 20px 16px; background: rgba(255,255,255,0.03); border: 2px solid rgba(255,255,255,0.08); border-radius: 14px; color: #fff; cursor: pointer; transition: all 0.3s; text-align: left; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
 .pm-bal-btn:hover { border-color: rgba(6,182,212,0.4); background: rgba(6,182,212,0.05); }
 .pm-bal-btn.active { border-color: #06b6d4; background: rgba(6,182,212,0.08); box-shadow: 0 0 0 3px rgba(6,182,212,0.15), 0 4px 20px rgba(6,182,212,0.15); }
 .pm-bal-amount { font-size: 24px; font-weight: 800; letter-spacing: -0.02em; }
@@ -160,6 +164,7 @@
 .pm-amount-input[type=number] { -moz-appearance: textfield; }
 .pm-field-error { font-size: 11px; font-weight: 600; color: #ef4444; margin-top: -4px; }
 .pm-category-pills { display: flex; flex-wrap: wrap; gap: 8px; }
+
 /* ═══ SESSION SUMMARY BANNER ═══ */
 .pm-summary-banner { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 20px 24px; background: linear-gradient(135deg, rgba(15,23,42,0.75), rgba(20,28,58,0.65)); border: 1px solid rgba(255,255,255,0.09); border-radius: 18px; overflow: hidden; opacity: 0; transform: translateY(12px); transition: opacity 0.5s cubic-bezier(0.22,1,0.36,1), transform 0.5s cubic-bezier(0.22,1,0.36,1); }
 .pm-summary-banner.visible { opacity: 1; transform: translateY(0); }
@@ -245,6 +250,8 @@
     font-size: 18px; font-weight: 700; cursor: pointer;
     transition: all 0.3s; box-shadow: 0 8px 32px rgba(59,130,246,0.3);
     letter-spacing: 0.01em;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
 }
 .pm-start-btn:hover { transform: translateY(-3px); box-shadow: 0 14px 48px rgba(59,130,246,0.45); }
 .pm-start-btn:active { transform: translateY(0) scale(0.98); }
@@ -258,6 +265,8 @@
     border-radius: 10px; color: rgba(255,255,255,0.6);
     font-size: 13px; font-weight: 600; cursor: pointer;
     transition: all 0.2s; white-space: nowrap;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
 }
 .pm-reset-btn:hover {
     background: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.35);
@@ -281,6 +290,8 @@
     border-radius: 10px; color: rgba(255,255,255,0.5);
     font-size: 13px; font-weight: 600; cursor: pointer;
     transition: all 0.2s; white-space: nowrap;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
 }
 .pm-brand-tab:hover { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.85); border-color: rgba(255,255,255,0.15); }
 .pm-brand-tab.active {
@@ -297,6 +308,7 @@
     cursor: pointer; display: flex; align-items: center; justify-content: center;
     transition: all 0.2s; box-shadow: 0 3px 10px rgba(6,182,212,0.25);
     -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
 }
 .pm-brand-add-btn:hover:not(:disabled) { transform: scale(1.07); box-shadow: 0 6px 18px rgba(6,182,212,0.4); }
 .pm-brand-add-btn:active:not(:disabled) { transform: scale(0.94); }
@@ -317,6 +329,8 @@
     font-size: 15px; font-weight: 700; cursor: pointer;
     transition: all 0.3s; box-shadow: 0 4px 16px rgba(139,92,246,0.3);
     white-space: nowrap; min-width: 160px; letter-spacing: 0.01em;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
 }
 .pm-custom-submit:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(139,92,246,0.45); }
 .pm-custom-submit:active:not(:disabled) { transform: scale(0.97); }
@@ -332,7 +346,9 @@
     background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
     border-radius: 10px; color: rgba(255,255,255,0.6);
     font-size: 13px; font-weight: 500; cursor: pointer;
-    transition: all 0.18s; -webkit-tap-highlight-color: transparent;
+    transition: all 0.18s;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
 }
 .pm-cat-pill:hover { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.18); color: rgba(255,255,255,0.9); transform: translateY(-1px); }
 .pm-cat-pill:active { transform: scale(0.96); }
@@ -347,6 +363,8 @@
     padding: 10px 18px; border-radius: 10px;
     font-size: 13px; font-weight: 700; cursor: pointer;
     transition: all 0.22s; white-space: nowrap; border: none;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
 }
 .pm-summary-btn--outline {
     background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12) !important;
@@ -365,6 +383,7 @@
     cursor: pointer; display: flex; align-items: center; justify-content: center;
     transition: all 0.2s; box-shadow: 0 4px 14px rgba(139,92,246,0.3);
     -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
 }
 .pm-send:hover:not(:disabled) { transform: scale(1.07); box-shadow: 0 6px 20px rgba(139,92,246,0.45); }
 .pm-send:active:not(:disabled) { transform: scale(0.93); }
@@ -378,6 +397,7 @@
     border-radius: 8px; color: rgba(255,255,255,0.7); cursor: pointer;
     transition: all 0.18s; white-space: nowrap;
     -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
 }
 .pm-quick-btn:hover:not(:disabled) { background: rgba(139,92,246,0.16); border-color: rgba(139,92,246,0.4); color: #e9d5ff; transform: translateY(-1px); }
 .pm-quick-btn:active { transform: scale(0.96); }
@@ -390,6 +410,8 @@
     font-size: 14px; font-weight: 700; cursor: pointer;
     transition: all 0.22s cubic-bezier(0.22,1,0.36,1);
     white-space: nowrap; border: none; letter-spacing: 0.01em;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
 }
 .pm-sticky-btn--outline {
     background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14) !important;
@@ -408,7 +430,9 @@
     border: none; border-radius: 14px; color: #fff;
     font-size: 14px; font-weight: 700; cursor: pointer;
     transition: all 0.3s; box-shadow: 0 5px 20px rgba(139,92,246,0.35);
-    white-space: nowrap; -webkit-tap-highlight-color: transparent;
+    white-space: nowrap;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
 }
 .pm-fab-chat:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(139,92,246,0.5); }
 .pm-fab-chat:active { transform: scale(0.97); }
@@ -421,6 +445,8 @@
     border-radius: 12px; color: #f87171;
     font-size: 13px; font-weight: 600; cursor: pointer;
     transition: all 0.2s; white-space: nowrap;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
 }
 .btn-leave:hover { background: rgba(239,68,68,0.14); border-color: rgba(239,68,68,0.4); transform: translateY(-1px); box-shadow: 0 4px 14px rgba(239,68,68,0.2); }
 .btn-leave:active { transform: scale(0.97); }
@@ -433,7 +459,9 @@
     background: linear-gradient(135deg, rgba(139,92,246,0.12), rgba(99,102,241,0.08));
     border: 1px solid rgba(139,92,246,0.25); border-radius: 14px;
     color: rgba(255,255,255,0.85); font-size: 14px; font-weight: 700;
-    cursor: pointer; transition: all 0.3s; -webkit-tap-highlight-color: transparent;
+    cursor: pointer; transition: all 0.3s;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
 }
 .pm-insights-chat-btn:hover { background: linear-gradient(135deg, rgba(139,92,246,0.2), rgba(99,102,241,0.15)); border-color: rgba(139,92,246,0.45); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(139,92,246,0.25); color: #fff; }
 .pm-insights-chat-btn:active { transform: scale(0.98); }
@@ -443,7 +471,7 @@
 .pm-mini-orb.sm { width: 22px; height: 22px; }
 .pm-mini-orb-eyes { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 18%; padding-top: 6%; }
 .pm-eye { width: 14%; height: 30%; background: white; border-radius: 50px; box-shadow: 0 0 3px rgba(255,255,255,0.8); }
-.pm-chat-messages { flex: 1; overflow-y: auto; padding: 16px; max-height: 500px; min-height: 380px; display: flex; flex-direction: column; gap: 12px; }
+.pm-chat-messages { flex: 1; overflow-y: auto; padding: 16px; max-height: 500px; min-height: 380px; display: flex; flex-direction: column; gap: 12px; -webkit-overflow-scrolling: touch; }
 .pm-chat-messages::-webkit-scrollbar { width: 5px; }
 .pm-chat-messages::-webkit-scrollbar-track { background: transparent; }
 .pm-chat-messages::-webkit-scrollbar-thumb { background: rgba(139,92,246,0.25); border-radius: 10px; }
@@ -500,6 +528,7 @@
     transition: all 0.2s;
     padding: 0;
     -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
 }
 .pm-hamburger-btn:hover {
     background: rgba(139,92,246,0.12);
@@ -552,6 +581,7 @@
     cursor: pointer;
     transition: background 0.15s;
     -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
     text-align: left;
 }
 .pm-ham-item:hover {
@@ -611,11 +641,9 @@
 
 /* ═══════════════════════════════════════════
    MOBILE BOTTOM NAVIGATION
-   Replaces the sidebar content on mobile —
-   tap an icon to fly in that panel
    ═══════════════════════════════════════════ */
 .pm-mobile-nav {
-    display: none; /* hidden on desktop */
+    display: none;
     position: fixed;
     bottom: 0; left: 0; right: 0;
     z-index: 200;
@@ -625,16 +653,15 @@
     border-top: 1px solid rgba(255,255,255,0.08);
     box-shadow: 0 -8px 32px rgba(0,0,0,0.5);
     padding-bottom: env(safe-area-inset-bottom, 0px);
-    /* CRITICAL FIX: Nav bar doesn't block scrolling */
+    /* CRITICAL: Let main content scroll freely underneath */
     pointer-events: none;
 }
 .pm-mobile-nav-inner {
     display: flex;
     align-items: stretch;
     justify-content: space-around;
-    padding: 0 8px;
-    height: 62px;
-    /* FIXED: Only buttons are clickable */
+    padding: 0 4px;
+    height: 60px;
     pointer-events: auto;
 }
 .pm-nav-btn {
@@ -643,21 +670,22 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 4px;
+    gap: 3px;
     background: none;
     border: none;
     color: rgba(255,255,255,0.4);
-    font-size: 10px;
+    font-size: 9px;
     font-weight: 600;
     cursor: pointer;
     transition: color 0.2s;
-    padding: 6px 4px;
+    padding: 6px 2px;
     position: relative;
     letter-spacing: 0.3px;
     -webkit-tap-highlight-color: transparent;
-    /* FIXED: Buttons capture touches */
     pointer-events: auto;
     touch-action: manipulation;
+    /* Minimum tap target */
+    min-width: 44px;
 }
 .pm-nav-btn.active {
     color: #8b5cf6;
@@ -665,32 +693,30 @@
 .pm-nav-btn.active svg {
     filter: drop-shadow(0 0 6px rgba(139,92,246,0.6));
 }
-/* AI Chat button glows cyan */
 .pm-nav-btn.nav-ai.active {
     color: #06b6d4;
 }
 .pm-nav-btn.nav-ai.active svg {
     filter: drop-shadow(0 0 6px rgba(6,182,212,0.6));
 }
-/* Active indicator dot */
 .pm-nav-btn.active::before {
     content: '';
     position: absolute;
     top: 4px;
     left: 50%;
     transform: translateX(-50%);
-    width: 28px;
+    width: 24px;
     height: 2px;
     border-radius: 2px;
     background: currentColor;
     opacity: 0.7;
 }
 
-/* Mobile slide-up panel — wraps sidebar panels on mobile */
+/* Mobile slide-up panel */
 .pm-mobile-panel {
-    display: none; /* hidden on desktop */
+    display: none;
     position: fixed;
-    bottom: 62px;
+    bottom: 60px;
     left: 0; right: 0;
     z-index: 190;
     background: rgba(8,12,30,0.98);
@@ -698,14 +724,14 @@
     -webkit-backdrop-filter: blur(24px);
     border-top: 1px solid rgba(255,255,255,0.1);
     border-radius: 20px 20px 0 0;
-    max-height: 65vh;
-    /* CRITICAL FIX: Panel is scrollable */
+    max-height: 70vh;
+    /* CRITICAL: Panel itself must scroll */
     overflow-y: auto !important;
-    overflow-x: hidden;
+    overflow-x: hidden !important;
     -webkit-overflow-scrolling: touch !important;
-    overscroll-behavior: contain !important;
+    overscroll-behavior: contain;
     touch-action: pan-y !important;
-    padding: 20px 16px 8px;
+    padding: 8px 16px 16px;
     transform: translateY(100%);
     transition: transform 0.38s cubic-bezier(0.22,1,0.36,1), opacity 0.3s;
     opacity: 0;
@@ -723,23 +749,24 @@
     height: 4px;
     background: rgba(255,255,255,0.15);
     border-radius: 4px;
-    margin: 0 auto 16px;
+    margin: 8px auto 16px;
+    flex-shrink: 0;
 }
-/* Panel backdrop */
+/* Panel backdrop - CRITICAL: must NOT block page scroll */
 .pm-panel-backdrop {
     display: none;
     position: fixed;
     inset: 0;
     z-index: 180;
-    background: rgba(0,0,0,0.4);
+    background: rgba(0,0,0,0.45);
     opacity: 0;
     transition: opacity 0.3s;
-    /* FIXED: Backdrop closes panel but doesn't block main page scroll */
-    pointer-events: auto;
+    pointer-events: none; /* Only intercept when open */
     touch-action: none;
 }
 .pm-panel-backdrop.open {
     opacity: 1;
+    pointer-events: auto; /* Only block touches when panel is open */
 }
 
 /* ═══ STICKY BOTTOM ACTION BAR ═══ */
@@ -789,7 +816,7 @@
     /* ── Layout collapses to single column ── */
     .pm-layout { grid-template-columns: 1fr; gap: 16px; }
 
-    /* ── Sidebar hidden on mobile — shown via slide-up panel ── */
+    /* ── Sidebar hidden on mobile ── */
     .pm-sidebar { display: none !important; }
 
     /* ── Mobile nav & panel become visible ── */
@@ -797,13 +824,23 @@
     .pm-mobile-panel { display: block !important; }
     .pm-panel-backdrop { display: block !important; }
 
-    /* ── Hide desktop-only sticky bar, replaced by mobile nav ── */
+    /* ── Hide desktop-only sticky bar ── */
     .pm-sticky-bar { display: none !important; }
 
-    /* ── Main content pushes above mobile nav ── */
+    /* ── CRITICAL: Main content area must scroll freely ── */
     .dashboard-main {
-        padding-bottom: calc(72px + env(safe-area-inset-bottom, 20px)) !important;
-        min-height: 100vh;
+        padding-bottom: calc(60px + env(safe-area-inset-bottom, 16px) + 16px) !important;
+        overflow: visible !important;
+        touch-action: pan-y !important;
+        height: auto !important;
+    }
+
+    /* ── CRITICAL: Dashboard wrapper must not clip scroll ── */
+    .dashboard {
+        overflow-x: hidden !important;
+        overflow-y: visible !important;
+        height: auto !important;
+        min-height: 100vh !important;
     }
 
     /* ── Welcome screen ── */
@@ -824,9 +861,7 @@
     /* ── Header ── */
     .pm-header .dashboard-header-content { padding: 12px 16px; }
     .pm-badge { display: none; }
-    /* Show header-right on mobile so hamburger is visible */
     .dashboard-header-right { display: flex !important; align-items: center; gap: 8px; }
-    /* Hide desktop-only items on mobile */
     .desktop-only { display: none !important; }
 
     /* ── Balance box ── */
@@ -835,7 +870,7 @@
     .pm-balance-stats { flex-direction: column; gap: 8px; }
     .pm-balance-icon { width: 38px; height: 38px; border-radius: 10px; }
 
-    /* ═══ FIXED: Brand cards - single column on phone for better UX ═══ */
+    /* ── Brand cards - single column on phone ── */
     .pm-brand-grid { grid-template-columns: 1fr !important; gap: 12px; }
     .pm-brand-section { padding: 20px 16px; border-radius: 16px; }
     .pm-brand-card { padding: 16px 14px; gap: 12px; border-radius: 12px; }
@@ -843,6 +878,9 @@
     .pm-brand-emoji { font-size: 22px; }
     .pm-brand-name { font-size: 14px; }
     .pm-brand-cat { font-size: 11px; }
+
+    /* ── Brand add button larger tap target on mobile ── */
+    .pm-brand-add-btn { width: 46px; height: 46px; min-width: 46px; }
 
     /* ── Custom expense ── */
     .pm-custom-row { grid-template-columns: 1fr; }
@@ -863,17 +901,23 @@
     .pm-summary-btn { flex: 1; justify-content: center; }
 
     /* ── Chat inside panel ── */
-    .pm-chat { min-height: 380px; border-radius: 14px; }
-    .pm-chat-messages { max-height: 260px; min-height: 200px; }
+    .pm-chat { min-height: 320px; border-radius: 14px; }
+    .pm-chat-messages { max-height: 220px; min-height: 160px; }
+
+    /* ── Category pills bigger tap targets ── */
+    .pm-cat-pill { padding: 10px 14px; font-size: 13px; }
+
+    /* ── Summary buttons bigger ── */
+    .pm-summary-btn { padding: 12px 16px; font-size: 13px; }
 }
 
 @media (max-width: 480px) {
-    /* Ensure single column layout on very small phones */
     .pm-brand-grid { grid-template-columns: 1fr !important; }
-    .pm-cat-pill { padding: 6px 10px; font-size: 12px; }
+    .pm-cat-pill { padding: 9px 12px; font-size: 12px; }
     .pm-trend-stats-row { grid-template-columns: 1fr; }
     .pm-welcome-title { font-size: 22px; }
     .pm-balance-value { font-size: 24px; }
+    .pm-nav-btn { font-size: 8px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
