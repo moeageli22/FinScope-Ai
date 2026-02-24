@@ -679,7 +679,7 @@ const SmartAnalytics = () => {
                     </div>
                     <div>
                         <h1 className="sa-title">Smart Analytics</h1>
-                        <p className="sa-subtitle">Intelligence Layer · Claude AI</p>
+                        <p className="sa-subtitle">Intelligence Layer </p>
                     </div>
                 </div>
 
@@ -907,7 +907,7 @@ const SmartAnalytics = () => {
                         <div className="sa-card">
                             <div className="sa-card-header">
                                 <div className="sa-card-icon-wrap">{Icons.robot}</div>
-                                <div><h3 className="sa-card-title">AI Deep Analysis</h3><p className="sa-card-sub">Claude analyzes your data with contextual financial intelligence</p></div>
+                                <div><h3 className="sa-card-title">AI Deep Analysis</h3><p className="sa-card-sub">AI analyzes your data with contextual financial intelligence</p></div>
                             </div>
                             {hasData
                                 ? <AIDeepAnalysis transactions={expenseTransactions} balance={balance} totalSpent={totalSpent} startingBalance={startingBalance}/>
