@@ -177,56 +177,57 @@ const ChartsInsights = () => {
                         </div>
 
                         <div className="chart-content category-content">
+                            {/* Fixed donut chart using CSS instead of SVG text */}
                             <div className="donut-chart">
-                                <svg viewBox="0 0 200 200" className="donut-svg">
-                                    {donutSegments.map((segment, index) => {
-                                        const startAngle = (segment.startAngle * Math.PI) / 180;
-                                        const endAngle = (segment.endAngle * Math.PI) / 180;
-                                        const radius = 70;
-                                        const innerRadius = 50;
+                                <div className="donut-wrapper">
+                                    <svg viewBox="0 0 200 200" className="donut-svg">
+                                        {donutSegments.map((segment, index) => {
+                                            const startAngle = (segment.startAngle * Math.PI) / 180;
+                                            const endAngle = (segment.endAngle * Math.PI) / 180;
+                                            const radius = 70;
+                                            const innerRadius = 50;
 
-                                        const x1 = 100 + radius * Math.cos(startAngle);
-                                        const y1 = 100 + radius * Math.sin(startAngle);
-                                        const x2 = 100 + radius * Math.cos(endAngle);
-                                        const y2 = 100 + radius * Math.sin(endAngle);
-                                        const x3 = 100 + innerRadius * Math.cos(endAngle);
-                                        const y3 = 100 + innerRadius * Math.sin(endAngle);
-                                        const x4 = 100 + innerRadius * Math.cos(startAngle);
-                                        const y4 = 100 + innerRadius * Math.sin(startAngle);
+                                            const x1 = 100 + radius * Math.cos(startAngle);
+                                            const y1 = 100 + radius * Math.sin(startAngle);
+                                            const x2 = 100 + radius * Math.cos(endAngle);
+                                            const y2 = 100 + radius * Math.sin(endAngle);
+                                            const x3 = 100 + innerRadius * Math.cos(endAngle);
+                                            const y3 = 100 + innerRadius * Math.sin(endAngle);
+                                            const x4 = 100 + innerRadius * Math.cos(startAngle);
+                                            const y4 = 100 + innerRadius * Math.sin(startAngle);
 
-                                        const largeArc = segment.percentage > 50 ? 1 : 0;
+                                            const largeArc = segment.percentage > 50 ? 1 : 0;
 
-                                        const pathData = `
-                                            M ${x1} ${y1}
-                                            A ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2}
-                                            L ${x3} ${y3}
-                                            A ${innerRadius} ${innerRadius} 0 ${largeArc} 0 ${x4} ${y4}
-                                            Z
-                                        `;
+                                            const pathData = `
+                                                M ${x1} ${y1}
+                                                A ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2}
+                                                L ${x3} ${y3}
+                                                A ${innerRadius} ${innerRadius} 0 ${largeArc} 0 ${x4} ${y4}
+                                                Z
+                                            `;
 
-                                        return (
-                                            <path
-                                                key={index}
-                                                d={pathData}
-                                                fill={segment.color}
-                                                className={`donut-segment ${hoveredCategory === segment.name ? 'hovered' : ''}`}
-                                                onMouseEnter={() => setHoveredCategory(segment.name)}
-                                                onMouseLeave={() => setHoveredCategory(null)}
-                                            />
-                                        );
-                                    })}
+                                            return (
+                                                <path
+                                                    key={index}
+                                                    d={pathData}
+                                                    fill={segment.color}
+                                                    className={`donut-segment ${hoveredCategory === segment.name ? 'hovered' : ''}`}
+                                                    onMouseEnter={() => setHoveredCategory(segment.name)}
+                                                    onMouseLeave={() => setHoveredCategory(null)}
+                                                />
+                                            );
+                                        })}
 
-                                    {/* Center circle */}
-                                    <circle cx="100" cy="100" r="50" fill="rgba(10, 11, 30, 0.9)" />
+                                        {/* Center circle only — no SVG text */}
+                                        <circle cx="100" cy="100" r="50" fill="rgba(10, 11, 30, 0.9)" />
+                                    </svg>
 
-                                    {/* Center text */}
-                                    <text x="100" y="95" textAnchor="middle" fill="rgba(255,255,255,0.5)" fontSize="12">
-                                        Total
-                                    </text>
-                                    <text x="100" y="110" textAnchor="middle" fill="#ffffff" fontSize="16" fontWeight="bold">
-                                        ${totalSpending}
-                                    </text>
-                                </svg>
+                                    {/* Center text as HTML overlay — always correctly positioned */}
+                                    <div className="donut-center-text">
+                                        <span className="donut-label">Total</span>
+                                        <span className="donut-value">${totalSpending.toLocaleString()}</span>
+                                    </div>
+                                </div>
                             </div>
 
                             <div className="category-legend">
