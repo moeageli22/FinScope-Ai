@@ -12,6 +12,7 @@ import CookieBanner from './CookieBanner.jsx';
 import LiveExchange from './LiveExchange.jsx';
 import UserMenu from '../components/UserMenu.jsx';
 import DashboardTutorial from '../components/DashboardTutorial.jsx';
+import LiveExchangeSection from '../components/LiveExchangeSection.jsx';
 import { supabase } from '../config/supabase';
 
 function Home() {
@@ -132,7 +133,7 @@ function Home() {
             }
 
             // Check each section
-            const sections = ['about', 'features', 'contact'];
+            const sections = ['about', 'live-exchange-info', 'features', 'contact'];
 
             for (const sectionId of sections) {
                 const element = document.getElementById(sectionId);
@@ -630,6 +631,17 @@ function Home() {
 
             {/* Dashboard Preview Section */}
             <DashboardPreview />
+
+            {/* Live Exchange Feature Section */}
+            <div id="live-exchange-info">
+                <LiveExchangeSection
+                    onOpenExchange={() => {
+                        setShowExchange(true);
+                        setActiveSection('exchange');
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
+                />
+            </div>
 
             {/* Charts & Insights Section */}
             <div id="features">
