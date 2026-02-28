@@ -246,21 +246,22 @@ const FullscreenAIChat = ({ open, onClose, transactions=[], balance=0, totalSpen
     const inputRef = useRef(null);
     const menuRef  = useRef(null);
 
-    /* lock body scroll */
+    /* lock body scroll — preserves scroll position */
     useEffect(() => {
-        if (open) {
-            document.body.style.overflow = 'hidden';
-            document.body.style.position = 'fixed';
-            document.body.style.width    = '100%';
-        } else {
-            document.body.style.overflow = '';
-            document.body.style.position = '';
-            document.body.style.width    = '';
-        }
+        if (!open) return;
+        const scrollY = window.scrollY;
+        document.body.style.overflow = 'hidden';
+        document.body.style.position = 'fixed';
+        document.body.style.top      = `-${scrollY}px`;
+        document.body.style.left     = '0';
+        document.body.style.right    = '0';
         return () => {
             document.body.style.overflow = '';
             document.body.style.position = '';
-            document.body.style.width    = '';
+            document.body.style.top      = '';
+            document.body.style.left     = '';
+            document.body.style.right    = '';
+            window.scrollTo(0, scrollY);
         };
     }, [open]);
 
@@ -389,6 +390,7 @@ const FullscreenAIChat = ({ open, onClose, transactions=[], balance=0, totalSpen
                     position:'fixed', inset:0, zIndex:99999,
                     background:'rgba(0,0,0,0.8)', backdropFilter:'blur(18px)',
                     display:'flex', alignItems:'flex-end', justifyContent:'center',
+                    touchAction:'none', overscrollBehavior:'none',
                 }}
             >
                 {/* MODAL */}
@@ -401,6 +403,7 @@ const FullscreenAIChat = ({ open, onClose, transactions=[], balance=0, totalSpen
                         animation:'fsc-up .4s cubic-bezier(.22,1,.36,1)',
                         boxShadow:'0 -24px 80px rgba(0,0,0,0.6)',
                         borderTop:'1px solid rgba(99,102,241,0.2)',
+                        touchAction:'auto', overscrollBehavior:'contain',
                     }}
                 >
 
