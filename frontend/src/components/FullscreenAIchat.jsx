@@ -279,8 +279,8 @@ const FullscreenAIChat = ({ open, onClose, transactions=[], balance=0, totalSpen
         if (messages.length === 0) {
             const hasData = transactions.length > 0;
             setMessages([{ id: 1, role: 'ai', text: hasData
-                    ? `Hey! 👋 I can see ${transactions.length} transaction${transactions.length!==1?'s':''} totaling $${totalSpent.toFixed(2)}.\n\nAsk me anything — or tap a suggestion below!\n• "Show me a dashboard"\n• "Create a spending chart"\n• "Give me savings tips"`
-                    : `Hey! 👋 I'm your AI financial assistant.\n\nAdd some expenses first, then I can analyze your spending and generate interactive charts!`
+                    ? `Hello! 👋 I'm FinScope AI, created by Mr. Mohammed Ageli.\n\nI can see ${transactions.length} transaction${transactions.length!==1?'s':''} totaling $${totalSpent.toFixed(2)}.\n\nAsk me anything — or tap a suggestion below!\n• "Show me a dashboard"\n• "Create a spending chart"\n• "Give me savings tips"`
+                    : `Hello! 👋 I'm FinScope AI, created by Mr. Mohammed Ageli.\n\nAdd some expenses first, then I can analyze your spending and generate interactive charts!`
             }]);
         }
     }, [open]);
