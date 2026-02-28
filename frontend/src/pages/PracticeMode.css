@@ -1,4 +1,25 @@
 /* ═══════════════════════════════════════════
+   BASE RESET — edge-to-edge on all devices
+   ═══════════════════════════════════════════ */
+
+html, body, #root {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    overflow-x: hidden;
+}
+
+.dashboard {
+    width: 100%;
+    min-height: 100dvh;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    overflow-x: hidden;
+}
+
+/* ═══════════════════════════════════════════
    MOBILE SCROLL & TOUCH FIXES - CRITICAL
    ═══════════════════════════════════════════ */
 
@@ -10,7 +31,14 @@
         min-height: 100% !important;
         -webkit-overflow-scrolling: touch !important;
         touch-action: pan-y !important;
-        position: relative !important;
+        position: static !important;
+        width: 100% !important;
+    }
+
+    #root {
+        width: 100% !important;
+        min-height: 100dvh !important;
+        overflow-x: hidden !important;
     }
 
     .dashboard {
@@ -19,7 +47,11 @@
         -webkit-overflow-scrolling: touch !important;
         touch-action: pan-y !important;
         height: auto !important;
-        min-height: 100vh !important;
+        min-height: 100dvh !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border-radius: 0 !important;
     }
 
     .dashboard-main {
@@ -139,7 +171,6 @@
 .pm-brand-input::placeholder { color: rgba(255,255,255,0.2); }
 .pm-brand-input::-webkit-outer-spin-button, .pm-brand-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 .pm-brand-input[type=number] { -moz-appearance: textfield; }
-
 .pm-brand-error { font-size: 11px; font-weight: 600; color: #ef4444; margin-top: -6px; }
 
 /* ═══ CUSTOM EXPENSE FORM ═══ */
@@ -465,6 +496,8 @@
 }
 .pm-insights-chat-btn:hover { background: linear-gradient(135deg, rgba(139,92,246,0.2), rgba(99,102,241,0.15)); border-color: rgba(139,92,246,0.45); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(139,92,246,0.25); color: #fff; }
 .pm-insights-chat-btn:active { transform: scale(0.98); }
+
+/* ═══ MINI AI CHAT ═══ */
 .pm-chat { background: rgba(15,23,42,0.6); border: 1px solid rgba(139,92,246,0.15); border-radius: 18px; display: flex; flex-direction: column; overflow: hidden; min-height: 540px; }
 .pm-chat-header { display: flex; align-items: center; gap: 10px; padding: 16px 20px; border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 14px; font-weight: 700; color: #fff; }
 .pm-mini-orb { width: 28px; height: 28px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #a78bfa, #6366f1 50%, #3b82f6); position: relative; flex-shrink: 0; }
@@ -511,133 +544,50 @@
 /* ═══════════════════════════════════════════
    HAMBURGER / THREE-LINE MENU
    ═══════════════════════════════════════════ */
-.pm-hamburger-wrap {
-    position: relative;
-}
+.pm-hamburger-wrap { position: relative; }
 
 .pm-hamburger-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 10px;
-    cursor: pointer;
-    transition: all 0.2s;
-    padding: 0;
-    -webkit-tap-highlight-color: transparent;
-    touch-action: manipulation;
+    display: flex; align-items: center; justify-content: center;
+    width: 40px; height: 40px;
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px; cursor: pointer; transition: all 0.2s; padding: 0;
+    -webkit-tap-highlight-color: transparent; touch-action: manipulation;
 }
-.pm-hamburger-btn:hover {
-    background: rgba(139,92,246,0.12);
-    border-color: rgba(139,92,246,0.3);
-}
-.pm-hamburger-btn.open {
-    background: rgba(139,92,246,0.15);
-    border-color: rgba(139,92,246,0.4);
-}
+.pm-hamburger-btn:hover { background: rgba(139,92,246,0.12); border-color: rgba(139,92,246,0.3); }
+.pm-hamburger-btn.open { background: rgba(139,92,246,0.15); border-color: rgba(139,92,246,0.4); }
 
-/* Dropdown */
 .pm-ham-dropdown {
-    position: absolute;
-    top: calc(100% + 10px);
-    right: 0;
-    width: 240px;
+    position: absolute; top: calc(100% + 10px); right: 0; width: 240px;
     background: linear-gradient(170deg, #0f1630 0%, #141a3a 100%);
-    border: 1px solid rgba(139,92,246,0.2);
-    border-radius: 16px;
-    overflow: hidden;
+    border: 1px solid rgba(139,92,246,0.2); border-radius: 16px; overflow: hidden;
     box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04);
-    animation: pmHamIn 0.22s cubic-bezier(0.22,1,0.36,1);
-    z-index: 1000;
+    animation: pmHamIn 0.22s cubic-bezier(0.22,1,0.36,1); z-index: 1000;
 }
 @keyframes pmHamIn {
     from { opacity: 0; transform: translateY(-8px) scale(0.96); }
-    to   { opacity: 1; transform: translateY(0)    scale(1);    }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
 }
-
-.pm-ham-dropdown-header {
-    padding: 14px 16px 10px;
-    border-bottom: 1px solid rgba(255,255,255,0.06);
-}
-.pm-ham-greet {
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.8px;
-    text-transform: uppercase;
-    color: rgba(255,255,255,0.3);
-}
-
+.pm-ham-dropdown-header { padding: 14px 16px 10px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+.pm-ham-greet { font-size: 11px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: rgba(255,255,255,0.3); }
 .pm-ham-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    width: 100%;
-    padding: 12px 16px;
-    background: none;
-    border: none;
-    cursor: pointer;
-    transition: background 0.15s;
-    -webkit-tap-highlight-color: transparent;
-    touch-action: manipulation;
-    text-align: left;
+    display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px 16px;
+    background: none; border: none; cursor: pointer; transition: background 0.15s;
+    -webkit-tap-highlight-color: transparent; touch-action: manipulation; text-align: left;
 }
-.pm-ham-item:hover {
-    background: rgba(255,255,255,0.04);
-}
-.pm-ham-item:hover .pm-ham-arrow {
-    opacity: 1;
-    transform: translateX(3px);
-}
-
-.pm-ham-icon {
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-}
+.pm-ham-item:hover { background: rgba(255,255,255,0.04); }
+.pm-ham-item:hover .pm-ham-arrow { opacity: 1; transform: translateX(3px); }
+.pm-ham-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .pm-ham-icon--blue   { background: rgba(59,130,246,0.12);  color: #60a5fa;  border: 1px solid rgba(59,130,246,0.2);  }
 .pm-ham-icon--cyan   { background: rgba(6,182,212,0.12);   color: #22d3ee;  border: 1px solid rgba(6,182,212,0.2);   }
 .pm-ham-icon--purple { background: rgba(139,92,246,0.12);  color: #a78bfa;  border: 1px solid rgba(139,92,246,0.2);  }
 .pm-ham-icon--red    { background: rgba(239,68,68,0.1);    color: #f87171;  border: 1px solid rgba(239,68,68,0.18);  }
-
-.pm-ham-item-text {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
-.pm-ham-item-label {
-    font-size: 14px;
-    font-weight: 600;
-    color: rgba(255,255,255,0.88);
-}
-.pm-ham-item-sub {
-    font-size: 11px;
-    color: rgba(255,255,255,0.35);
-}
-
-.pm-ham-arrow {
-    color: rgba(255,255,255,0.25);
-    opacity: 0;
-    transition: all 0.2s;
-    flex-shrink: 0;
-}
-
-.pm-ham-divider {
-    height: 1px;
-    background: rgba(255,255,255,0.06);
-    margin: 4px 0;
-}
-
+.pm-ham-item-text { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.pm-ham-item-label { font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.88); }
+.pm-ham-item-sub { font-size: 11px; color: rgba(255,255,255,0.35); }
+.pm-ham-arrow { color: rgba(255,255,255,0.25); opacity: 0; transition: all 0.2s; flex-shrink: 0; }
+.pm-ham-divider { height: 1px; background: rgba(255,255,255,0.06); margin: 4px 0; }
 .pm-ham-item--danger .pm-ham-item-label { color: #f87171; }
 .pm-ham-item--danger:hover { background: rgba(239,68,68,0.06); }
-
 
 /* ═══════════════════════════════════════════
    MOBILE BOTTOM NAVIGATION
@@ -646,23 +596,24 @@
     display: none;
     position: fixed;
     bottom: 0; left: 0; right: 0;
-    z-index: 200;
-    background: rgba(8,12,30,0.97);
+    z-index: 500;
+    width: 100%;
+    background: rgba(4,6,20,0.99);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border-top: 1px solid rgba(255,255,255,0.08);
-    box-shadow: 0 -8px 32px rgba(0,0,0,0.5);
+    border-top: 1px solid rgba(255,255,255,0.1);
+    box-shadow: 0 -8px 32px rgba(0,0,0,0.6);
     padding-bottom: env(safe-area-inset-bottom, 0px);
-    /* CRITICAL: Let main content scroll freely underneath */
-    pointer-events: none;
+    box-sizing: border-box;
 }
 .pm-mobile-nav-inner {
     display: flex;
     align-items: stretch;
     justify-content: space-around;
-    padding: 0 4px;
-    height: 60px;
-    pointer-events: auto;
+    height: 58px;
+    width: 100%;
+    padding: 0;
+    box-sizing: border-box;
 }
 .pm-nav-btn {
     flex: 1;
@@ -673,7 +624,7 @@
     gap: 3px;
     background: none;
     border: none;
-    color: rgba(255,255,255,0.4);
+    color: rgba(255,255,255,0.38);
     font-size: 9px;
     font-weight: 600;
     cursor: pointer;
@@ -682,94 +633,75 @@
     position: relative;
     letter-spacing: 0.3px;
     -webkit-tap-highlight-color: transparent;
-    pointer-events: auto;
     touch-action: manipulation;
-    /* Minimum tap target */
     min-width: 44px;
 }
-.pm-nav-btn.active {
-    color: #8b5cf6;
-}
-.pm-nav-btn.active svg {
-    filter: drop-shadow(0 0 6px rgba(139,92,246,0.6));
-}
-.pm-nav-btn.nav-ai.active {
-    color: #06b6d4;
-}
-.pm-nav-btn.nav-ai.active svg {
-    filter: drop-shadow(0 0 6px rgba(6,182,212,0.6));
-}
+.pm-nav-btn.active { color: #8b5cf6; }
+.pm-nav-btn.active svg { filter: drop-shadow(0 0 6px rgba(139,92,246,0.6)); }
+.pm-nav-btn.nav-ai.active { color: #06b6d4; }
+.pm-nav-btn.nav-ai.active svg { filter: drop-shadow(0 0 6px rgba(6,182,212,0.6)); }
 .pm-nav-btn.active::before {
     content: '';
     position: absolute;
-    top: 4px;
-    left: 50%;
+    top: 4px; left: 50%;
     transform: translateX(-50%);
-    width: 24px;
-    height: 2px;
+    width: 24px; height: 2px;
     border-radius: 2px;
     background: currentColor;
     opacity: 0.7;
 }
 
-/* Mobile slide-up panel */
+/* ═══ MOBILE SLIDE-UP PANEL ═══ */
 .pm-mobile-panel {
     display: none;
     position: fixed;
-    bottom: 60px;
+    bottom: 58px;
     left: 0; right: 0;
-    z-index: 190;
-    background: rgba(8,12,30,0.98);
+    width: 100%;
+    z-index: 400;
+    background: rgba(4,6,20,0.99);
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
-    border-top: 1px solid rgba(255,255,255,0.1);
+    border-top: 1px solid rgba(99,102,241,0.2);
     border-radius: 20px 20px 0 0;
-    max-height: 70vh;
-    /* CRITICAL: Panel itself must scroll */
-    overflow-y: auto !important;
-    overflow-x: hidden !important;
-    -webkit-overflow-scrolling: touch !important;
+    max-height: 72vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
-    touch-action: pan-y !important;
-    padding: 8px 16px 16px;
+    touch-action: pan-y;
+    padding: 0 16px 20px;
     transform: translateY(100%);
     transition: transform 0.38s cubic-bezier(0.22,1,0.36,1), opacity 0.3s;
     opacity: 0;
     box-shadow: 0 -16px 48px rgba(0,0,0,0.6);
+    box-sizing: border-box;
 }
-.pm-mobile-panel.open {
-    transform: translateY(0);
-    opacity: 1;
-}
-/* Pull handle */
+.pm-mobile-panel.open { transform: translateY(0); opacity: 1; }
 .pm-mobile-panel::before {
     content: '';
     display: block;
-    width: 36px;
-    height: 4px;
+    width: 36px; height: 4px;
     background: rgba(255,255,255,0.15);
     border-radius: 4px;
-    margin: 8px auto 16px;
-    flex-shrink: 0;
+    margin: 10px auto 16px;
 }
-/* Panel backdrop - CRITICAL: must NOT block page scroll */
+
+/* ═══ PANEL BACKDROP ═══ */
 .pm-panel-backdrop {
     display: none;
     position: fixed;
     inset: 0;
-    z-index: 180;
-    background: rgba(0,0,0,0.45);
+    z-index: 390;
+    background: rgba(0,0,0,0.5);
     opacity: 0;
     transition: opacity 0.3s;
-    pointer-events: none; /* Only intercept when open */
+    pointer-events: none;
     touch-action: none;
 }
-.pm-panel-backdrop.open {
-    opacity: 1;
-    pointer-events: auto; /* Only block touches when panel is open */
-}
+.pm-panel-backdrop.open { opacity: 1; pointer-events: auto; }
 
-/* ═══ STICKY BOTTOM ACTION BAR ═══ */
+/* ═══ STICKY BOTTOM ACTION BAR (desktop) ═══ */
 .pm-sticky-bar {
     position: fixed;
     bottom: 0; left: 0; right: 0;
@@ -783,15 +715,9 @@
     animation: pmBarSlideUp 0.5s cubic-bezier(0.22,1,0.36,1) both;
 }
 @keyframes pmBarSlideUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-
 .pm-sticky-bar-inner {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    max-width: 1600px;
-    margin: 0 auto;
-    padding: 14px 32px;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 16px; max-width: 1600px; margin: 0 auto; padding: 14px 32px;
 }
 .pm-sticky-info { display: flex; align-items: center; gap: 8px; font-size: 13px; color: rgba(255,255,255,0.4); }
 .pm-sticky-spent { font-weight: 800; color: #fff; font-size: 15px; font-variant-numeric: tabular-nums; }
@@ -800,11 +726,10 @@
 .pm-sticky-hint { font-style: italic; color: rgba(255,255,255,0.25); }
 .pm-sticky-actions { display: flex; gap: 10px; align-items: center; }
 
-/* Push main content up so bars don't overlap */
+/* Push main content above sticky bar on desktop */
 .dashboard-main { padding-bottom: 80px !important; }
 
-
-/* ═══ RESPONSIVE ═══ */
+/* ═══ RESPONSIVE — 1200px ═══ */
 @media (max-width: 1200px) {
     .pm-layout { grid-template-columns: 1fr; }
     .pm-sidebar { flex-direction: row; }
@@ -812,36 +737,141 @@
     .pm-brand-grid { grid-template-columns: repeat(3, 1fr); }
 }
 
+/* ═══════════════════════════════════════════
+   MOBILE — 768px and below
+   THE FULL SCREEN FIX
+   ═══════════════════════════════════════════ */
 @media (max-width: 768px) {
-    /* ── Layout collapses to single column ── */
-    .pm-layout { grid-template-columns: 1fr; gap: 16px; }
 
-    /* ── Sidebar hidden on mobile ── */
+    /* ── Layout: single column, zero gaps ── */
+    .pm-layout {
+        grid-template-columns: 1fr !important;
+        gap: 0 !important;
+        width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        box-sizing: border-box !important;
+    }
+
+    /* ── pm-main: full width, sections separated by spacing only ── */
+    .pm-main {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 0 !important;
+        width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    /* ── Sidebar hidden — shown in slide-up panels instead ── */
     .pm-sidebar { display: none !important; }
 
-    /* ── Mobile nav & panel become visible ── */
+    /* ── Mobile nav & panel: show ── */
     .pm-mobile-nav { display: block !important; }
     .pm-mobile-panel { display: block !important; }
     .pm-panel-backdrop { display: block !important; }
 
-    /* ── Hide desktop-only sticky bar ── */
+    /* ── Hide desktop sticky bar ── */
     .pm-sticky-bar { display: none !important; }
 
-    /* ── CRITICAL: Main content area must scroll freely ── */
+    /* ── Main content scrolls freely above nav bar ── */
     .dashboard-main {
-        padding-bottom: calc(60px + env(safe-area-inset-bottom, 16px) + 16px) !important;
+        padding: 0 0 calc(58px + env(safe-area-inset-bottom, 16px)) 0 !important;
         overflow: visible !important;
         touch-action: pan-y !important;
         height: auto !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
     }
 
-    /* ── CRITICAL: Dashboard wrapper must not clip scroll ── */
-    .dashboard {
-        overflow-x: hidden !important;
-        overflow-y: visible !important;
-        height: auto !important;
-        min-height: 100vh !important;
+    /* ── Header: full width, no side padding leakage ── */
+    .dashboard-header,
+    .pm-header {
+        width: 100% !important;
+        box-sizing: border-box !important;
     }
+    .pm-header .dashboard-header-content { padding: 12px 16px !important; }
+    .pm-badge { display: none; }
+    .dashboard-header-right { display: flex !important; align-items: center; gap: 8px; }
+    .desktop-only { display: none !important; }
+
+    /* ── ALL SECTION CARDS: full bleed, no rounding on sides ── */
+    .pm-balance-box {
+        border-radius: 0 !important;
+        border-left: none !important;
+        border-right: none !important;
+        padding: 20px 16px 18px !important;
+        margin: 0 !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    .pm-balance-value { font-size: 28px !important; }
+    .pm-balance-stats { flex-direction: row !important; gap: 16px !important; flex-wrap: wrap !important; }
+    .pm-balance-icon { width: 38px !important; height: 38px !important; border-radius: 10px !important; }
+
+    .pm-brand-section {
+        border-radius: 0 !important;
+        border-left: none !important;
+        border-right: none !important;
+        padding: 20px 16px 24px !important;
+        margin: 0 !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    .pm-brand-grid { grid-template-columns: 1fr !important; gap: 10px !important; }
+    .pm-brand-card { padding: 16px 14px !important; gap: 12px !important; border-radius: 12px !important; }
+    .pm-brand-logo-wrap, .pm-brand-emoji-wrap { width: 42px !important; height: 42px !important; min-width: 42px !important; }
+    .pm-brand-emoji { font-size: 22px !important; }
+    .pm-brand-name { font-size: 14px !important; }
+    .pm-brand-cat { font-size: 11px !important; }
+    .pm-brand-add-btn { width: 46px !important; height: 46px !important; min-width: 46px !important; }
+
+    .pm-custom-expense {
+        border-radius: 0 !important;
+        border-left: none !important;
+        border-right: none !important;
+        padding: 20px 16px 24px !important;
+        margin: 0 !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    .pm-custom-row { grid-template-columns: 1fr !important; }
+    .pm-custom-footer { flex-direction: column !important; align-items: stretch !important; }
+    .pm-custom-submit { width: 100% !important; }
+
+    .pm-summary-banner {
+        border-radius: 0 !important;
+        border-left: none !important;
+        border-right: none !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 14px !important;
+        padding: 16px !important;
+        margin: 0 !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    .pm-summary-actions { width: 100% !important; }
+    .pm-summary-btn { flex: 1 !important; justify-content: center !important; padding: 12px 8px !important; font-size: 12px !important; }
+
+    /* ── Charts: stacked, full bleed ── */
+    .pm-charts-row {
+        grid-template-columns: 1fr !important;
+        gap: 0 !important;
+        width: 100% !important;
+    }
+    .pm-chart-card {
+        border-radius: 0 !important;
+        border-left: none !important;
+        border-right: none !important;
+        padding: 18px 16px !important;
+        margin: 0 !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    .pm-donut-area { flex-direction: column !important; align-items: flex-start !important; }
+    .pm-trend-stats-row { grid-template-columns: 1fr 1fr !important; }
+    .pm-trend-stats-row .pm-trend-stat:last-child { grid-column: 1 / -1 !important; }
 
     /* ── Welcome screen ── */
     .practice-cta-banner { flex-direction: column; gap: 16px; padding: 20px; }
@@ -849,7 +879,6 @@
     .practice-cta-orb { width: 44px; height: 44px; min-width: 44px; }
     .practice-cta-title { font-size: 16px; }
     .practice-cta-btn { width: 100%; justify-content: center; padding: 12px 20px; }
-
     .pm-welcome-title { font-size: 26px; }
     .pm-welcome-orb { width: 80px !important; height: 80px !important; }
     .pm-welcome-content { padding: 28px 16px; gap: 18px; }
@@ -858,68 +887,41 @@
     .pm-bal-btn { padding: 16px 14px; }
     .pm-bal-amount { font-size: 20px; }
 
-    /* ── Header ── */
-    .pm-header .dashboard-header-content { padding: 12px 16px; }
-    .pm-badge { display: none; }
-    .dashboard-header-right { display: flex !important; align-items: center; gap: 8px; }
-    .desktop-only { display: none !important; }
-
-    /* ── Balance box ── */
-    .pm-balance-box { padding: 20px 16px; border-radius: 16px; }
-    .pm-balance-value { font-size: 28px; }
-    .pm-balance-stats { flex-direction: column; gap: 8px; }
-    .pm-balance-icon { width: 38px; height: 38px; border-radius: 10px; }
-
-    /* ── Brand cards - single column on phone ── */
-    .pm-brand-grid { grid-template-columns: 1fr !important; gap: 12px; }
-    .pm-brand-section { padding: 20px 16px; border-radius: 16px; }
-    .pm-brand-card { padding: 16px 14px; gap: 12px; border-radius: 12px; }
-    .pm-brand-logo-wrap, .pm-brand-emoji-wrap { width: 42px; height: 42px; min-width: 42px; }
-    .pm-brand-emoji { font-size: 22px; }
-    .pm-brand-name { font-size: 14px; }
-    .pm-brand-cat { font-size: 11px; }
-
-    /* ── Brand add button larger tap target on mobile ── */
-    .pm-brand-add-btn { width: 46px; height: 46px; min-width: 46px; }
-
-    /* ── Custom expense ── */
-    .pm-custom-row { grid-template-columns: 1fr; }
-    .pm-custom-footer { flex-direction: column; align-items: stretch; }
-    .pm-custom-submit { width: 100%; }
-    .pm-custom-expense { padding: 20px 16px; border-radius: 16px; }
-
-    /* ── Charts: stack ── */
-    .pm-charts-row { grid-template-columns: 1fr; gap: 14px; }
-    .pm-donut-area { flex-direction: column; align-items: flex-start; }
-    .pm-chart-card { padding: 16px; border-radius: 14px; }
-    .pm-trend-stats-row { grid-template-columns: 1fr 1fr; }
-    .pm-trend-stats-row .pm-trend-stat:last-child { grid-column: 1 / -1; }
-
-    /* ── Summary banner ── */
-    .pm-summary-banner { flex-direction: column; align-items: flex-start; gap: 14px; padding: 16px; }
-    .pm-summary-actions { width: 100%; }
-    .pm-summary-btn { flex: 1; justify-content: center; }
-
     /* ── Chat inside panel ── */
-    .pm-chat { min-height: 320px; border-radius: 14px; }
-    .pm-chat-messages { max-height: 220px; min-height: 160px; }
+    .pm-chat {
+        min-height: 300px !important;
+        border-radius: 14px !important;
+        border: 1px solid rgba(139,92,246,0.15) !important;
+        margin: 0 !important;
+    }
+    .pm-chat-messages { max-height: 200px !important; min-height: 140px !important; }
 
-    /* ── Category pills bigger tap targets ── */
-    .pm-cat-pill { padding: 10px 14px; font-size: 13px; }
-
-    /* ── Summary buttons bigger ── */
-    .pm-summary-btn { padding: 12px 16px; font-size: 13px; }
+    /* ── Category pills ── */
+    .pm-cat-pill { padding: 10px 14px !important; font-size: 13px !important; }
 }
 
+/* ═══ EXTRA SMALL — 390px ═══ */
+@media (max-width: 390px) {
+    .pm-balance-value { font-size: 24px !important; }
+    .pm-brand-section,
+    .pm-custom-expense,
+    .pm-balance-box,
+    .pm-chart-card { padding-left: 12px !important; padding-right: 12px !important; }
+    .pm-nav-btn { font-size: 8px !important; }
+    .pm-brand-tab { padding: 7px 12px !important; font-size: 12px !important; }
+    .pm-trend-stats-row { grid-template-columns: 1fr !important; }
+    .pm-welcome-title { font-size: 22px !important; }
+}
+
+/* ═══ 480px ═══ */
 @media (max-width: 480px) {
     .pm-brand-grid { grid-template-columns: 1fr !important; }
     .pm-cat-pill { padding: 9px 12px; font-size: 12px; }
-    .pm-trend-stats-row { grid-template-columns: 1fr; }
-    .pm-welcome-title { font-size: 22px; }
-    .pm-balance-value { font-size: 24px; }
     .pm-nav-btn { font-size: 8px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .practice-cta-orb, .pm-welcome, .pm-welcome-orb, .pm-brand-card, .pm-msg, .pm-txn-row, .pm-start-btn, .practice-cta-banner, .pm-mobile-panel { animation: none !important; transition-duration: 0.01ms !important; }
+    .practice-cta-orb, .pm-welcome, .pm-welcome-orb, .pm-brand-card,
+    .pm-msg, .pm-txn-row, .pm-start-btn, .practice-cta-banner,
+    .pm-mobile-panel { animation: none !important; transition-duration: 0.01ms !important; }
 }
