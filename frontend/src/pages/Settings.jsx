@@ -112,38 +112,53 @@ const Settings = () => {
                 .order('created_at', { ascending: false });
 
             const sym = getCurrencySymbol();
-            const rows = [];
+
+            // Helper: wrap every cell in quotes, escaping any internal quotes
+            const q = (val) => `"${String(val ?? '').replace(/"/g, '""')}"`;
+            const row = (...cells) => cells.map(q).join(',');
+
+            // Use user_metadata as fallback when user_profiles row is empty/missing
+            const meta = user.user_metadata || {};
+            const firstName   = profile?.first_name   || meta.first_name   || '';
+            const lastName    = profile?.last_name    || meta.last_name    || '';
+            const username    = profile?.username     || meta.username     || '';
+            const phone       = profile?.phone        || meta.phone        || '';
+            const dob         = profile?.date_of_birth || meta.date_of_birth || '';
+            const city        = profile?.city         || meta.city         || '';
+            const country     = profile?.country      || meta.country      || '';
+
+            const lines = [];
 
             // ── PROFILE ──────────────────────────────────────────
-            rows.push(['--- PROFILE ---', '', '', '', '']);
-            rows.push(['Field', 'Value', '', '', '']);
-            rows.push(['Email',             user.email || '',                    '', '', '']);
-            rows.push(['First Name',        profile?.first_name || '',           '', '', '']);
-            rows.push(['Last Name',         profile?.last_name || '',            '', '', '']);
-            rows.push(['Username',          profile?.username || '',             '', '', '']);
-            rows.push(['Phone',             profile?.phone || '',                '', '', '']);
-            rows.push(['Date of Birth',     profile?.date_of_birth || '',        '', '', '']);
-            rows.push(['City',              profile?.city || '',                 '', '', '']);
-            rows.push(['Country',           profile?.country || '',              '', '', '']);
-            rows.push(['Registered On',     user.created_at ? formatDate(user.created_at) : '',           '', '', '']);
-            rows.push(['Registered Time',   user.created_at ? new Date(user.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : '', '', '', '']);
-            rows.push(['Last Login Date',   user.last_sign_in_at ? formatDate(user.last_sign_in_at) : '', '', '', '']);
-            rows.push(['Last Login Time',   user.last_sign_in_at ? new Date(user.last_sign_in_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : '', '', '', '']);
-            rows.push(['Email Confirmed',   user.email_confirmed_at ? 'Yes - ' + formatDate(user.email_confirmed_at) : 'No', '', '', '']);
-            rows.push(['Auth Provider',     user.app_metadata?.provider || 'email', '', '', '']);
-            rows.push(['Account ID',        user.id || '',                       '', '', '']);
-            rows.push(['', '', '', '', '']);
+            lines.push(row('--- PROFILE ---', '', '', '', ''));
+            lines.push(row('Field', 'Value', '', '', ''));
+            lines.push(row('Email',            user.email || ''));
+            lines.push(row('First Name',       firstName));
+            lines.push(row('Last Name',        lastName));
+            lines.push(row('Username',         username));
+            lines.push(row('Phone',            phone));
+            lines.push(row('Date of Birth',    dob));
+            lines.push(row('City',             city));
+            lines.push(row('Country',          country));
+            lines.push(row('Registered On',    user.created_at ? formatDate(user.created_at) : ''));
+            lines.push(row('Registered Time',  user.created_at ? new Date(user.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : ''));
+            lines.push(row('Last Login Date',  user.last_sign_in_at ? formatDate(user.last_sign_in_at) : ''));
+            lines.push(row('Last Login Time',  user.last_sign_in_at ? new Date(user.last_sign_in_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : ''));
+            lines.push(row('Email Confirmed',  user.email_confirmed_at ? 'Yes - ' + formatDate(user.email_confirmed_at) : 'No'));
+            lines.push(row('Auth Provider',    user.app_metadata?.provider || 'email'));
+            lines.push(row('Account ID',       user.id || ''));
+            lines.push(row('', '', '', '', ''));
 
             // ── FINANCIAL SUMMARY ────────────────────────────────
-            rows.push(['--- FINANCIAL SUMMARY ---', '', '', '', '']);
-            rows.push(['Metric', 'Value', '', '', '']);
-            rows.push(['Current Balance',  finances ? `${sym}${formatNumber(finances.balance)}`       : 'N/A', '', '', '']);
-            rows.push(['Total Income',     finances ? `${sym}${formatNumber(finances.total_income)}`   : 'N/A', '', '', '']);
-            rows.push(['Total Expenses',   finances ? `${sym}${formatNumber(finances.total_expenses)}` : 'N/A', '', '', '']);
-            rows.push(['Net Savings',      finances ? `${sym}${formatNumber((finances.total_income || 0) - (finances.total_expenses || 0))}` : 'N/A', '', '', '']);
-            rows.push(['Export Currency',  settings.currency, '', '', '']);
-            rows.push(['Export Date',      formatDate(new Date().toISOString()), '', '', '']);
-            rows.push(['', '', '', '', '']);
+            lines.push(row('--- FINANCIAL SUMMARY ---', '', '', '', ''));
+            lines.push(row('Metric', 'Value', '', '', ''));
+            lines.push(row('Current Balance',  finances ? `${sym}${formatNumber(finances.balance)}`       : 'N/A'));
+            lines.push(row('Total Income',     finances ? `${sym}${formatNumber(finances.total_income)}`   : 'N/A'));
+            lines.push(row('Total Expenses',   finances ? `${sym}${formatNumber(finances.total_expenses)}` : 'N/A'));
+            lines.push(row('Net Savings',      finances ? `${sym}${formatNumber((finances.total_income || 0) - (finances.total_expenses || 0))}` : 'N/A'));
+            lines.push(row('Export Currency',  settings.currency));
+            lines.push(row('Export Date',      formatDate(new Date().toISOString())));
+            lines.push(row('', '', '', '', ''));
 
             // ── SPENDING BY CATEGORY ─────────────────────────────
             const expenses = (transactions || []).filter(t => t.type === 'expense');
@@ -152,35 +167,35 @@ const Settings = () => {
                 expenses.forEach(t => { catTotals[t.category] = (catTotals[t.category] || 0) + (t.amount || 0); });
                 const cats = Object.entries(catTotals).sort((a, b) => b[1] - a[1]);
                 const totalSpent = cats.reduce((s, [, v]) => s + v, 0);
-                rows.push(['--- SPENDING BY CATEGORY ---', '', '', '', '']);
-                rows.push(['Category', 'Amount', 'Percentage', '', '']);
+                lines.push(row('--- SPENDING BY CATEGORY ---', '', '', '', ''));
+                lines.push(row('Category', 'Amount', 'Percentage', '', ''));
                 cats.forEach(([cat, amt]) => {
-                    rows.push([cat, `${sym}${formatNumber(amt)}`, `${((amt / totalSpent) * 100).toFixed(1)}%`, '', '']);
+                    lines.push(row(cat, `${sym}${formatNumber(amt)}`, `${((amt / totalSpent) * 100).toFixed(1)}%`));
                 });
-                rows.push(['TOTAL SPENT', `${sym}${formatNumber(totalSpent)}`, '100%', '', '']);
-                rows.push(['', '', '', '', '']);
+                lines.push(row('TOTAL SPENT', `${sym}${formatNumber(totalSpent)}`, '100%'));
+                lines.push(row('', '', '', '', ''));
             }
 
             // ── ALL TRANSACTIONS ─────────────────────────────────
-            rows.push(['--- TRANSACTIONS ---', '', '', '', '']);
-            rows.push(['Date', 'Description', 'Category', 'Amount', 'Type']);
+            lines.push(row('--- TRANSACTIONS ---', '', '', '', ''));
+            lines.push(row('Date', 'Description', 'Category', 'Amount', 'Type'));
 
             if (transactions && transactions.length > 0) {
                 transactions.forEach(tx => {
                     const sign = tx.type === 'deposit' ? '+' : '-';
-                    rows.push([
+                    lines.push(row(
                         tx.created_at ? formatDate(tx.created_at) : '',
-                        `"${(tx.name || tx.description || '').replace(/"/g, '""')}"`,
+                        tx.name || tx.description || '',
                         tx.category || '',
                         `${sign}${sym}${formatNumber(tx.amount || 0)}`,
                         tx.type || '',
-                    ]);
+                    ));
                 });
             } else {
-                rows.push(['No transactions found', '', '', '', '']);
+                lines.push(row('No transactions found', '', '', '', ''));
             }
 
-            const csv = rows.map(r => r.join(',')).join('\n');
+            const csv = lines.join('\n');
             const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
