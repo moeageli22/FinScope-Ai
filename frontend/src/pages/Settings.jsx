@@ -12,6 +12,7 @@ const Settings = () => {
     const [loading, setLoading] = useState(true);
     const [loginHistory, setLoginHistory] = useState([]);
     const [showLoginHistory, setShowLoginHistory] = useState(false);
+    const [savingRegional, setSavingRegional] = useState(false);
 
     const [settings, setSettings] = useState(() => {
         const saved = localStorage.getItem('finscope_settings');
@@ -20,9 +21,10 @@ const Settings = () => {
             dateFormat: 'DD/MM/YYYY',
             timeZone: 'Europe/London',
             numberFormat: '1,234.56',
-            hideBalances: false,
         };
     });
+
+    const [pendingSettings, setPendingSettings] = useState(null);
 
     useEffect(() => {
         const checkUser = async () => {
@@ -34,19 +36,31 @@ const Settings = () => {
                 .select('*')
                 .eq('user_id', user.id)
                 .single();
-            if (data?.settings) setSettings(prev => ({ ...prev, ...data.settings }));
+            if (data?.settings) {
+                const merged = { ...settings, ...data.settings };
+                setSettings(merged);
+                setPendingSettings(merged);
+            } else {
+                setPendingSettings({ ...settings });
+            }
             setLoading(false);
         };
         checkUser();
     }, [navigate]);
 
+    useEffect(() => {
+        if (!pendingSettings) setPendingSettings({ ...settings });
+    }, [settings]);
+
     const showToast = (msg, type = 'success') => {
         setToast({ message: msg, type });
-        setTimeout(() => setToast(null), 3000);
+        setTimeout(() => setToast(null), 3500);
     };
 
-    const updateSetting = useCallback(async (key, value) => {
-        const ns = { ...settings, [key]: value };
+    const saveRegionalSettings = useCallback(async () => {
+        if (!pendingSettings) return;
+        setSavingRegional(true);
+        const ns = { ...pendingSettings };
         setSettings(ns);
         localStorage.setItem('finscope_settings', JSON.stringify(ns));
         if (user) {
@@ -55,64 +69,110 @@ const Settings = () => {
                 .upsert({ user_id: user.id, settings: ns, updated_at: new Date().toISOString() }, { onConflict: 'user_id' })
                 .catch(() => {});
         }
-        showToast('Saved');
-    }, [settings, user]);
+        setSavingRegional(false);
+        showToast('Regional settings saved');
+    }, [pendingSettings, user]);
 
-    const handleViewLoginHistory = async () => {
-        if (!user) return;
-        try {
-            const { data } = await supabase
-                .from('login_attempts')
-                .select('*')
-                .eq('email', user.email)
-                .order('created_at', { ascending: false })
-                .limit(10);
-            setLoginHistory(data || []);
-            setShowLoginHistory(true);
-        } catch {
-            showToast('Could not load login history', 'error');
-        }
+    const formatDate = (dateStr) => {
+        if (!dateStr) return '';
+        const d = new Date(dateStr);
+        if (isNaN(d)) return dateStr;
+        const dd = String(d.getDate()).padStart(2, '0');
+        const mm = String(d.getMonth() + 1).padStart(2, '0');
+        const yyyy = d.getFullYear();
+        const fmt = settings.dateFormat || 'DD/MM/YYYY';
+        return fmt.replace('DD', dd).replace('MM', mm).replace('YYYY', yyyy);
+    };
+
+    const formatNumber = (num) => {
+        if (num === undefined || num === null) return '';
+        const fmt = settings.numberFormat || '1,234.56';
+        if (fmt === '1.234,56') return Number(num).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        if (fmt === '1 234,56') return Number(num).toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        return Number(num).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    };
+
+    const getCurrencySymbol = () => {
+        const symbols = { GBP: '£', USD: '$', EUR: '€', JPY: '¥', SAR: '﷼', AED: 'د.إ', INR: '₹', AUD: 'A$', CAD: 'C$', CHF: 'Fr', CNY: '¥', BRL: 'R$', MXN: '$', SGD: 'S$', HKD: 'HK$', SEK: 'kr', NOK: 'kr', DKK: 'kr', PLN: 'zł', TRY: '₺' };
+        return symbols[settings.currency] || settings.currency;
     };
 
     const handleExportCSV = async () => {
         try {
+            showToast('Preparing your data export…');
+
             const { data: profile } = await supabase
-                .from('user_profiles')
-                .select('*')
-                .eq('id', user.id)
-                .single();
+                .from('user_profiles').select('*').eq('id', user.id).single();
+
+            const { data: finances } = await supabase
+                .from('user_finances').select('*').eq('user_id', user.id).single();
 
             const { data: transactions } = await supabase
-                .from('transactions')
-                .select('*')
-                .eq('user_id', user.id)
-                .order('date', { ascending: false });
+                .from('user_transactions').select('*').eq('user_id', user.id)
+                .order('created_at', { ascending: false });
 
+            const sym = getCurrencySymbol();
             const rows = [];
 
-            // Profile section
+            // ── PROFILE ──────────────────────────────────────────
             rows.push(['--- PROFILE ---', '', '', '', '']);
             rows.push(['Field', 'Value', '', '', '']);
-            rows.push(['Email',         user.email || '',           '', '', '']);
-            rows.push(['First Name',    profile?.first_name || '',  '', '', '']);
-            rows.push(['Last Name',     profile?.last_name || '',   '', '', '']);
-            rows.push(['Username',      profile?.username || '',    '', '', '']);
-            rows.push(['Phone',         profile?.phone || '',       '', '', '']);
-            rows.push(['Date of Birth', profile?.date_of_birth || '', '', '', '']);
-            rows.push(['City',          profile?.city || '',        '', '', '']);
-            rows.push(['Country',       profile?.country || '',     '', '', '']);
+            rows.push(['Email',             user.email || '',                    '', '', '']);
+            rows.push(['First Name',        profile?.first_name || '',           '', '', '']);
+            rows.push(['Last Name',         profile?.last_name || '',            '', '', '']);
+            rows.push(['Username',          profile?.username || '',             '', '', '']);
+            rows.push(['Phone',             profile?.phone || '',                '', '', '']);
+            rows.push(['Date of Birth',     profile?.date_of_birth || '',        '', '', '']);
+            rows.push(['City',              profile?.city || '',                 '', '', '']);
+            rows.push(['Country',           profile?.country || '',              '', '', '']);
+            rows.push(['Registered On',     user.created_at ? formatDate(user.created_at) : '',           '', '', '']);
+            rows.push(['Registered Time',   user.created_at ? new Date(user.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : '', '', '', '']);
+            rows.push(['Last Login Date',   user.last_sign_in_at ? formatDate(user.last_sign_in_at) : '', '', '', '']);
+            rows.push(['Last Login Time',   user.last_sign_in_at ? new Date(user.last_sign_in_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : '', '', '', '']);
+            rows.push(['Email Confirmed',   user.email_confirmed_at ? 'Yes - ' + formatDate(user.email_confirmed_at) : 'No', '', '', '']);
+            rows.push(['Auth Provider',     user.app_metadata?.provider || 'email', '', '', '']);
+            rows.push(['Account ID',        user.id || '',                       '', '', '']);
             rows.push(['', '', '', '', '']);
 
-            // Transactions section
+            // ── FINANCIAL SUMMARY ────────────────────────────────
+            rows.push(['--- FINANCIAL SUMMARY ---', '', '', '', '']);
+            rows.push(['Metric', 'Value', '', '', '']);
+            rows.push(['Current Balance',  finances ? `${sym}${formatNumber(finances.balance)}`       : 'N/A', '', '', '']);
+            rows.push(['Total Income',     finances ? `${sym}${formatNumber(finances.total_income)}`   : 'N/A', '', '', '']);
+            rows.push(['Total Expenses',   finances ? `${sym}${formatNumber(finances.total_expenses)}` : 'N/A', '', '', '']);
+            rows.push(['Net Savings',      finances ? `${sym}${formatNumber((finances.total_income || 0) - (finances.total_expenses || 0))}` : 'N/A', '', '', '']);
+            rows.push(['Export Currency',  settings.currency, '', '', '']);
+            rows.push(['Export Date',      formatDate(new Date().toISOString()), '', '', '']);
+            rows.push(['', '', '', '', '']);
+
+            // ── SPENDING BY CATEGORY ─────────────────────────────
+            const expenses = (transactions || []).filter(t => t.type === 'expense');
+            if (expenses.length > 0) {
+                const catTotals = {};
+                expenses.forEach(t => { catTotals[t.category] = (catTotals[t.category] || 0) + (t.amount || 0); });
+                const cats = Object.entries(catTotals).sort((a, b) => b[1] - a[1]);
+                const totalSpent = cats.reduce((s, [, v]) => s + v, 0);
+                rows.push(['--- SPENDING BY CATEGORY ---', '', '', '', '']);
+                rows.push(['Category', 'Amount', 'Percentage', '', '']);
+                cats.forEach(([cat, amt]) => {
+                    rows.push([cat, `${sym}${formatNumber(amt)}`, `${((amt / totalSpent) * 100).toFixed(1)}%`, '', '']);
+                });
+                rows.push(['TOTAL SPENT', `${sym}${formatNumber(totalSpent)}`, '100%', '', '']);
+                rows.push(['', '', '', '', '']);
+            }
+
+            // ── ALL TRANSACTIONS ─────────────────────────────────
             rows.push(['--- TRANSACTIONS ---', '', '', '', '']);
             rows.push(['Date', 'Description', 'Category', 'Amount', 'Type']);
+
             if (transactions && transactions.length > 0) {
                 transactions.forEach(tx => {
+                    const sign = tx.type === 'deposit' ? '+' : '-';
                     rows.push([
-                        tx.date || '',
-                        `"${(tx.description || tx.name || '').replace(/"/g, '""')}"`,
+                        tx.created_at ? formatDate(tx.created_at) : '',
+                        `"${(tx.name || tx.description || '').replace(/"/g, '""')}"`,
                         tx.category || '',
-                        tx.amount || '',
+                        `${sign}${sym}${formatNumber(tx.amount || 0)}`,
                         tx.type || '',
                     ]);
                 });
@@ -121,17 +181,60 @@ const Settings = () => {
             }
 
             const csv = rows.map(r => r.join(',')).join('\n');
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
             a.download = `finscope-export-${new Date().toISOString().split('T')[0]}.csv`;
+            document.body.appendChild(a);
             a.click();
+            document.body.removeChild(a);
             URL.revokeObjectURL(url);
-            showToast('CSV downloaded');
+            showToast(`Exported ${transactions?.length || 0} transactions successfully`);
         } catch (e) {
             console.error(e);
-            showToast('Export failed', 'error');
+            showToast('Export failed — please try again', 'error');
+        }
+    };
+
+    const handleViewLoginHistory = async () => {
+        if (!user) return;
+        try {
+            let history = [];
+
+            const { data: attempts, error: attemptsErr } = await supabase
+                .from('login_attempts')
+                .select('*')
+                .eq('email', user.email)
+                .order('created_at', { ascending: false })
+                .limit(10);
+
+            if (!attemptsErr && attempts && attempts.length > 0) {
+                history = attempts;
+            } else {
+                // Fallback: use two_factor_codes as a proxy for login activity
+                const { data: codes } = await supabase
+                    .from('two_factor_codes')
+                    .select('created_at, ip_address, user_agent, verified')
+                    .eq('user_id', user.id)
+                    .order('created_at', { ascending: false })
+                    .limit(10);
+
+                if (codes && codes.length > 0) {
+                    history = codes.map(c => ({
+                        created_at: c.created_at,
+                        ip_address: c.ip_address || 'Unknown',
+                        success: true,
+                        user_agent: c.user_agent,
+                    }));
+                }
+            }
+
+            setLoginHistory(history);
+            setShowLoginHistory(true);
+        } catch (err) {
+            console.error(err);
+            showToast('Could not load login history', 'error');
         }
     };
 
@@ -148,24 +251,12 @@ const Settings = () => {
 
     const handleResetDefaults = () => {
         if (!window.confirm('Reset all settings to defaults?')) return;
-        const defaults = {
-            currency: 'GBP',
-            dateFormat: 'DD/MM/YYYY',
-            timeZone: 'Europe/London',
-            numberFormat: '1,234.56',
-            hideBalances: false,
-        };
+        const defaults = { currency: 'GBP', dateFormat: 'DD/MM/YYYY', timeZone: 'Europe/London', numberFormat: '1,234.56' };
         setSettings(defaults);
+        setPendingSettings(defaults);
         localStorage.setItem('finscope_settings', JSON.stringify(defaults));
-        showToast('Settings reset');
+        showToast('Settings reset to defaults');
     };
-
-    const Toggle = ({ checked, onChange }) => (
-        <label className="toggle-switch">
-            <input type="checkbox" checked={checked} onChange={e => onChange(e.target.checked)} />
-            <span className="toggle-slider" />
-        </label>
-    );
 
     const sections = [
         { id: 'regional', label: 'Regional', icon: 'M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9' },
@@ -194,35 +285,67 @@ const Settings = () => {
                 <div style={{
                     position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)',
                     backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center',
-                    justifyContent: 'center', zIndex: 1000,
+                    justifyContent: 'center', zIndex: 1000, padding: '20px',
                 }}>
                     <div style={{
                         background: 'linear-gradient(135deg, #0f1729 0%, #1a1535 100%)',
                         border: '1px solid rgba(59,130,246,0.2)', borderRadius: 20,
-                        padding: 32, width: '90%', maxWidth: 520,
+                        padding: 32, width: '90%', maxWidth: 540,
+                        maxHeight: '80vh', overflowY: 'auto',
                     }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-                            <h3 style={{ color: '#fff', fontSize: 17, fontWeight: 600, margin: 0 }}>Recent Login Activity</h3>
-                            <button onClick={() => setShowLoginHistory(false)} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.5)', cursor: 'pointer', fontSize: 20, lineHeight: 1 }}>✕</button>
+                            <div>
+                                <h3 style={{ color: '#fff', fontSize: 17, fontWeight: 700, margin: '0 0 4px' }}>Recent Login Activity</h3>
+                                <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 12, margin: 0 }}>Last 10 sign-in events for {user?.email}</p>
+                            </div>
+                            <button onClick={() => setShowLoginHistory(false)} style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, color: 'rgba(255,255,255,0.6)', cursor: 'pointer', fontSize: 18, lineHeight: 1, width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
                         </div>
-                        {loginHistory.length === 0
-                            ? <p style={{ color: 'rgba(255,255,255,0.4)', textAlign: 'center', padding: '20px 0', margin: 0 }}>No login history found</p>
-                            : loginHistory.map((entry, i) => (
-                                <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '11px 0', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+
+                        {loginHistory.length === 0 ? (
+                            <div style={{ textAlign: 'center', padding: '32px 0' }}>
+                                <div style={{ fontSize: 40, marginBottom: 12 }}>🔍</div>
+                                <p style={{ color: 'rgba(255,255,255,0.5)', margin: 0, fontSize: 14, fontWeight: 600 }}>No login history found</p>
+                                <p style={{ color: 'rgba(255,255,255,0.25)', margin: '6px 0 0', fontSize: 12 }}>Sign-in attempts will appear here once recorded</p>
+                            </div>
+                        ) : loginHistory.map((entry, i) => (
+                            <div key={i} style={{
+                                display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start',
+                                padding: '14px 0', borderBottom: '1px solid rgba(255,255,255,0.06)', gap: 12,
+                            }}>
+                                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+                                    <div style={{
+                                        width: 38, height: 38, borderRadius: 10, flexShrink: 0,
+                                        background: entry.success ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.12)',
+                                        border: `1px solid ${entry.success ? 'rgba(16,185,129,0.3)' : 'rgba(239,68,68,0.3)'}`,
+                                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                        color: entry.success ? '#34d399' : '#f87171', fontSize: 16, fontWeight: 700,
+                                    }}>
+                                        {entry.success ? '✓' : '✕'}
+                                    </div>
                                     <div>
-                                        <div style={{ fontSize: 13, color: entry.success ? '#34d399' : '#f87171', fontWeight: 600 }}>
-                                            {entry.success ? '✓ Successful' : '✕ Failed attempt'}
+                                        <div style={{ fontSize: 13, color: entry.success ? '#34d399' : '#f87171', fontWeight: 700 }}>
+                                            {entry.success ? 'Successful sign-in' : 'Failed attempt'}
                                         </div>
-                                        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>
+                                        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 3 }}>
                                             IP: {entry.ip_address || 'Unknown'}
                                         </div>
-                                    </div>
-                                    <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>
-                                        {entry.created_at ? new Date(entry.created_at).toLocaleString() : '—'}
+                                        {entry.user_agent && (
+                                            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)', marginTop: 2, maxWidth: 260, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                                {entry.user_agent}
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
-                            ))
-                        }
+                                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', flexShrink: 0, textAlign: 'right' }}>
+                                    {entry.created_at ? (
+                                        <>
+                                            <div>{formatDate(entry.created_at)}</div>
+                                            <div style={{ marginTop: 2 }}>{new Date(entry.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                                        </>
+                                    ) : '—'}
+                                </div>
+                            </div>
+                        ))}
                     </div>
                 </div>
             )}
@@ -278,9 +401,13 @@ const Settings = () => {
                                 <div className="setting-row">
                                     <div className="setting-info">
                                         <div className="setting-label">Currency</div>
-                                        <div className="setting-desc">Used across balances, transactions and reports</div>
+                                        <div className="setting-desc">Display currency for balances, transactions and reports</div>
                                     </div>
-                                    <select className="setting-select" value={settings.currency} onChange={e => updateSetting('currency', e.target.value)}>
+                                    <select
+                                        className="setting-select"
+                                        value={pendingSettings?.currency ?? settings.currency}
+                                        onChange={e => setPendingSettings(p => ({ ...p, currency: e.target.value }))}
+                                    >
                                         <option value="GBP">£ GBP — British Pound</option>
                                         <option value="USD">$ USD — US Dollar</option>
                                         <option value="EUR">€ EUR — Euro</option>
@@ -291,50 +418,106 @@ const Settings = () => {
                                         <option value="AUD">A$ AUD — Australian Dollar</option>
                                         <option value="CAD">C$ CAD — Canadian Dollar</option>
                                         <option value="CHF">Fr CHF — Swiss Franc</option>
+                                        <option value="CNY">¥ CNY — Chinese Yuan</option>
+                                        <option value="BRL">R$ BRL — Brazilian Real</option>
+                                        <option value="MXN">$ MXN — Mexican Peso</option>
+                                        <option value="SGD">S$ SGD — Singapore Dollar</option>
+                                        <option value="HKD">HK$ HKD — Hong Kong Dollar</option>
+                                        <option value="SEK">kr SEK — Swedish Krona</option>
+                                        <option value="NOK">kr NOK — Norwegian Krone</option>
+                                        <option value="DKK">kr DKK — Danish Krone</option>
+                                        <option value="PLN">zł PLN — Polish Zloty</option>
+                                        <option value="TRY">₺ TRY — Turkish Lira</option>
                                     </select>
                                 </div>
 
                                 <div className="setting-row">
                                     <div className="setting-info">
                                         <div className="setting-label">Date Format</div>
-                                        <div className="setting-desc">How dates appear in transactions and reports</div>
+                                        <div className="setting-desc">How dates appear in transactions and exported reports</div>
                                     </div>
-                                    <select className="setting-select" value={settings.dateFormat} onChange={e => updateSetting('dateFormat', e.target.value)}>
-                                        <option value="DD/MM/YYYY">DD/MM/YYYY</option>
-                                        <option value="MM/DD/YYYY">MM/DD/YYYY</option>
-                                        <option value="YYYY-MM-DD">YYYY-MM-DD</option>
-                                        <option value="DD.MM.YYYY">DD.MM.YYYY</option>
+                                    <select
+                                        className="setting-select"
+                                        value={pendingSettings?.dateFormat ?? settings.dateFormat}
+                                        onChange={e => setPendingSettings(p => ({ ...p, dateFormat: e.target.value }))}
+                                    >
+                                        <option value="DD/MM/YYYY">DD/MM/YYYY (UK)</option>
+                                        <option value="MM/DD/YYYY">MM/DD/YYYY (US)</option>
+                                        <option value="YYYY-MM-DD">YYYY-MM-DD (ISO)</option>
+                                        <option value="DD.MM.YYYY">DD.MM.YYYY (European)</option>
                                     </select>
                                 </div>
 
                                 <div className="setting-row">
                                     <div className="setting-info">
                                         <div className="setting-label">Time Zone</div>
-                                        <div className="setting-desc">Affects transaction timestamps</div>
+                                        <div className="setting-desc">Affects how transaction timestamps are displayed</div>
                                     </div>
-                                    <select className="setting-select" value={settings.timeZone} onChange={e => updateSetting('timeZone', e.target.value)}>
+                                    <select
+                                        className="setting-select"
+                                        value={pendingSettings?.timeZone ?? settings.timeZone}
+                                        onChange={e => setPendingSettings(p => ({ ...p, timeZone: e.target.value }))}
+                                    >
                                         <option value="Europe/London">London (GMT+0)</option>
                                         <option value="America/New_York">New York (EST)</option>
+                                        <option value="America/Chicago">Chicago (CST)</option>
+                                        <option value="America/Denver">Denver (MST)</option>
                                         <option value="America/Los_Angeles">Los Angeles (PST)</option>
                                         <option value="Europe/Paris">Paris (CET)</option>
                                         <option value="Europe/Berlin">Berlin (CET)</option>
+                                        <option value="Europe/Moscow">Moscow (MSK)</option>
                                         <option value="Asia/Riyadh">Riyadh (AST)</option>
                                         <option value="Asia/Dubai">Dubai (GST)</option>
+                                        <option value="Asia/Kolkata">Mumbai / Delhi (IST)</option>
+                                        <option value="Asia/Singapore">Singapore (SGT)</option>
+                                        <option value="Asia/Shanghai">Shanghai (CST)</option>
                                         <option value="Asia/Tokyo">Tokyo (JST)</option>
                                         <option value="Australia/Sydney">Sydney (AEST)</option>
+                                        <option value="Pacific/Auckland">Auckland (NZST)</option>
                                     </select>
                                 </div>
 
                                 <div className="setting-row">
                                     <div className="setting-info">
                                         <div className="setting-label">Number Format</div>
-                                        <div className="setting-desc">How large numbers are displayed</div>
+                                        <div className="setting-desc">Thousands separator and decimal style</div>
                                     </div>
-                                    <select className="setting-select" value={settings.numberFormat} onChange={e => updateSetting('numberFormat', e.target.value)}>
+                                    <select
+                                        className="setting-select"
+                                        value={pendingSettings?.numberFormat ?? settings.numberFormat}
+                                        onChange={e => setPendingSettings(p => ({ ...p, numberFormat: e.target.value }))}
+                                    >
                                         <option value="1,234.56">1,234.56 (UK / US)</option>
                                         <option value="1.234,56">1.234,56 (European)</option>
                                         <option value="1 234,56">1 234,56 (French)</option>
                                     </select>
+                                </div>
+
+                                <div style={{ marginTop: 28, paddingTop: 20, borderTop: '1px solid rgba(255,255,255,0.07)', display: 'flex', gap: 14, alignItems: 'center' }}>
+                                    <button
+                                        onClick={saveRegionalSettings}
+                                        disabled={savingRegional}
+                                        style={{
+                                            padding: '12px 32px',
+                                            background: 'linear-gradient(135deg, #3b82f6, #6366f1)',
+                                            border: 'none', borderRadius: 12,
+                                            color: '#fff', fontSize: 14, fontWeight: 700,
+                                            cursor: savingRegional ? 'not-allowed' : 'pointer',
+                                            opacity: savingRegional ? 0.6 : 1,
+                                            display: 'flex', alignItems: 'center', gap: 8,
+                                            boxShadow: '0 4px 16px rgba(59,130,246,0.3)',
+                                            transition: 'all 0.2s',
+                                        }}
+                                    >
+                                        {savingRegional ? (
+                                            <><div style={{ width: 16, height: 16, border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />Saving…</>
+                                        ) : (
+                                            <><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="16" height="16"><polyline points="20 6 9 17 4 12"/></svg>Save Settings</>
+                                        )}
+                                    </button>
+                                    <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.28)' }}>
+                                        Applied to all dates, amounts &amp; CSV exports
+                                    </span>
                                 </div>
                             </div>
                         )}
@@ -349,20 +532,7 @@ const Settings = () => {
                                             <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
                                         </svg>
                                     </div>
-                                    Privacy & Security
-                                </div>
-
-                                <div className="setting-row">
-                                    <div className="setting-info">
-                                        <div className="setting-label">Hide Balances</div>
-                                        <div className="setting-desc">Mask all balance amounts with •••• across the app</div>
-                                    </div>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                                        <span className={`status-badge ${settings.hideBalances ? 'enabled' : 'disabled'}`}>
-                                            {settings.hideBalances ? 'Hidden' : 'Visible'}
-                                        </span>
-                                        <Toggle checked={settings.hideBalances} onChange={v => updateSetting('hideBalances', v)} />
-                                    </div>
+                                    Privacy &amp; Security
                                 </div>
 
                                 <div className="setting-row">
@@ -388,7 +558,9 @@ const Settings = () => {
                                 <div className="setting-row">
                                     <div className="setting-info">
                                         <div className="setting-label">Export My Data</div>
-                                        <div className="setting-desc">Download your profile and transactions as a CSV file</div>
+                                        <div className="setting-desc">
+                                            Download your complete profile, financial summary, spending by category, and every transaction as a CSV file
+                                        </div>
                                     </div>
                                     <button className="setting-action-btn" onClick={handleExportCSV}>
                                         Download CSV
@@ -398,7 +570,7 @@ const Settings = () => {
                                 <div className="setting-row">
                                     <div className="setting-info">
                                         <div className="setting-label" style={{ color: '#f87171' }}>Delete Account</div>
-                                        <div className="setting-desc">Permanently remove your account and all data</div>
+                                        <div className="setting-desc">Permanently remove your account and all associated data</div>
                                     </div>
                                     <button className="setting-action-btn danger" onClick={handleDeleteAccount}>
                                         Delete Account
@@ -423,7 +595,7 @@ const Settings = () => {
                                 <div className="setting-row">
                                     <div className="setting-info">
                                         <div className="setting-label">Clear App Cache</div>
-                                        <div className="setting-desc">Remove locally stored data and reload from server</div>
+                                        <div className="setting-desc">Remove locally stored settings data</div>
                                     </div>
                                     <button className="setting-action-btn danger" onClick={() => {
                                         localStorage.removeItem('finscope_settings');
