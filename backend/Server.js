@@ -4,6 +4,10 @@ const cors = require('cors');
 const path = require('path');
 const contactRoutes = require('./routes/contact');
 const termsRoutes = require('./routes/terms');
+const claudeRoutes = require('./routes/claude');
+
+
+
 
 const app = express();
 const PORT = process.env.PORT || 5173;
