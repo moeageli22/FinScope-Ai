@@ -181,7 +181,7 @@ const HelpAIChat = () => {
                 </div>
                 <div>
                     <h2 className="help-ai-title">Ask FinScope AI</h2>
-                    <p className="help-ai-subtitle">Powered by Claude · get instant answers</p>
+                    <p className="help-ai-subtitle">Powered by Claude - get instant answers</p>
                 </div>
                 <div className="help-ai-live-badge">
                     <span className="help-ai-live-dot" />
