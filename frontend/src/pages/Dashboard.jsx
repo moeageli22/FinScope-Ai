@@ -15,6 +15,7 @@ import { sendMessage } from '../services/claudeAI';
 import './Dashboard-Enhanced.css';
 import './DashboardReal.css';
 
+
 import spotifyLogo from '../assets/logos/spotify.png';
 import netflixLogo from '../assets/logos/netflix.png';
 import coffeeLogo from '../assets/logos/coffee.png';
@@ -27,6 +28,7 @@ import ubereatsLogo from '../assets/logos/uber.webp';
 import uberLogo from '../assets/logos/uberr.webp';
 import youtubeLogo from '../assets/logos/youtube.jpg';
 import nikeLogo from '../assets/logos/nike.webp';
+
 
 const logoMap = {
     spotify: spotifyLogo, netflix: netflixLogo, coffee: coffeeLogo, electronics: electronicsLogo,
