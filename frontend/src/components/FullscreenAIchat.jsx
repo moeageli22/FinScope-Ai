@@ -1,5 +1,7 @@
 // src/components/FullscreenAIChat.jsx
-// Desktop-first redesign + mobile keyboard performance fix (uncontrolled input)
+// ⚡ MOBILE PERF FIX: ChatInput is a fully isolated component.
+//    It owns its own state. Typing NEVER causes the parent to re-render.
+//    Enter key and send button both work correctly.
 import React, { useState, useEffect, useRef, useMemo, useCallback, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { sendMessage } from '../services/claudeAI';
@@ -24,12 +26,16 @@ const MiniOrb = memo(({ size = 40 }) => (
 /* ─────────────────────────────────────────
    CHART COLOURS
 ───────────────────────────────────────── */
-const CAT_COLORS = {Groceries:'#3b82f6',Subscriptions:'#8b5cf6',Shopping:'#a78bfa',Transport:'#06b6d4',Dining:'#f59e0b',Bills:'#ef4444',Health:'#10b981',Entertainment:'#ec4899',Education:'#f97316',Other:'#6b7280'};
-const FALLBACK   = ['#3b82f6','#8b5cf6','#06b6d4','#f59e0b','#ef4444','#10b981','#ec4899','#f97316','#a78bfa','#6b7280'];
-const catColor   = (name, i) => CAT_COLORS[name] || FALLBACK[i % FALLBACK.length];
+const CAT_COLORS = {
+    Groceries:'#3b82f6', Subscriptions:'#8b5cf6', Shopping:'#a78bfa',
+    Transport:'#06b6d4', Dining:'#f59e0b', Bills:'#ef4444',
+    Health:'#10b981', Entertainment:'#ec4899', Education:'#f97316', Other:'#6b7280'
+};
+const FALLBACK = ['#3b82f6','#8b5cf6','#06b6d4','#f59e0b','#ef4444','#10b981','#ec4899','#f97316','#a78bfa','#6b7280'];
+const catColor = (name, i) => CAT_COLORS[name] || FALLBACK[i % FALLBACK.length];
 
 /* ─────────────────────────────────────────
-   INLINE CHARTS  (all memoized)
+   CHARTS
 ───────────────────────────────────────── */
 const DonutChart = memo(({ data, total }) => {
     const [hov, setHov] = useState(null);
@@ -43,7 +49,8 @@ const DonutChart = memo(({ data, total }) => {
                     const cl=catColor(s.name,i), hl=hov===s.name;
                     return <circle key={s.name} cx="60" cy="60" r={r} fill="none" stroke={cl}
                                    strokeWidth={hl?12:8} strokeDasharray={`${dash} ${C-dash}`} strokeDashoffset={-cur}
-                                   strokeLinecap="round" style={{transition:'stroke-width .2s',cursor:'pointer',filter:hl?`drop-shadow(0 0 6px ${cl})`:'none'}}
+                                   strokeLinecap="round"
+                                   style={{transition:'stroke-width .2s',cursor:'pointer',filter:hl?`drop-shadow(0 0 6px ${cl})`:'none'}}
                                    onMouseEnter={()=>setHov(s.name)} onMouseLeave={()=>setHov(null)}/>;
                 })}
                 <text x="60" y="56" textAnchor="middle" fill="#fff" fontSize="14" fontWeight="800" fontFamily="Sora,system-ui">
@@ -55,18 +62,15 @@ const DonutChart = memo(({ data, total }) => {
                 </text>
             </svg>
             <div className="fsc-chart-legend">
-                {data.map((s,i) => {
-                    const cl=catColor(s.name,i);
-                    return (
-                        <div key={s.name} className={`fsc-legend-row${hov===s.name?' hovered':''}`}
-                             onMouseEnter={()=>setHov(s.name)} onMouseLeave={()=>setHov(null)}>
-                            <span className="fsc-legend-dot" style={{background:cl}}/>
-                            <span className="fsc-legend-name">{s.name}</span>
-                            <span className="fsc-legend-val">${s.amount.toFixed(2)}</span>
-                            <span className="fsc-legend-pct">{((s.amount/total)*100).toFixed(0)}%</span>
-                        </div>
-                    );
-                })}
+                {data.map((s,i) => (
+                    <div key={s.name} className={`fsc-legend-row${hov===s.name?' hovered':''}`}
+                         onMouseEnter={()=>setHov(s.name)} onMouseLeave={()=>setHov(null)}>
+                        <span className="fsc-legend-dot" style={{background:catColor(s.name,i)}}/>
+                        <span className="fsc-legend-name">{s.name}</span>
+                        <span className="fsc-legend-val">${s.amount.toFixed(2)}</span>
+                        <span className="fsc-legend-pct">{((s.amount/total)*100).toFixed(0)}%</span>
+                    </div>
+                ))}
             </div>
         </div>
     );
@@ -76,18 +80,15 @@ const BarChart = memo(({ data }) => {
     const mx = Math.max(...data.map(d=>d.amount), 1);
     return (
         <div className="fsc-chart-bars">
-            {data.map((s,i) => {
-                const cl=catColor(s.name,i);
-                return (
-                    <div key={s.name} className="fsc-bar-row">
-                        <span className="fsc-bar-label">{s.name}</span>
-                        <div className="fsc-bar-track">
-                            <div className="fsc-bar-fill" style={{background:`linear-gradient(90deg,${cl},${cl}bb)`,width:`${(s.amount/mx)*100}%`}}/>
-                        </div>
-                        <span className="fsc-bar-val">${s.amount.toFixed(2)}</span>
+            {data.map((s,i) => (
+                <div key={s.name} className="fsc-bar-row">
+                    <span className="fsc-bar-label">{s.name}</span>
+                    <div className="fsc-bar-track">
+                        <div className="fsc-bar-fill" style={{background:`linear-gradient(90deg,${catColor(s.name,i)},${catColor(s.name,i)}bb)`,width:`${(s.amount/mx)*100}%`}}/>
                     </div>
-                );
-            })}
+                    <span className="fsc-bar-val">${s.amount.toFixed(2)}</span>
+                </div>
+            ))}
         </div>
     );
 });
@@ -98,8 +99,8 @@ const TrendChart = memo(({ transactions }) => {
     const pts = transactions.map((t,i)=>{ run+=t.amount; return {i,cum:run,name:t.name,amount:t.amount}; });
     const W=400,H=160,P={t:20,r:16,b:28,l:50};
     const cW=W-P.l-P.r, cH=H-P.t-P.b, mx=Math.max(...pts.map(p=>p.cum),1), n=pts.length;
-    const xO = i => P.l + (n===1 ? cW/2 : (i/(n-1))*cW);
-    const yO = v => P.t + cH - (v/mx)*cH;
+    const xO = i => P.l+(n===1?cW/2:(i/(n-1))*cW);
+    const yO = v => P.t+cH-(v/mx)*cH;
     const line = pts.map((p,i)=>`${xO(i)},${yO(p.cum)}`).join(' ');
     const area = `M${xO(0)},${yO(pts[0].cum)} `+pts.slice(1).map((p,i)=>`L${xO(i+1)},${yO(p.cum)}`).join(' ')+` L${xO(n-1)},${P.t+cH} L${xO(0)},${P.t+cH} Z`;
     return (
@@ -140,7 +141,7 @@ const TrendChart = memo(({ transactions }) => {
 });
 
 const GaugeChart = memo(({ totalSpent, startingBalance, categoryData }) => {
-    const pct = startingBalance>0 ? Math.min((totalSpent/startingBalance)*100,100) : 0;
+    const pct = startingBalance>0?Math.min((totalSpent/startingBalance)*100,100):0;
     const rem = startingBalance-totalSpent;
     const gc = pct>80?'#ef4444':pct>50?'#f59e0b':'#10b981';
     const circ=Math.PI*50, dash=(pct/100)*circ;
@@ -192,7 +193,7 @@ const DashboardChart = memo(({ transactions, totalSpent, startingBalance, balanc
     return (
         <div className="fsc-dashboard-inline">
             {section('🍩','Spending by Category', <DonutChart data={catData} total={totalSpent}/>)}
-            {transactions.length>=2 && section('📈','Spending Trend', <TrendChart transactions={transactions}/>)}
+            {transactions.length>=2&&section('📈','Spending Trend', <TrendChart transactions={transactions}/>)}
             {section('📊','Category Breakdown', <BarChart data={catData}/>)}
             {section('🎯','Budget Health', <GaugeChart totalSpent={totalSpent} startingBalance={startingBalance} categoryData={catData}/>)}
         </div>
@@ -205,9 +206,9 @@ const DashboardChart = memo(({ transactions, totalSpent, startingBalance, balanc
 const CHART_KW = ['chart','graph','dashboard','visuali','donut','pie','bar chart','trend','show me','draw','plot','breakdown','generate','make a','budget gauge','visual'];
 const isChartReq = m => CHART_KW.some(k=>m.toLowerCase().includes(k));
 const detectType = m => {
-    const l = m.toLowerCase();
-    if(l.includes('donut')||l.includes('pie'))  return 'donut';
-    if(l.includes('bar'))                        return 'bar';
+    const l=m.toLowerCase();
+    if(l.includes('donut')||l.includes('pie')) return 'donut';
+    if(l.includes('bar'))                       return 'bar';
     if(l.includes('trend')||l.includes('line')||l.includes('over time')) return 'trend';
     if(l.includes('gauge')||l.includes('health')||l.includes('50/30'))   return 'gauge';
     return 'dashboard';
@@ -233,32 +234,7 @@ const BubbleText = memo(({ text }) => (
 ));
 
 /* ─────────────────────────────────────────
-   SEND BUTTON — isolated component
-   Subscribes to input changes via static ref
-   so it can update without re-rendering parent
-───────────────────────────────────────── */
-const SendButton = memo(({ onSend, typing }) => {
-    const [hasText, setHasText] = useState(false);
-    useEffect(() => {
-        SendButton._notify = setHasText;
-        return () => { SendButton._notify = null; };
-    }, []);
-    const active = hasText && !typing;
-    return (
-        <button onClick={onSend} disabled={!active} aria-label="Send" className="fsc-send-btn">
-            <div className="fsc-send-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                    <polygon points="22 2 15 22 11 13 2 9 22 2" fill="white" opacity={active?'1':'0.4'}/>
-                    <line x1="22" y1="2" x2="11" y2="13" stroke="white" strokeWidth="1.5" opacity={active?'1':'0.4'}/>
-                </svg>
-            </div>
-        </button>
-    );
-});
-
-/* ─────────────────────────────────────────
-   MESSAGE LIST — memoized so it never
-   re-renders when user is just typing
+   MESSAGE LIST — never re-renders on typing
 ───────────────────────────────────────── */
 const MessageList = memo(({ messages, typing, renderChart }) => (
     <>
@@ -273,9 +249,7 @@ const MessageList = memo(({ messages, typing, renderChart }) => (
                         </div>
                         {m.chart && (
                             <div className="fsc-chart-container">
-                                <div className="fsc-chart-badge">
-                                    📊 AI Generated {CHART_LABELS[m.chart]||'Chart'}
-                                </div>
+                                <div className="fsc-chart-badge">📊 AI Generated {CHART_LABELS[m.chart]||'Chart'}</div>
                                 {renderChart(m.chart)}
                             </div>
                         )}
@@ -295,6 +269,68 @@ const MessageList = memo(({ messages, typing, renderChart }) => (
 ));
 
 /* ═══════════════════════════════════════════════════════
+   CHAT INPUT — fully self-contained isolated component
+   -------------------------------------------------------
+   This is the KEY fix for iPhone keyboard lag.
+
+   By making this its own component with its own useState,
+   typing only re-renders THIS tiny component (input + button).
+   The massive parent (MessageList, charts, sidebar) never
+   re-renders while the user types. Enter key works correctly
+   because onSend is stored in a ref so it never goes stale.
+═══════════════════════════════════════════════════════ */
+const ChatInput = memo(({ onSendRef, disabled }) => {
+    const [text, setText] = useState('');
+
+    const handleSend = () => {
+        const msg = text.trim();
+        if (!msg || disabled) return;
+        setText('');                  // clear immediately — feels instant
+        onSendRef.current?.(msg);    // call parent send with the message
+    };
+
+    const handleKey = (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            handleSend();
+        }
+    };
+
+    const active = text.trim().length > 0 && !disabled;
+
+    return (
+        <div className="fsc-input-area">
+            <input
+                value={text}
+                onChange={e => setText(e.target.value)}
+                onKeyDown={handleKey}
+                placeholder="Ask anything or say 'show me a chart'..."
+                disabled={disabled}
+                autoComplete="off"
+                autoCorrect="off"
+                autoCapitalize="sentences"
+                spellCheck="false"
+                enterKeyHint="send"
+                className="fsc-input"
+            />
+            <button
+                onClick={handleSend}
+                disabled={!active}
+                aria-label="Send"
+                className="fsc-send-btn"
+            >
+                <div className="fsc-send-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                        <polygon points="22 2 15 22 11 13 2 9 22 2" fill="white" opacity={active?'1':'0.4'}/>
+                        <line x1="22" y1="2" x2="11" y2="13" stroke="white" strokeWidth="1.5" opacity={active?'1':'0.4'}/>
+                    </svg>
+                </div>
+            </button>
+        </div>
+    );
+});
+
+/* ═══════════════════════════════════════════════════════
    MAIN COMPONENT
 ═══════════════════════════════════════════════════════ */
 const FullscreenAIChat = ({ open, onClose, transactions=[], balance=0, totalSpent=0, startingBalance=0 }) => {
@@ -302,26 +338,26 @@ const FullscreenAIChat = ({ open, onClose, transactions=[], balance=0, totalSpen
     const [messages, setMessages] = useState([]);
     const [typing,   setTyping]   = useState(false);
     const [menuOpen, setMenuOpen] = useState(false);
-    const chatRef = useRef(null);
-    // PERF FIX: uncontrolled input — no useState for the input value
-    const inputRef = useRef(null);
+    const chatRef  = useRef(null);
     const menuRef  = useRef(null);
+    // Stable ref so ChatInput never needs re-rendering when send changes
+    const onSendRef = useRef(null);
 
     /* lock body scroll */
     useEffect(() => {
         if (!open) return;
         const scrollY = window.scrollY;
-        document.body.style.overflow = 'hidden';
-        document.body.style.position = 'fixed';
-        document.body.style.top      = `-${scrollY}px`;
-        document.body.style.left     = '0';
-        document.body.style.right    = '0';
+        document.body.style.overflow  = 'hidden';
+        document.body.style.position  = 'fixed';
+        document.body.style.top       = `-${scrollY}px`;
+        document.body.style.left      = '0';
+        document.body.style.right     = '0';
         return () => {
-            document.body.style.overflow = '';
-            document.body.style.position = '';
-            document.body.style.top      = '';
-            document.body.style.left     = '';
-            document.body.style.right    = '';
+            document.body.style.overflow  = '';
+            document.body.style.position  = '';
+            document.body.style.top       = '';
+            document.body.style.left      = '';
+            document.body.style.right     = '';
             window.scrollTo(0, scrollY);
         };
     }, [open]);
@@ -336,14 +372,12 @@ const FullscreenAIChat = ({ open, onClose, transactions=[], balance=0, totalSpen
 
     /* welcome message */
     useEffect(() => {
-        if (!open) return;
-        if (messages.length === 0) {
-            const hasData = transactions.length > 0;
-            setMessages([{ id: 1, role: 'ai', text: hasData
-                    ? `Hello! 👋 I'm FinScope AI, created by Mr. Mohammed Ageli.\n\nI can see ${transactions.length} transaction${transactions.length!==1?'s':''} totaling $${totalSpent.toFixed(2)}.\n\nAsk me anything — or pick a quick action from the sidebar!`
-                    : `Hello! 👋 I'm FinScope AI, created by Mr. Mohammed Ageli.\n\nAdd some expenses first, then I can analyze your spending and generate interactive charts!`
-            }]);
-        }
+        if (!open || messages.length > 0) return;
+        const hasData = transactions.length > 0;
+        setMessages([{ id: 1, role: 'ai', text: hasData
+                ? `Hello! 👋 I'm FinScope AI, created by Mr. Mohammed Ageli.\n\nI can see ${transactions.length} transaction${transactions.length!==1?'s':''} totaling $${totalSpent.toFixed(2)}.\n\nAsk me anything — or pick a quick action from the sidebar!`
+                : `Hello! 👋 I'm FinScope AI, created by Mr. Mohammed Ageli.\n\nAdd some expenses first, then I can analyze your spending and generate interactive charts!`
+        }]);
     }, [open]);
 
     /* auto-scroll */
@@ -362,18 +396,13 @@ const FullscreenAIChat = ({ open, onClose, transactions=[], balance=0, totalSpen
     /* category data */
     const catData = useMemo(() => {
         const t = {};
-        transactions.forEach(x => { t[x.category] = (t[x.category]||0) + x.amount; });
+        transactions.forEach(x => { t[x.category]=(t[x.category]||0)+x.amount; });
         return Object.entries(t).sort((a,b)=>b[1]-a[1]).map(([name,amount])=>({name,amount}));
     }, [transactions]);
 
-    /* ── SEND — reads from DOM ref, never from state ── */
-    const send = useCallback(async (overrideText) => {
-        const msg = (overrideText ?? inputRef.current?.value ?? '').trim();
-        if (!msg || typing) return;
-        if (inputRef.current) {
-            inputRef.current.value = '';
-            if (SendButton._notify) SendButton._notify(false);
-        }
+    /* ── SEND — kept in a ref so ChatInput never needs to see it as a prop ── */
+    const send = useCallback(async (msg) => {
+        if (!msg?.trim() || typing) return;
         setMessages(p => [...p, { id: Date.now(), role: 'user', text: msg }]);
         setTyping(true);
         const isChart = isChartReq(msg);
@@ -400,30 +429,18 @@ const FullscreenAIChat = ({ open, onClose, transactions=[], balance=0, totalSpen
         setTyping(false);
     }, [typing, transactions, balance, totalSpent, startingBalance]);
 
-    const handleKeyDown = useCallback((e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            send();
-        }
-    }, [send]);
-
-    /* Only updates the isolated SendButton — zero parent re-renders */
-    const handleInputChange = useCallback(() => {
-        const val = inputRef.current?.value ?? '';
-        if (SendButton._notify) SendButton._notify(val.trim().length > 0);
-    }, []);
+    // Keep the ref always pointing to the latest send function
+    onSendRef.current = send;
 
     const renderChart = useCallback((ct) => {
         if (!transactions.length) return null;
         if (ct==='donut')     return <DonutChart data={catData} total={totalSpent}/>;
         if (ct==='bar')       return <BarChart data={catData}/>;
-        if (ct==='trend')     return transactions.length>=2 ? <TrendChart transactions={transactions}/> : <BarChart data={catData}/>;
+        if (ct==='trend')     return transactions.length>=2?<TrendChart transactions={transactions}/>:<BarChart data={catData}/>;
         if (ct==='gauge')     return <GaugeChart totalSpent={totalSpent} startingBalance={startingBalance} categoryData={catData}/>;
         if (ct==='dashboard') return <DashboardChart transactions={transactions} totalSpent={totalSpent} startingBalance={startingBalance} balance={balance}/>;
         return null;
     }, [transactions, catData, totalSpent, startingBalance, balance]);
-
-    const sendChip = useCallback((p) => send(p), [send]);
 
     const chips = useMemo(() => [
         { e:'📊', l:'Full dashboard',  p:'Show me a full dashboard with all my spending charts' },
@@ -440,7 +457,7 @@ const FullscreenAIChat = ({ open, onClose, transactions=[], balance=0, totalSpen
         { icon:'◀',  label:'Go Back',   sub:'Previous page',       action:()=>{ navigate(-1);           onClose(); setMenuOpen(false); } },
     ], [navigate, onClose]);
 
-    const budgetUsed = startingBalance > 0 ? ((totalSpent/startingBalance)*100).toFixed(0) : 0;
+    const budgetUsed = startingBalance>0?((totalSpent/startingBalance)*100).toFixed(0):0;
 
     if (!open) return null;
 
@@ -448,46 +465,36 @@ const FullscreenAIChat = ({ open, onClose, transactions=[], balance=0, totalSpen
         <div className="fsc-overlay" onClick={onClose}>
             <div className="fsc-modal" onClick={e=>e.stopPropagation()}>
 
-                {/* ══════════════ LEFT SIDEBAR (desktop only) ══════════════ */}
+                {/* ── SIDEBAR (desktop only) ── */}
                 <aside className="fsc-sidebar">
                     <div className="fsc-sidebar-identity">
-                        <div className="fsc-sidebar-orb-ring">
-                            <MiniOrb size={68}/>
-                        </div>
+                        <div className="fsc-sidebar-orb-ring"><MiniOrb size={68}/></div>
                         <h2 className="fsc-sidebar-title">FinScope AI</h2>
                         <span className="fsc-sidebar-sub">Personal finance assistant<br/>by Mr. Mohammed Ageli</span>
-                        <div className="fsc-live-badge">
-                            <span className="fsc-live-dot"/>
-                            LIVE AI
-                        </div>
+                        <div className="fsc-live-badge"><span className="fsc-live-dot"/>LIVE AI</div>
                     </div>
 
                     {transactions.length > 0 && (
                         <div className="fsc-sidebar-stats">
                             <div className="fsc-sidebar-section-label">Account Overview</div>
-                            <div className="fsc-stat-card">
-                                <span className="fsc-stat-label">Balance</span>
-                                <span className="fsc-stat-val green">${balance.toFixed(2)}</span>
-                            </div>
-                            <div className="fsc-stat-card">
-                                <span className="fsc-stat-label">Total Spent</span>
-                                <span className="fsc-stat-val red">${totalSpent.toFixed(2)}</span>
-                            </div>
-                            <div className="fsc-stat-card">
-                                <span className="fsc-stat-label">Transactions</span>
-                                <span className="fsc-stat-val">{transactions.length}</span>
-                            </div>
-                            <div className="fsc-stat-card">
-                                <span className="fsc-stat-label">Budget Used</span>
-                                <span className="fsc-stat-val">{budgetUsed}%</span>
-                            </div>
+                            {[
+                                { label:'Balance',      val:`$${balance.toFixed(2)}`,    cls:'green' },
+                                { label:'Total Spent',  val:`$${totalSpent.toFixed(2)}`, cls:'red'   },
+                                { label:'Transactions', val:`${transactions.length}`,    cls:''      },
+                                { label:'Budget Used',  val:`${budgetUsed}%`,            cls:''      },
+                            ].map(s => (
+                                <div key={s.label} className="fsc-stat-card">
+                                    <span className="fsc-stat-label">{s.label}</span>
+                                    <span className={`fsc-stat-val${s.cls?' '+s.cls:''}`}>{s.val}</span>
+                                </div>
+                            ))}
                         </div>
                     )}
 
                     <div className="fsc-sidebar-chips">
                         <div className="fsc-sidebar-section-label">Quick Actions</div>
                         {chips.map((c,i) => (
-                            <button key={i} disabled={typing} onClick={()=>sendChip(c.p)} className="fsc-sidebar-chip">
+                            <button key={i} disabled={typing} onClick={()=>send(c.p)} className="fsc-sidebar-chip">
                                 <span className="fsc-sidebar-chip-emoji">{c.e}</span>
                                 <span>{c.l}</span>
                             </button>
@@ -510,7 +517,7 @@ const FullscreenAIChat = ({ open, onClose, transactions=[], balance=0, totalSpen
                     </div>
                 </aside>
 
-                {/* ══════════════ HEADER ══════════════ */}
+                {/* ── HEADER ── */}
                 <header className="fsc-header">
                     <div className="fsc-header-left">
                         <MiniOrb size={36}/>
@@ -519,14 +526,14 @@ const FullscreenAIChat = ({ open, onClose, transactions=[], balance=0, totalSpen
                             <span className="fsc-subtitle">Ask me anything about your finances</span>
                         </div>
                         <div className="fsc-live-badge" style={{marginLeft:8}}>
-                            <span className="fsc-live-dot"/>
-                            LIVE AI
+                            <span className="fsc-live-dot"/>LIVE AI
                         </div>
                     </div>
                     <div className="fsc-header-actions">
+                        {/* Mobile hamburger */}
                         <div className="fsc-ham-wrap" ref={menuRef}>
                             <button className={`fsc-ham-btn${menuOpen?' open':''}`} onClick={()=>setMenuOpen(o=>!o)} aria-label="Menu">
-                                {menuOpen ? '✕' : '☰'}
+                                {menuOpen?'✕':'☰'}
                             </button>
                             {menuOpen && (
                                 <div className="fsc-ham-dropdown">
@@ -542,7 +549,7 @@ const FullscreenAIChat = ({ open, onClose, transactions=[], balance=0, totalSpen
                                         </button>
                                     ))}
                                     <div className="fsc-ham-divider"/>
-                                    <button className="fsc-ham-item" onClick={()=>{ onClose(); setMenuOpen(false); }}>
+                                    <button className="fsc-ham-item" onClick={()=>{onClose();setMenuOpen(false);}}>
                                         <span className="fsc-ham-icon fsc-ham-icon--red">✕</span>
                                         <div className="fsc-ham-item-text">
                                             <span className="fsc-ham-item-label" style={{color:'#ef4444'}}>Close Chat</span>
@@ -561,67 +568,44 @@ const FullscreenAIChat = ({ open, onClose, transactions=[], balance=0, totalSpen
                     </div>
                 </header>
 
-                {/* ══════════════ MOBILE STATS BAR ══════════════ */}
+                {/* ── MOBILE STATS BAR ── */}
                 {transactions.length > 0 && (
                     <div className="fsc-stats-bar">
                         {[
-                            { label:'Balance',     val:`$${balance.toFixed(2)}`,    cls:'' },
-                            { label:'Spent',       val:`$${totalSpent.toFixed(2)}`, cls:'red' },
-                            { label:'Txns',        val:`${transactions.length}`,    cls:'' },
-                            { label:'Budget Used', val:`${budgetUsed}%`,            cls:'' },
+                            {label:'Balance',     val:`$${balance.toFixed(2)}`,    cls:''},
+                            {label:'Spent',       val:`$${totalSpent.toFixed(2)}`, cls:'red'},
+                            {label:'Txns',        val:`${transactions.length}`,    cls:''},
+                            {label:'Budget Used', val:`${budgetUsed}%`,            cls:''},
                         ].map((s,i) => (
                             <React.Fragment key={s.label}>
-                                {i>0 && <div className="fsc-stat-sep"/>}
+                                {i>0&&<div className="fsc-stat-sep"/>}
                                 <div className="fsc-stat">
                                     <span className="fsc-stat-label">{s.label}</span>
-                                    <span className={`fsc-stat-val${s.cls?' fsc-stat-'+s.cls:''}`}>{s.val}</span>
+                                    <span className={`fsc-stat-val${s.cls?` fsc-stat-${s.cls}`:''}`}>{s.val}</span>
                                 </div>
                             </React.Fragment>
                         ))}
                     </div>
                 )}
 
-                {/* ══════════════ MESSAGES ══════════════ */}
+                {/* ── MESSAGES ── */}
                 <div className="fsc-messages-scroll" ref={chatRef}>
                     <MessageList messages={messages} typing={typing} renderChart={renderChart}/>
                 </div>
 
-                {/* ══════════════ MOBILE SUGGESTION CHIPS ══════════════ */}
+                {/* ── MOBILE SUGGESTION CHIPS ── */}
                 {messages.length <= 2 && (
                     <div className="fsc-suggestions">
                         {chips.map((c,i) => (
-                            <button key={i} disabled={typing} onClick={()=>sendChip(c.p)} className="fsc-suggestion">
+                            <button key={i} disabled={typing} onClick={()=>send(c.p)} className="fsc-suggestion">
                                 <span className="fsc-sug-emoji">{c.e}</span><span>{c.l}</span>
                             </button>
                         ))}
                     </div>
                 )}
 
-                {/* ══════════════ INPUT BAR ══════════════ */}
-                {/*
-                    ⚡ KEYBOARD PERFORMANCE NOTE:
-                    This input is UNCONTROLLED — no value= prop, no onChange= state setter.
-                    Typing never triggers a React re-render of FullscreenAIChat or any of its
-                    children (MessageList, charts, sidebar, etc.).
-                    The SendButton is a separate isolated component that updates only itself
-                    via a static callback ref. This eliminates the iPhone keyboard lag entirely.
-                */}
-                <div className="fsc-input-area">
-                    <input
-                        ref={inputRef}
-                        onInput={handleInputChange}
-                        onKeyDown={handleKeyDown}
-                        placeholder="Ask anything or say 'show me a chart'..."
-                        disabled={typing}
-                        autoComplete="off"
-                        autoCorrect="off"
-                        autoCapitalize="sentences"
-                        spellCheck="false"
-                        enterKeyHint="send"
-                        className="fsc-input"
-                    />
-                    <SendButton onSend={send} typing={typing}/>
-                </div>
+                {/* ── INPUT BAR ── isolated component, typing never re-renders parent ── */}
+                <ChatInput onSendRef={onSendRef} disabled={typing}/>
 
             </div>
         </div>
@@ -649,14 +633,14 @@ const AIInsightsDashboard = ({ transactions=[], balance=0, totalSpent=0, startin
                 );
                 const parsed = r.split('\n').filter(l=>l.trim().length>5).slice(0,3).map((line,i) => {
                     const em = line.match(/^(\p{Emoji_Presentation}|\p{Emoji}\uFE0F?)/u);
-                    const emoji = em ? em[0] : ['💡','⚠️','🎯'][i];
+                    const emoji = em?em[0]:['💡','⚠️','🎯'][i];
                     const txt = line.replace(/^(\p{Emoji_Presentation}|\p{Emoji}\uFE0F?)\s*/u,'');
                     const ci = txt.indexOf(':');
                     return {
-                        id: Date.now()+i, emoji,
-                        title: ci>0 ? txt.slice(0,ci).trim() : `Insight ${i+1}`,
-                        body:  ci>0 ? txt.slice(ci+1).trim() : txt.trim(),
-                        type:  emoji.includes('⚠')?'warning':emoji.includes('🎯')?'goal':'tip',
+                        id:Date.now()+i, emoji,
+                        title:ci>0?txt.slice(0,ci).trim():`Insight ${i+1}`,
+                        body: ci>0?txt.slice(ci+1).trim():txt.trim(),
+                        type: emoji.includes('⚠')?'warning':emoji.includes('🎯')?'goal':'tip',
                     };
                 });
                 if (parsed.length) setInsights(parsed);
@@ -669,7 +653,7 @@ const AIInsightsDashboard = ({ transactions=[], balance=0, totalSpent=0, startin
 
     const shownInsights = insights.length
         ? insights
-        : [{ id:0, emoji:'✨', title:'Getting Started', body:"Add more expenses and I'll generate personalized insights for you.", type:'tip' }];
+        : [{id:0,emoji:'✨',title:'Getting Started',body:"Add more expenses and I'll generate personalized insights for you.",type:'tip'}];
 
     return (
         <div className="pm-insights-dash">
@@ -679,7 +663,7 @@ const AIInsightsDashboard = ({ transactions=[], balance=0, totalSpent=0, startin
                     <h3 className="pm-insights-title">AI Insights</h3>
                     <span className="pm-insights-sub">Powered by Claude</span>
                 </div>
-                {loading && <span className="pm-insights-loading">Analyzing…</span>}
+                {loading&&<span className="pm-insights-loading">Analyzing…</span>}
             </div>
             <div className="pm-insights-cards">
                 {shownInsights.map(ins => (

@@ -665,6 +665,15 @@
 }
 
 /* ══════════════════════════════
+   GLOBAL TOUCH OPTIMISATION
+   Removes 300ms tap delay on all interactive elements
+   ══════════════════════════════ */
+button, a, input, [role="button"] {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* ══════════════════════════════
    MOBILE (≤ 768px) — phone native
    Phone users NOT affected by desktop changes above
    ══════════════════════════════ */
@@ -850,15 +859,24 @@
         min-height: 46px;
         padding: 12px 15px;
         border-radius: 24px;
-        /* MUST be ≥16px to prevent iOS auto-zoom on focus */
+        /* MUST be ≥16px — prevents iOS Safari auto-zoom on focus */
         font-size: 16px;
-        /* will-change helps GPU-accelerate the input and reduces layout thrash */
-        will-change: contents;
-        /* Turn off iOS dark magic that slows composition */
+        /* Promote to its own GPU layer — eliminates compositing lag */
         -webkit-transform: translateZ(0);
         transform: translateZ(0);
+        /* Prevent iOS tap highlight flash on input focus */
+        -webkit-tap-highlight-color: transparent;
+        /* Smooth font rendering */
+        -webkit-font-smoothing: antialiased;
     }
-    .fsc-send-btn { width: 48px; height: 48px; min-width: 48px; }
+    .fsc-send-btn {
+        width: 48px;
+        height: 48px;
+        min-width: 48px;
+        /* Larger tap target feel without changing visual size */
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+    }
 
     /* Mobile charts */
     .fsc-chart-donut-wrap { flex-direction:column; align-items:center; padding:14px; }
