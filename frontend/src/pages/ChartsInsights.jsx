@@ -47,7 +47,7 @@ const ChartsInsights = () => {
         { name: 'Bills', amount: 592, percentage: 25, color: '#a855f7' }
     ];
 
-    // Calculate total for donut chart
+    // Calculate total for donut chartt
     const totalSpending = categoryData.reduce((sum, cat) => sum + cat.amount, 0);
 
     // Calculate donut segments
