@@ -75,7 +75,7 @@ const TypingMessage = () => {
                     display: flex;
                     justify-content: center;
                     width: 100%;
-                    margin-top: -70px;
+                    margin-top: -90px;
                     margin-bottom: 20px;
                     padding: 0 20px;
                     animation: tmFadeIn 0.8s ease forwards;
