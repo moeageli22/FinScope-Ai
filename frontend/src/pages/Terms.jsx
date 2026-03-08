@@ -12,7 +12,7 @@ const Terms = () => {
             console.log('Starting PDF download...');
 
             // Fetch the PDF from your backend API
-            const response = await fetch('http://localhost:5173/api/download-terms', {
+            const response = await fetch('http://localhost:3001/api/download-terms', {
                 method: 'GET',
                 headers: {
                     'Accept': 'application/pdf',
