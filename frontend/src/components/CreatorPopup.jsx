@@ -8,16 +8,8 @@ const CreatorPopup = () => {
     const [minimised, setMinimised] = useState(false);
 
     useEffect(() => {
-        const seen = sessionStorage.getItem('creator_popup_seen');
-        if (seen) {
-            // Already seen — show as minimised pill immediately, never auto-open
-            setMinimised(true);
-            return;
-        }
-        // First ever visit — mark it seen right away so navigating back won't re-trigger
-        sessionStorage.setItem('creator_popup_seen', '1');
-        const timer = setTimeout(() => setVisible(true), 2000);
-        return () => clearTimeout(timer);
+        // Always start as minimised pill — user must click to open
+        setMinimised(true);
     }, []);
 
     // X just minimises — never fully gone
@@ -99,7 +91,7 @@ const CreatorPopup = () => {
                     position: fixed;
                     bottom: 24px;
                     right: 24px;
-                    z-index: 9999;
+                    z-index: 100;
                     display: flex;
                     align-items: center;
                     gap: 10px;
@@ -144,7 +136,7 @@ const CreatorPopup = () => {
                     position: fixed;
                     bottom: 28px;
                     right: 28px;
-                    z-index: 9999;
+                    z-index: 100;
                     width: 320px;
                     opacity: 0;
                     transform: translateY(24px) scale(0.96);
@@ -192,7 +184,7 @@ const CreatorPopup = () => {
                     position: absolute;
                     top: -10px;
                     right: -10px;
-                    z-index: 10000;
+                    z-index: 101;
                     line-height: 0;
                 }
                 .cp-ctrl-btn {
