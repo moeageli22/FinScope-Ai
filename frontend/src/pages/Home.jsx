@@ -13,7 +13,9 @@ import LiveExchange from './LiveExchange.jsx';
 import UserMenu from '../components/UserMenu.jsx';
 import DashboardTutorial from '../components/DashboardTutorial.jsx';
 import LiveExchangeSection from '../components/LiveExchangeSection.jsx';
+import TypingMessage from '../components/TypingMessage.jsx';
 import { supabase } from '../config/supabase';
+
 
 function Home() {
     const navigate = useNavigate();
@@ -367,6 +369,8 @@ function Home() {
                     )}
                 </div>
 
+
+
                 <LiveExchange />
                 <Footer />
             </div>
@@ -596,6 +600,11 @@ function Home() {
                 <div className="ai-orb-container">
                     <FinScopeAI />
                 </div>
+
+                {/* Typing Message */}
+                <TypingMessage />
+
+                {/* Feature Cards */}
 
                 {/* Feature Cards */}
                 <div className="features-grid">
