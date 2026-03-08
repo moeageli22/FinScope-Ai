@@ -15,6 +15,7 @@ import DashboardTutorial from '../components/DashboardTutorial.jsx';
 import LiveExchangeSection from '../components/LiveExchangeSection.jsx';
 import TypingMessage from '../components/TypingMessage.jsx';
 import { supabase } from '../config/supabase';
+import CreatorPopup from '../components/CreatorPopup.jsx';
 
 
 function Home() {
@@ -648,6 +649,9 @@ function Home() {
 
             {/* Footer */}
             <Footer />
+
+            {/* Creator Popup */}
+            <CreatorPopup />
         </div>
     );
 }
