@@ -126,7 +126,7 @@ const ContactSection = () => {
                                 </div>
                                 <div className="contact-info-content">
                                     <h4>Business Email</h4>
-                                    <a href="mailto:Finscopeai@gmail.com">Finscopeai@gmail.com</a>
+                                    <a href="mailto:Finscopeai@gmail.com">Finscopeai301@gmail.com</a>
                                 </div>
                             </div>
 

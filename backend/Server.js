@@ -9,8 +9,9 @@ const claudeRoutes = require('./routes/claude');
 
 
 
+
 const app = express();
-const PORT = process.env.PORT || 5173;
+const PORT = process.env.PORT || 3001;
 
 // ===== MIDDLEWARE =====
 
@@ -62,6 +63,9 @@ app.use('/api', contactRoutes);
 
 // Terms & Conditions routes
 app.use('/api', termsRoutes);
+
+// Claude AI routes
+app.use('/api', claudeRoutes);
 
 // 404 handler - for routes that don't exist
 app.use((req, res) => {
