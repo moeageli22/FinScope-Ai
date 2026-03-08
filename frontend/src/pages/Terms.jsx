@@ -175,7 +175,7 @@ const Terms = () => {
                     <div className="terms-contact">
                         <h3>Contact Information</h3>
                         <p>For any questions, data requests, or privacy concerns, please contact us at:</p>
-                        <p><a href="mailto:finscopeai@gmail.com">finscopeai@gmail.com</a></p>
+                        <p><a href="mailto:finscopeai301@gmail.com">finscopeai@gmail.com</a></p>
                     </div>
 
                     <div className="terms-signature">
