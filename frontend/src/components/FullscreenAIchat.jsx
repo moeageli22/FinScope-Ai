@@ -424,7 +424,7 @@ const FullscreenAIChat = ({ open, onClose, transactions=[], balance=0, totalSpen
                 setMessages(p => [...p, { id: Date.now()+1, role: 'ai', text: r }]);
             }
         } catch {
-            setMessages(p => [...p, { id: Date.now()+1, role: 'ai', text: '⚠️ Something went wrong. Check your API key and try again.' }]);
+            setMessages(p => [...p, { id: Date.now()+1, role: 'ai', text: '⚠️ Experiencing issues with the AI feature? Your current network may be blocking the connection. Please try using a different Wi-Fi or mobile data.' }]);
         }
         setTyping(false);
     }, [typing, transactions, balance, totalSpent, startingBalance]);
